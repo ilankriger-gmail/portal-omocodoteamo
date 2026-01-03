@@ -26,14 +26,14 @@ const nextConfig = {
   // Configuração para evitar erros com banco de dados durante build
   staticPageGenerationTimeout: 0,
   output: 'standalone', // Recomendado para deploy em produção
+  // Configurar redirecionamento de barras no final
+  skipTrailingSlashRedirect: true,
   // Desabilitar geração estática para rotas que usam banco de dados
   // Isso garante que as páginas sejam renderizadas no servidor
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client'],
     // Usar fallback para páginas que falham durante build
     missingSuspenseWithCSRBailout: false,
-    // Ignorar erros de prerender
-    skipTrailingSlashRedirect: true,
   },
 };
 
