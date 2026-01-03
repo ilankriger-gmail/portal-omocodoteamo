@@ -1,0 +1,530 @@
+import { prisma } from "@/lib/prisma";
+import Link from "next/link";
+import Image from "next/image";
+import { Heart, Users, TrendingUp, ShieldAlert, HandHeart } from "lucide-react";
+import { isValidImageUrl } from "@/lib/utils";
+import type { Metadata } from "next";
+
+// Metadata para SEO
+export const metadata: Metadata = {
+  title: "Portal da Transparência | O Moço do Te Amo",
+  description: "Acompanhe em tempo real todas as doações, vaquinhas e campanhas sociais com total transparência. Veja como ajudar e participar.",
+  openGraph: {
+    title: "Portal da Transparência | O Moço do Te Amo",
+    description: "Acompanhe em tempo real todas as doações, vaquinhas e campanhas sociais com total transparência. Veja como ajudar e participar.",
+    type: "website",
+  },
+  keywords: ["transparência", "doações", "vaquinhas", "campanhas sociais", "O Moço do Te Amo", "ajuda humanitária"],
+};
+
+// Força a renderização dinâmica da página em cada acesso
+export const dynamic = 'force-dynamic';
+
+async function getData() {
+  try {
+    const [config, vaquinhas, vaquinhasApoiadas] = await Promise.all([
+      prisma.config.findFirst({
+        include: {
+          vaquinhaFixada: true, // Incluir campanha fixada se houver
+        },
+      }),
+      prisma.vaquinha.findMany({
+        where: { status: "ATIVA" },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.vaquinhaApoiada.findMany({
+        take: 4,
+      }),
+    ]);
+
+    let vaquinhaDestaque = null;
+    let vaquinhasSecundarias: typeof vaquinhas = [];
+
+    // Verificar se há campanha fixada
+    if (config?.vaquinhaFixada && config.vaquinhaFixada.status === "ATIVA") {
+      vaquinhaDestaque = config.vaquinhaFixada;
+      // Secundárias são as outras campanhas (excluindo a fixada)
+      vaquinhasSecundarias = vaquinhas
+        .filter((v) => v.id !== config.vaquinhaFixadaId)
+        .slice(0, 2);
+    } else {
+      // Sem campanha fixada: embaralhar aleatoriamente
+      const shuffledVaquinhas = [...vaquinhas];
+      const timestamp = new Date().getTime();
+      for (let i = shuffledVaquinhas.length - 1; i > 0; i--) {
+        const j = Math.floor((Math.random() * (i + 1)) + (timestamp % 10) / 10);
+        [shuffledVaquinhas[i], shuffledVaquinhas[j]] = [shuffledVaquinhas[j], shuffledVaquinhas[i]];
+      }
+      vaquinhaDestaque = shuffledVaquinhas.length > 0 ? shuffledVaquinhas[0] : null;
+      vaquinhasSecundarias = shuffledVaquinhas.slice(1, 3);
+    }
+
+    return { config, vaquinhaDestaque, vaquinhasSecundarias, vaquinhasApoiadas };
+  } catch (error) {
+    console.error('Erro ao carregar dados:', error);
+    return {
+      config: null,
+      vaquinhaDestaque: null,
+      vaquinhasSecundarias: [],
+      vaquinhasApoiadas: []
+    };
+  }
+}
+
+export default async function HomePage() {
+  const { config, vaquinhaDestaque, vaquinhasSecundarias, vaquinhasApoiadas } = await getData();
+  const progress = vaquinhaDestaque
+    ? Math.min((vaquinhaDestaque.valorAtual / vaquinhaDestaque.meta) * 100, 100)
+    : 0;
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-6">
+      {/* Banner Editável */}
+      {config?.bannerAtivo && (config?.bannerTexto || config?.bannerImageUrl) && (
+        config.bannerLink ? (
+          <a
+            href={config.bannerLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block mb-6 -mx-4 sm:mx-0"
+          >
+            {isValidImageUrl(config.bannerImageUrl) ? (
+              <div className="relative overflow-hidden sm:rounded-xl">
+                <div className="relative w-full aspect-auto">
+                  <Image
+                    src={config.bannerImageUrl}
+                    alt="Banner"
+                    width={2000}
+                    height={600}
+                    sizes="100vw"
+                    className="w-full hover:opacity-90 transition-opacity"
+                    priority
+                  />
+                </div>
+                {config.bannerTexto && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                    <p className="text-white font-bold text-lg sm:text-xl drop-shadow-lg text-center px-4">
+                      {config.bannerTexto}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-black border-y border-zinc-800 sm:border sm:rounded-xl py-4 px-6 text-center hover:bg-zinc-900/50 transition-colors">
+                <p className="text-white font-medium text-sm sm:text-base">
+                  {config.bannerTexto}
+                </p>
+              </div>
+            )}
+          </a>
+        ) : (
+          <div className="mb-6 -mx-4 sm:mx-0">
+            {isValidImageUrl(config.bannerImageUrl) ? (
+              <div className="relative overflow-hidden sm:rounded-xl">
+                <div className="relative w-full aspect-auto">
+                  <Image
+                    src={config.bannerImageUrl}
+                    alt="Banner"
+                    width={2000}
+                    height={600}
+                    sizes="100vw"
+                    className="w-full"
+                    priority
+                  />
+                </div>
+                {config.bannerTexto && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                    <p className="text-white font-bold text-lg sm:text-xl drop-shadow-lg text-center px-4">
+                      {config.bannerTexto}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-black border-y border-zinc-800 sm:border sm:rounded-xl py-4 px-6 text-center">
+                <p className="text-white font-medium text-sm sm:text-base">
+                  {config.bannerTexto}
+                </p>
+              </div>
+            )}
+          </div>
+        )
+      )}
+
+      {/* Profile Header - Estilo Personalizado */}
+      <div className="relative mb-6 p-4 bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl">
+        <div className="flex items-center gap-4">
+          {/* Avatar com efeito hexagonal */}
+          <div className="flex-shrink-0 relative">
+            {isValidImageUrl(config?.avatarUrl) ? (
+              <div className="w-16 h-16 overflow-hidden rounded-xl bg-zinc-800 shadow-lg transform rotate-3">
+                <div className="relative w-full h-full">
+                  <Image
+                    src={config.avatarUrl}
+                    alt="Avatar"
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="w-16 h-16 rounded-xl bg-zinc-800 flex items-center justify-center transform rotate-3 shadow-lg">
+                <Users className="w-8 h-8 text-zinc-600" />
+              </div>
+            )}
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+              <Heart size={12} className="text-white" fill="currentColor" />
+            </div>
+          </div>
+
+          {/* Info */}
+          <div className="flex-1">
+            <h1 className="text-xl font-bold text-white">O Moço do Te Amo</h1>
+            <p className="text-zinc-400 text-sm">Portal da Transparência</p>
+          </div>
+        </div>
+
+        {/* Action Buttons - Estilo Card */}
+        <div className="mt-4 flex gap-2">
+          <Link
+            href="/quem-somos"
+            className="flex-1 py-2 bg-zinc-800/60 hover:bg-zinc-700/70 text-white text-sm font-medium rounded-lg text-center transition-colors border border-zinc-700/50"
+          >
+            Quem Somos
+          </Link>
+          <Link
+            href="/participar"
+            className="flex-1 py-2 bg-zinc-800/60 hover:bg-zinc-700/70 text-white text-sm font-medium rounded-lg text-center transition-colors border border-zinc-700/50"
+          >
+            Envie seu Sonho
+          </Link>
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="border-t border-zinc-800 mb-6" />
+
+      {/* HEADLINE - MANCHETE DE JORNAL */}
+      <div className="mb-6">
+        <div className="flex items-center">
+          <div className="w-8 h-8 flex items-center justify-center bg-green-600 rounded-none">
+            <Heart className="w-4 h-4 text-white" fill="currentColor" />
+          </div>
+          <div className="ml-2 border-b-2 border-green-600 flex-1 pb-0.5 pr-2">
+            <h2 className="text-lg font-black uppercase text-white tracking-widest">
+              CAMPANHAS ATIVAS
+            </h2>
+          </div>
+        </div>
+      </div>
+
+      {/* MANCHETE PRINCIPAL - PRIMEIRA PÁGINA ESTILO JORNAL */}
+      {vaquinhaDestaque && (
+        <div className="mb-10 -mx-4 sm:mx-0">
+          <div className="bg-zinc-950 relative">
+            {/* Imagem Expandida de Manchete - Ocupando Toda Largura */}
+            {isValidImageUrl(vaquinhaDestaque.imagemUrl) ? (
+              <div className="relative w-full">
+                <div className="relative w-full h-[300px] sm:h-[350px]">
+                  <Image
+                    src={vaquinhaDestaque.imagemUrl}
+                    alt={vaquinhaDestaque.titulo}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 800px"
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+
+                {/* Gradiente forte para melhor legibilidade do texto */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/10" />
+
+                {/* Tarja de data - estilo jornal */}
+                <div className="absolute top-3 left-0 bg-green-600 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-wider">
+                  Campanha {vaquinhaDestaque.status === "ATIVA" ? "Ativa" : "Encerrada"}
+                </div>
+
+                {/* Indicador de vídeo */}
+                {vaquinhaDestaque.videoUrl && (
+                  <div className="absolute top-3 right-3 bg-black text-white text-[10px] font-bold px-2 py-1 flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    COM VÍDEO
+                  </div>
+                )}
+
+                {/* Título principal - estilo manchete de primeira página */}
+                <div className="absolute bottom-0 left-0 p-4 w-full">
+                  <h1 className="text-white text-2xl sm:text-3xl font-black uppercase leading-tight drop-shadow-lg mb-2">
+                    {vaquinhaDestaque.titulo}
+                  </h1>
+
+                  <div className="flex items-end justify-between">
+                    <div className="w-3/4">
+                      <p className="text-zinc-300 text-xs sm:text-sm mb-3 line-clamp-2 font-serif">
+                        {vaquinhaDestaque.descricao.substring(0, 180)}
+                        {vaquinhaDestaque.descricao.length > 180 ? "..." : ""}
+                      </p>
+                    </div>
+
+                    <div className="text-white text-xs">
+                      <div className="bg-green-600 px-2 py-1">
+                        <span className="font-bold">{Math.round(progress)}%</span> arrecadado
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Versão sem imagem */
+              <div className="p-4 bg-gradient-to-r from-zinc-900 to-zinc-950 border-b border-green-600">
+                <h1 className="text-white text-2xl font-black uppercase leading-tight mb-3 drop-shadow-lg">
+                  {vaquinhaDestaque.titulo}
+                </h1>
+                <p className="text-zinc-300 text-sm mb-3 line-clamp-3 font-serif">
+                  {vaquinhaDestaque.descricao.substring(0, 250)}
+                  {vaquinhaDestaque.descricao.length > 250 ? "..." : ""}
+                </p>
+              </div>
+            )}
+
+            <div className="p-4">
+              {/* Tabela de dados de arrecadação */}
+              <div className="grid grid-cols-2 gap-2 mb-4">
+                <div className="bg-zinc-900 p-3">
+                  <div className="text-white text-xs uppercase font-bold border-b border-zinc-700 pb-1 mb-1">Arrecadado</div>
+                  <div className="text-green-400 font-bold text-lg">R$ {vaquinhaDestaque.valorAtual.toLocaleString("pt-BR")}</div>
+                </div>
+                <div className="bg-zinc-900 p-3">
+                  <div className="text-white text-xs uppercase font-bold border-b border-zinc-700 pb-1 mb-1">Meta</div>
+                  <div className="text-zinc-300 font-bold text-lg">R$ {vaquinhaDestaque.meta.toLocaleString("pt-BR")}</div>
+                </div>
+              </div>
+
+              {/* Barra de progresso estilo jornal */}
+              <div className="relative h-6 bg-zinc-900 mb-4 border border-zinc-700">
+                <div
+                  className="h-full bg-green-600"
+                  style={{ width: `${progress}%` }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-white text-xs font-bold bg-black/50 px-2 py-0.5 rounded">
+                    {Math.round(progress)}% CONCLUÍDO
+                  </div>
+                </div>
+              </div>
+
+              <Link
+                href={`/vaquinhas/${vaquinhaDestaque.id}`}
+                className="block w-full py-3 bg-black border-2 border-green-600 hover:bg-green-600/10 text-white text-sm font-bold uppercase text-center tracking-wide transition-colors"
+              >
+                Leia mais e ajude
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Link para todas as campanhas */}
+      <div className="text-center mb-10">
+        <Link
+          href="/vaquinhas"
+          className="inline-flex items-center gap-2 bg-black border-2 border-green-600 hover:bg-green-600/10 px-4 py-2 text-white text-sm transition-colors"
+        >
+          VER TODAS AS CAMPANHAS
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </Link>
+      </div>
+
+      {/* ARTIGOS SECUNDÁRIOS (Estilo Jornal) */}
+      {vaquinhasSecundarias.length > 0 && (
+        <div className="mb-8">
+          <div className="border-b-2 border-zinc-800 mb-4">
+            <h3 className="text-sm font-bold uppercase text-white bg-zinc-800 inline-block px-2 py-1">
+              OUTRAS CAMPANHAS
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            {vaquinhasSecundarias.map((vaquinha, index) => {
+              const progress = Math.min((vaquinha.valorAtual / vaquinha.meta) * 100, 100);
+              return (
+                <Link
+                  key={vaquinha.id}
+                  href={`/vaquinhas/${vaquinha.id}`}
+                  className={`border-b border-zinc-800 pb-4 ${index === vaquinhasSecundarias.length - 1 ? 'border-b-0' : ''}`}
+                >
+                  <div className="flex gap-4">
+                    {/* Thumbnail pequena */}
+                    <div className="w-24 h-24 flex-shrink-0 bg-zinc-900 relative">
+                      {isValidImageUrl(vaquinha.imagemUrl) ? (
+                        <div className="relative w-full h-full">
+                          <Image
+                            src={vaquinha.imagemUrl}
+                            alt={vaquinha.titulo}
+                            fill
+                            sizes="96px"
+                            className="object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Heart className="w-8 h-8 text-green-600/30" />
+                        </div>
+                      )}
+
+                      {/* Indicador de vídeo */}
+                      {vaquinha.videoUrl && (
+                        <div className="absolute bottom-0 right-0 bg-green-600 w-5 h-5 flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1">
+                      <h3 className="text-white text-sm font-bold mb-1 line-clamp-2 hover:text-green-400 transition-colors">
+                        {vaquinha.titulo}
+                      </h3>
+
+                      <div className="flex justify-between text-xs text-zinc-400 mb-2">
+                        <span>Meta: R$ {vaquinha.meta.toLocaleString("pt-BR")}</span>
+                        <span>{Math.round(progress)}% arrecadado</span>
+                      </div>
+
+                      <div className="w-full h-1.5 bg-zinc-800 overflow-hidden">
+                        <div
+                          className="h-full bg-green-600"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* VAQUINHAS APOIADAS - DESTAQUE EDITORIAL */}
+      {vaquinhasApoiadas.length > 0 && (
+        <div className="mb-8">
+          <div className="bg-zinc-900/30 border-l-4 border-zinc-600 mb-4">
+            <div className="flex items-center py-2 px-3">
+              <HandHeart className="w-4 h-4 text-zinc-400 mr-2" />
+              <h2 className="text-sm font-bold uppercase text-white">
+                Campanhas Externas Apoiadas
+              </h2>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {vaquinhasApoiadas.map((v) => (
+              <a
+                key={v.id}
+                href={v.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-zinc-900/30 hover:bg-zinc-800/50 transition-colors p-3 border-b border-zinc-700/20"
+              >
+                <h4 className="text-white text-sm font-bold mb-2 line-clamp-1">{v.nome}</h4>
+                {v.descricao && (
+                  <p className="text-zinc-400 text-xs line-clamp-2 mb-1">{v.descricao}</p>
+                )}
+                <div className="flex items-center gap-1 text-[10px] text-zinc-400 mt-1">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                  </svg>
+                  Saiba mais
+                </div>
+              </a>
+            ))}
+          </div>
+
+          <div className="text-center mt-3">
+            <Link
+              href="/vaquinhas-apoiadas"
+              className="text-xs text-zinc-400 hover:text-zinc-300 inline-flex items-center gap-1"
+            >
+              Ver todas as campanhas externas
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* ENVIE SEU SONHO - SEÇÃO EM BRANCO */}
+      <div className="mb-8 bg-gradient-to-r from-zinc-900 to-zinc-900/50 p-4 rounded-lg border border-zinc-800/50">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 flex items-center justify-center bg-zinc-800 rounded-full">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-400">
+              <path d="M12 21a9 9 0 0 1-9-9 9 9 0 0 1 9-9 9 9 0 0 1 9 9 9 9 0 0 1-9 9z"/>
+              <path d="M12 7v6l3 3"/>
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-white text-lg font-bold">Envie seu Sonho</h3>
+            <p className="text-zinc-400 text-xs">Preencha o formulário e seja parte da próxima campanha</p>
+          </div>
+        </div>
+
+        <Link
+          href="/participar"
+          className="block w-full text-center py-3 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-lg transition-colors"
+        >
+          Formulário de Cadastro
+        </Link>
+      </div>
+
+      {/* Divider */}
+      <div className="border-t border-zinc-800 mb-6" />
+
+      {/* Quick Links - Grid minimalista */}
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        <Link href="/vaquinhas" className="flex flex-col items-center gap-2 group">
+          <div className="w-14 h-14 rounded-full bg-zinc-900 flex items-center justify-center group-hover:bg-zinc-800 transition-colors">
+            <TrendingUp className="w-6 h-6 text-zinc-400" />
+          </div>
+          <span className="text-zinc-400 text-xs text-center">Vaquinhas</span>
+        </Link>
+
+        <Link href="/vaquinhas-apoiadas" className="flex flex-col items-center gap-2 group">
+          <div className="w-14 h-14 rounded-full bg-zinc-900 flex items-center justify-center group-hover:bg-zinc-800 transition-colors">
+            <HandHeart className="w-6 h-6 text-zinc-400" />
+          </div>
+          <span className="text-zinc-400 text-xs text-center">Apoiadas</span>
+        </Link>
+
+        <Link href="/quem-somos" className="flex flex-col items-center gap-2 group">
+          <div className="w-14 h-14 rounded-full bg-zinc-900 flex items-center justify-center group-hover:bg-zinc-800 transition-colors">
+            <Users className="w-6 h-6 text-zinc-400" />
+          </div>
+          <span className="text-zinc-400 text-xs text-center">Perfis</span>
+        </Link>
+
+        <Link href="/denunciar" className="flex flex-col items-center gap-2 group">
+          <div className="w-14 h-14 rounded-full bg-zinc-900 flex items-center justify-center group-hover:bg-zinc-800 transition-colors">
+            <ShieldAlert className="w-6 h-6 text-zinc-400" />
+          </div>
+          <span className="text-zinc-400 text-xs text-center">Denunciar</span>
+        </Link>
+      </div>
+
+      {/* Footer info */}
+      <div className="text-center py-4">
+        <p className="text-zinc-600 text-xs">
+          Todas as doações são documentadas com total transparência
+        </p>
+      </div>
+    </div>
+  );
+}
