@@ -317,7 +317,7 @@ export default async function HomePage() {
               </div>
 
               <Link
-                href={`/vaquinhas/${vaquinhaDestaque.id}`}
+                href={`/vaquinhas/${vaquinhaDestaque.slug}`}
                 className="block w-full py-3 bg-black border-2 border-green-600 hover:bg-green-600/10 text-white text-sm font-bold uppercase text-center tracking-wide transition-colors"
               >
                 Leia mais e ajude
@@ -355,7 +355,7 @@ export default async function HomePage() {
               return (
                 <Link
                   key={vaquinha.id}
-                  href={`/vaquinhas/${vaquinha.id}`}
+                  href={`/vaquinhas/${vaquinha.slug}`}
                   className={`border-b border-zinc-800 pb-4 ${index === vaquinhasSecundarias.length - 1 ? 'border-b-0' : ''}`}
                 >
                   <div className="flex gap-4">

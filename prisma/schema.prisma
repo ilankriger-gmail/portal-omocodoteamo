@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  nome      String?
+  createdAt DateTime @default(now())
+}
+
+model Config {
+  id                String    @id @default(cuid())
+  biografia         String
+  avatarUrl         String?
+  updatedAt         DateTime  @updatedAt
+  bannerAtivo       Boolean   @default(false)
+  bannerLink        String?
+  bannerTexto       String?
+  vaquinhaFixadaId  String?
+  bannerImageUrl    String?
+  googleAnalyticsId String?
+  googleAdSenseId   String?
+  adsAtivado        Boolean   @default(false)
+  vaquinhaFixada    Vaquinha? @relation(fields: [vaquinhaFixadaId], references: [id])
+}
+
+model LinkSocial {
+  id    String  @id @default(cuid())
+  nome  String
+  url   String
+  icone String?
+  ordem Int     @default(0)
+}
+
+model PerfilSocial {
+  id           String       @id @default(cuid())
+  nome         String
+  descricao    String?
+  avatarUrl    String?
+  ordem        Int          @default(0)
+  redesSociais RedeSocial[]
+}
+
+model RedeSocial {
+  id                     String       @id @default(cuid())
+  perfilId               String
+  plataforma             String
+  usuario                String
+  url                    String
+  seguidores             Int?
+  ordem                  Int          @default(0)
+  tipo                   String       @default("oficial")
+  erroAtualizacao        String?
+  seguidoresAtualizadoEm DateTime?
+  perfil                 PerfilSocial @relation(fields: [perfilId], references: [id], onDelete: Cascade)
+}
+
+model Vaquinha {
+  id           String         @id @default(cuid())
+  titulo       String
+  slug         String         @unique
+  descricao    String
+  linkOriginal String
+  chavePix     String
+  imagemUrl    String?
+  meta         Float
+  valorAtual   Float          @default(0)
+  doacoes      Int            @default(0)
+  coracoes     Int            @default(0)
+  status       VaquinhaStatus @default(ATIVA)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  videoUrl     String?
+  atualizacoes Atualizacao[]
+  configFixada Config[]
+}
+
+model Atualizacao {
+  id         String          @id @default(cuid())
+  vaquinhaId String
+  conteudo   String
+  tipo       TipoAtualizacao
+  imagemUrl  String?
+  videoUrl   String?
+  createdAt  DateTime        @default(now())
+  vaquinha   Vaquinha        @relation(fields: [vaquinhaId], references: [id], onDelete: Cascade)
+}
+
+model Inscricao {
+  id              String          @id @default(cuid())
+  nome            String
+  email           String
+  telefone        String?
+  cidade          String
+  estado          String
+  historia        String
+  situacao        String
+  status          InscricaoStatus @default(PENDENTE)
+  createdAt       DateTime        @default(now())
+  necessidade     String[]
+  dataNascimento  DateTime?
+  dataRealizacao  DateTime?
+  faixaValor      String?
+  linkMidiaSocial String?
+  nomeBeneficiado String?
+  paraQuem        String?
+}
+
+model VaquinhaApoiada {
+  id        String  @id @default(cuid())
+  nome      String
+  link      String
+  descricao String?
+  videoUrl  String?
+}
+
+model PerfilOficial {
+  id         String  @id @default(cuid())
+  plataforma String
+  usuario    String
+  url        String
+  verificado Boolean @default(true)
+}
+
+model FonteRenda {
+  id         String  @id @default(cuid())
+  nome       String
+  descricao  String?
+  percentual Float?
+}
+
+model Denuncia {
+  id          String   @id @default(cuid())
+  perfilFalso String
+  plataforma  String
+  descricao   String
+  contato     String?
+  status      String   @default("PENDENTE")
+  createdAt   DateTime @default(now())
+  imagemUrl   String?
+}
+
+model FAQ {
+  id         String   @id @default(cuid())
+  pergunta   String
+  resposta   String
+  ordem      Int      @default(0)
+  ativo      Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  imagemUrl  String?
+  videoUrl   String?
+  botaoLink  String?
+  botaoTexto String?
+}
+
+enum VaquinhaStatus {
+  ATIVA
+  ENCERRADA
+}
+
+enum TipoAtualizacao {
+  TEXTO
+  FOTO
+  VIDEO
+  COMPROVANTE
+}
+
+enum InscricaoStatus {
+  PENDENTE
+  ANALISANDO
+  APROVADA
+  RECUSADA
+}
