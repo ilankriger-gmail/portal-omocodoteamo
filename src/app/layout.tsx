@@ -22,17 +22,17 @@ export const metadata: Metadata = {
   icons: {
     icon: "/icon.svg",
   },
-  metadataBase: new URL("https://portal.omocodoamo.com.br"),
+  metadataBase: new URL("https://portal.omocodoteamo.com.br"),
   openGraph: {
     title: "Portal da Transparência | O Moço do Te Amo",
     description: "Acompanhe todas as doações e vaquinhas com total transparência. Conheça as causas que apoiamos e participe!",
-    url: "https://portal.omocodoamo.com.br",
+    url: "https://portal.omocodoteamo.com.br",
     siteName: "Portal da Transparência O Moço do Te Amo",
     locale: "pt_BR",
     type: "website",
     images: [
       {
-        url: "https://portal.omocodoamo.com.br/og-image.jpg", // Criar esta imagem
+        url: "https://portal.omocodoteamo.com.br/og-image.jpg", // Criar esta imagem
         width: 1200,
         height: 630,
         alt: "Portal da Transparência O Moço do Te Amo",
@@ -43,10 +43,10 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Portal da Transparência | O Moço do Te Amo",
     description: "Acompanhe todas as doações e vaquinhas com total transparência. Conheça as causas que apoiamos e participe!",
-    images: ["https://portal.omocodoamo.com.br/og-image.jpg"], // Mesma imagem
+    images: ["https://portal.omocodoteamo.com.br/og-image.jpg"], // Mesma imagem
   },
   alternates: {
-    canonical: "https://portal.omocodoamo.com.br",
+    canonical: "https://portal.omocodoteamo.com.br",
   },
   robots: {
     index: true,
@@ -97,11 +97,11 @@ export default async function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               "name": "O Moço do Te Amo",
-              "url": "https://portal.omocodoamo.com.br",
-              "logo": "https://portal.omocodoamo.com.br/icon.svg",
+              "url": "https://portal.omocodoteamo.com.br",
+              "logo": "https://portal.omocodoteamo.com.br/icon.svg",
               "description": "Acompanhe todas as doações e vaquinhas com total transparência. Saiba como ajudar e conhecer todas as causas que apoiamos.",
               "foundingDate": "2022",
-              "email": "contato@omocodoamo.com.br"
+              "email": "contato@omocodoteamo.com.br"
             })
           }}
         />

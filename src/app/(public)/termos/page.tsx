@@ -133,7 +133,7 @@ export default function TermosServicoPage() {
         <section>
           <h2 className="text-white font-semibold mb-2">11. Contato</h2>
           <p>
-            Se você tiver dúvidas sobre estes Termos de Serviço, entre em contato conosco pelo e-mail: contato@omocodoamo.com.br
+            Se você tiver dúvidas sobre estes Termos de Serviço, entre em contato conosco pelo e-mail: contato@omocodoteamo.com.br
           </p>
         </section>
 

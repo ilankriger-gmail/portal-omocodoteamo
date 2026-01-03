@@ -108,7 +108,7 @@ export default function PoliticaCookiesPage() {
         <section>
           <h2 className="text-white font-semibold mb-2">7. Contato</h2>
           <p>
-            Se você tiver dúvidas sobre como usamos cookies ou outras tecnologias, por favor entre em contato conosco pelo e-mail: contato@omocodoamo.com.br
+            Se você tiver dúvidas sobre como usamos cookies ou outras tecnologias, por favor entre em contato conosco pelo e-mail: contato@omocodoteamo.com.br
           </p>
         </section>
 

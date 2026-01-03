@@ -97,7 +97,7 @@ export default function PoliticaPrivacidadePage() {
             <li>Oposição: opor-se ao processamento de suas informações para fins específicos.</li>
           </ul>
           <p className="mt-2">
-            Para exercer seus direitos, entre em contato conosco através do e-mail: contato@omocodoamo.com.br
+            Para exercer seus direitos, entre em contato conosco através do e-mail: contato@omocodoteamo.com.br
           </p>
         </section>
 
@@ -111,7 +111,7 @@ export default function PoliticaPrivacidadePage() {
         <section>
           <h2 className="text-white font-semibold mb-2">8. Contato</h2>
           <p>
-            Se você tiver dúvidas sobre esta Política de Privacidade ou nossas práticas de privacidade, entre em contato conosco pelo e-mail: contato@omocodoamo.com.br
+            Se você tiver dúvidas sobre esta Política de Privacidade ou nossas práticas de privacidade, entre em contato conosco pelo e-mail: contato@omocodoteamo.com.br
           </p>
         </section>
 

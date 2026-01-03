@@ -19,7 +19,7 @@ Antes do deploy, certifique-se de que todas as variáveis de ambiente estão con
 DATABASE_URL="postgresql://neondb_owner:password@endpoint.neon.tech/neondb?sslmode=require&channel_binding=require"
 
 # NextAuth
-NEXTAUTH_URL="https://portal.omocodoamo.com.br"
+NEXTAUTH_URL="https://portal.omocodoteamo.com.br"
 NEXTAUTH_SECRET="sua-chave-secreta-aqui"
 
 # Cron Job
@@ -100,7 +100,7 @@ Recomendamos o uso do Nginx como proxy reverso. Abaixo uma configuração básic
 ```nginx
 server {
     listen 80;
-    server_name portal.omocodoamo.com.br;
+    server_name portal.omocodoteamo.com.br;
 
     # Redirecionar para HTTPS
     location / {
@@ -110,11 +110,11 @@ server {
 
 server {
     listen 443 ssl;
-    server_name portal.omocodoamo.com.br;
+    server_name portal.omocodoteamo.com.br;
 
     # Configuração SSL
-    ssl_certificate /etc/letsencrypt/live/portal.omocodoamo.com.br/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/portal.omocodoamo.com.br/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/portal.omocodoteamo.com.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/portal.omocodoteamo.com.br/privkey.pem;
 
     # Configurações de segurança recomendadas
     ssl_protocols TLSv1.2 TLSv1.3;
@@ -172,7 +172,7 @@ A aplicação inclui uma API para atualização automática dos dados. Configure
 
 ```
 # Atualizar dados da Vakinha a cada hora
-0 * * * * curl -X POST "https://portal.omocodoamo.com.br/api/cron/update-vaquinhas?secret=SUA_CRON_SECRET_AQUI"
+0 * * * * curl -X POST "https://portal.omocodoteamo.com.br/api/cron/update-vaquinhas?secret=SUA_CRON_SECRET_AQUI"
 ```
 
 ## Solução de Problemas

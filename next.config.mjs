@@ -8,7 +8,7 @@ const nextConfig = {
       { hostname: 'vakinha.com.br' },
       { hostname: 'www.vakinha.com.br' },
       { hostname: 'static.vakinha.com.br' },
-      { hostname: 'portal.omocodoamo.com.br' },
+      { hostname: 'portal.omocodoteamo.com.br' },
     ],
   },
   poweredByHeader: false,
