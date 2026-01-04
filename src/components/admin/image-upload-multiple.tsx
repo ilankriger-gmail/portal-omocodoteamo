@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { Upload, X, Loader2, Plus, Edit, ChevronLeft, ChevronRight } from "lucide-react";
+import { Upload, X, Loader2, Plus } from "lucide-react";
 import { CarouselImage } from "../ui/image-carousel";
 
 type ImageUpload = {
@@ -24,7 +24,7 @@ interface ImageUploadMultipleProps {
   onUploadComplete?: () => void;
 }
 
-export function ImageUploadMultiple({
+export function ImageUploadMultipleFix({
   onImagesChange,
   maxImages = 10,
   className = "",
@@ -106,11 +106,30 @@ export function ImageUploadMultiple({
       onUploadStart();
     }
 
-    // Upload files in parallel
+    // Log upload start
+    console.log(`Starting upload of ${newImages.length} images`);
+
+    // Upload files in parallel with better error handling
     try {
-      await Promise.all(newImages.map(uploadFile));
+      const uploadResults = await Promise.allSettled(newImages.map(uploadFile));
+
+      // Log results
+      console.log("Upload results:", uploadResults);
+
+      // Handle completed uploads - both fulfilled and rejected
+      uploadResults.forEach((result, index) => {
+        const image = newImages[index];
+        if (result.status === 'fulfilled') {
+          // Success
+          console.log(`Successfully uploaded: ${image.file.name}`);
+        } else {
+          // Failed - already handled in uploadFile
+          console.error(`Failed to upload: ${image.file.name}`, result.reason);
+        }
+      });
+
     } catch (error) {
-      console.error("Error uploading files:", error);
+      console.error("Error in Promise.allSettled:", error);
     } finally {
       // Reset input
       if (fileInputRef.current) {
@@ -118,16 +137,20 @@ export function ImageUploadMultiple({
       }
 
       setAllUploadsComplete(true);
+
       // Update parent with successfully uploaded images
       updateParentWithImages();
 
       if (onUploadComplete) {
         onUploadComplete();
       }
+
+      console.log("Upload process completed");
     }
   };
 
   const uploadFile = async (image: ImageUpload) => {
+    console.log(`Starting upload for ${image.file.name}`);
     try {
       const formData = new FormData();
       formData.append("file", image.file);
@@ -140,6 +163,8 @@ export function ImageUploadMultiple({
 
       if (res.ok) {
         const data = await res.json();
+        console.log(`File uploaded: ${image.file.name} -> ${data.url}`);
+
         setImages((prev) =>
           prev.map((img) =>
             img.id === image.id
@@ -148,39 +173,53 @@ export function ImageUploadMultiple({
           )
         );
 
-        // Do not update parent immediately - wait for all uploads to complete
+        // Return success
         return data.url;
       } else {
-        const errorData = await res.json();
-        const errorMessage = errorData.error || "Erro ao fazer upload";
+        let errorMessage;
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.error || "Erro ao fazer upload";
+        } catch {
+          errorMessage = `Erro HTTP ${res.status}`;
+        }
+
+        console.error(`Upload error for ${image.file.name}:`, errorMessage);
+
+        // Update image with error
+        setImages((prev) =>
+          prev.map((img) =>
+            img.id === image.id
+              ? { ...img, uploading: false, error: errorMessage }
+              : img
+          )
+        );
+
         throw new Error(errorMessage);
       }
     } catch (error) {
       console.error(`Error uploading ${image.file.name}:`, error);
+
+      // Make sure to update state even for unexpected errors
       setImages((prev) =>
         prev.map((img) =>
           img.id === image.id
-            ? { ...img, uploading: false, error: error.message }
+            ? { ...img, uploading: false, error: error.message || "Erro desconhecido" }
             : img
         )
       );
-      // Mark this image as failed but allow other uploads to continue
+
       throw error;
     }
   };
 
-  // Error handling is now integrated in the uploadFile function
-
   const removeImage = (id: string) => {
     setImages((prev) => prev.filter((img) => img.id !== id));
-    updateParentWithImages();
-  };
 
-  const updateLegenda = (id: string, legenda: string) => {
-    setImages((prev) =>
-      prev.map((img) => (img.id === id ? { ...img, legenda } : img))
-    );
-    updateParentWithImages();
+    // Use setTimeout to ensure state has updated before calling updateParentWithImages
+    setTimeout(() => {
+      updateParentWithImages();
+    }, 0);
   };
 
   const updateParentWithImages = useCallback(() => {
@@ -193,19 +232,9 @@ export function ImageUploadMultiple({
         legenda: img.legenda,
       }));
 
+    console.log(`Updating parent with ${uploadedImages.length} images`);
     onImagesChange(uploadedImages);
   }, [images, onImagesChange]);
-
-  const moveImage = (fromIndex: number, toIndex: number) => {
-    if (toIndex < 0 || toIndex >= images.length) return;
-
-    const newImages = [...images];
-    const [movedImage] = newImages.splice(fromIndex, 1);
-    newImages.splice(toIndex, 0, movedImage);
-
-    setImages(newImages);
-    setTimeout(() => updateParentWithImages(), 0);
-  };
 
   return (
     <div className={`space-y-3 ${className}`}>

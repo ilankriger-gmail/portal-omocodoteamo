@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Upload, X, Loader2 } from "lucide-react";
-import { ImageUploadMultiple } from "@/components/admin/image-upload-multiple";
+import { ImageUploadMultipleFix } from "@/components/admin/image-upload-multiple-fix";
 import { CarouselImage } from "@/components/ui/image-carousel";
 
 const tipos = [
@@ -17,7 +17,7 @@ const tipos = [
   { value: "GALERIA", label: "Galeria de Fotos" },
 ];
 
-export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
+export function NovaAtualizacaoFormFix({ vaquinhaId }: { vaquinhaId: string }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
@@ -31,10 +31,14 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
     imagens: [] as CarouselImage[],
   });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Log file details for debugging
+    console.log(`Uploading file: ${file.name} (${file.type}, ${file.size} bytes)`);
 
     // Preview local
     const reader = new FileReader();
@@ -48,7 +52,9 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      formData.append("type", "atualizacao"); // Make sure we pass the type
 
+      console.log("Sending file to API...");
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
@@ -56,14 +62,26 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
 
       if (res.ok) {
         const data = await res.json();
+        console.log("File uploaded successfully:", data);
         setForm((prev) => ({ ...prev, imagemUrl: data.url }));
       } else {
-        const error = await res.json();
-        alert(error.error || "Erro ao fazer upload");
+        console.error("Upload failed with status:", res.status);
+        let errorMessage = "Erro ao fazer upload";
+
+        try {
+          const error = await res.json();
+          errorMessage = error.error || errorMessage;
+          console.error("Error details:", error);
+        } catch (e) {
+          console.error("Failed to parse error response");
+        }
+
+        alert(errorMessage);
         setPreviewUrl(null);
       }
-    } catch {
-      alert("Erro ao fazer upload");
+    } catch (error) {
+      console.error("Exception during upload:", error);
+      alert("Erro ao fazer upload: " + (error instanceof Error ? error.message : "Erro desconhecido"));
       setPreviewUrl(null);
     } finally {
       setUploading(false);
@@ -81,35 +99,40 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setSubmitError(null);
 
     try {
-      // Validações
+      console.log("Submitting form:", JSON.stringify(form, null, 2));
+
+      // Validations
       if (form.conteudo.trim() === "") {
-        alert("O conteúdo da atualização não pode estar vazio");
+        setSubmitError("O conteúdo da atualização não pode estar vazio");
         setLoading(false);
         return;
       }
 
-      // Validação específica para galeria
+      // Specific validation for gallery type
       if (form.tipo === "GALERIA" && form.imagens.length === 0) {
-        alert("Adicione pelo menos uma imagem à galeria");
+        setSubmitError("Adicione pelo menos uma imagem à galeria");
         setLoading(false);
         return;
       }
 
-      // Validação para tipo FOTO ou COMPROVANTE
+      // Validation for FOTO or COMPROVANTE types
       if ((form.tipo === "FOTO" || form.tipo === "COMPROVANTE") && !form.imagemUrl) {
-        alert(`Adicione uma imagem para o tipo ${form.tipo === "FOTO" ? "Foto" : "Comprovante"}`);
+        setSubmitError(`Adicione uma imagem para o tipo ${form.tipo === "FOTO" ? "Foto" : "Comprovante"}`);
         setLoading(false);
         return;
       }
 
-      // Validação para tipo VIDEO
+      // Validation for VIDEO type
       if (form.tipo === "VIDEO" && !form.videoUrl) {
-        alert("Adicione o link do vídeo do YouTube");
+        setSubmitError("Adicione o link do vídeo do YouTube");
         setLoading(false);
         return;
       }
+
+      console.log(`Sending request to /api/vaquinhas/${vaquinhaId}/atualizacoes`);
 
       const res = await fetch(`/api/vaquinhas/${vaquinhaId}/atualizacoes`, {
         method: "POST",
@@ -118,6 +141,7 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
       });
 
       if (res.ok) {
+        console.log("Update created successfully");
         setForm({
           tipo: "TEXTO",
           conteudo: "",
@@ -128,14 +152,21 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
         setPreviewUrl(null);
         router.refresh();
       } else {
-        const errorData = await res.json();
-        const errorMessage = errorData.error || "Erro ao publicar atualização";
-        alert(errorMessage);
-        console.error("API Error:", errorData);
+        let errorMessage = "Erro ao publicar atualização";
+
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.error || errorMessage;
+          console.error("API Error:", errorData);
+        } catch (e) {
+          console.error("Failed to parse error response");
+        }
+
+        setSubmitError(errorMessage);
       }
     } catch (error) {
       console.error("Form submission error:", error);
-      alert("Ocorreu um erro ao publicar a atualização. Tente novamente.");
+      setSubmitError("Ocorreu um erro ao publicar a atualização. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -145,17 +176,21 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
   const showGalleryUpload = form.tipo === "GALERIA";
   const showVideoInput = form.tipo === "VIDEO";
 
-  // Gallery upload status handlers
+  // Gallery upload status handlers with better debugging
   const handleGalleryUploadStart = () => {
+    console.log("Gallery upload starting");
     setGalleryUploading(true);
   };
 
   const handleGalleryUploadComplete = () => {
+    console.log("Gallery upload complete");
     setGalleryUploading(false);
   };
 
-  // Handler para receber imagens do componente de upload múltiplo
+  // Handler for receiving images from multiple upload component
   const handleImagesChange = (images: CarouselImage[]) => {
+    console.log(`Received ${images.length} images from gallery upload component`);
+    console.log("Image data:", JSON.stringify(images.map(img => ({ id: img.id, url: img.url.substring(0, 50) + '...' })), null, 2));
     setForm(prev => ({ ...prev, imagens: images }));
   };
 
@@ -225,7 +260,7 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/gif,image/webp"
             onChange={handleFileSelect}
             className="hidden"
           />
@@ -237,7 +272,7 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
           <label className="block text-sm font-medium text-white mb-2">
             Galeria de Imagens
           </label>
-          <ImageUploadMultiple
+          <ImageUploadMultipleFix
             onImagesChange={handleImagesChange}
             onUploadStart={handleGalleryUploadStart}
             onUploadComplete={handleGalleryUploadComplete}
@@ -260,6 +295,12 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
           onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
           placeholder="https://youtube.com/watch?v=..."
         />
+      )}
+
+      {submitError && (
+        <div className="p-3 bg-red-900/30 border border-red-500 rounded-lg">
+          <p className="text-sm text-red-400">{submitError}</p>
+        </div>
       )}
 
       <Button

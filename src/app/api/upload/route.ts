@@ -4,7 +4,6 @@ import { authOptions } from "@/lib/auth";
 import { v2 as cloudinary } from 'cloudinary';
 
 // Carregar configuração do Cloudinary
-// Usado para upload de imagens em produção (Vercel)
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dwnbmcg00',
   api_key: process.env.CLOUDINARY_API_KEY || '172667994195663',
@@ -16,43 +15,57 @@ export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
-  }
+  // Logging for debugging
+  console.log("Upload API called");
 
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      console.log("Authentication failed");
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
+
+    // Parse form data
     const formData = await request.formData();
+    console.log("Form data received");
+
     const type = formData.get("type") as string || "atualizacao";
 
-    // Verificar se está enviando vários arquivos
+    // Check if we're uploading multiple files
     const isMultipleFiles = formData.has("files");
+    console.log(`Upload type: ${isMultipleFiles ? 'multiple' : 'single'} files`);
 
     if (isMultipleFiles) {
-      // Processar múltiplos arquivos
+      // Handle multiple files
       const files = formData.getAll("files") as File[];
 
       if (!files || files.length === 0) {
+        console.log("No files provided");
         return NextResponse.json({ error: "Nenhum arquivo enviado" }, { status: 400 });
       }
 
-      // Limitar número de arquivos
+      // Limit file count
       const MAX_FILES = 10;
       if (files.length > MAX_FILES) {
+        console.log(`Too many files: ${files.length} (max: ${MAX_FILES})`);
         return NextResponse.json(
           { error: `Máximo de ${MAX_FILES} arquivos permitidos` },
           { status: 400 }
         );
       }
 
+      // Validate and upload files
       const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
       const maxSize = 5 * 1024 * 1024; // 5MB
 
-      // Processar os arquivos em paralelo
+      // Process files in parallel
       const uploadPromises = files.map(async (file, index) => {
+        console.log(`Processing file ${index+1}/${files.length}: ${file.name}`);
+
         try {
-          // Validação de tipo e tamanho
+          // Validate type and size
           if (!allowedTypes.includes(file.type)) {
+            console.log(`Invalid file type: ${file.type}`);
             return {
               error: `Tipo de arquivo não permitido: ${file.name}. Use JPG, PNG, GIF ou WebP.`,
               index
@@ -60,26 +73,29 @@ export async function POST(request: Request) {
           }
 
           if (file.size > maxSize) {
+            console.log(`File too large: ${file.size} bytes`);
             return {
               error: `Arquivo muito grande: ${file.name}. Máximo 5MB.`,
               index
             };
           }
 
-          // Obter os bytes do arquivo
+          // Get file bytes
           const bytes = await file.arrayBuffer();
           const buffer = Buffer.from(bytes);
 
-          // Gerar nome de arquivo único
+          // Generate unique filename
           const timestamp = Date.now() + index;
           const ext = file.name.split(".").pop();
           const filename = `${type}-${timestamp}.${ext}`;
+          console.log(`Generated filename: ${filename}`);
 
-          // Converter buffer para base64 para upload no Cloudinary
+          // Convert to base64 for Cloudinary
           const base64Data = buffer.toString('base64');
           const dataURI = `data:${file.type};base64,${base64Data}`;
 
-          // Upload para o Cloudinary
+          // Upload to Cloudinary
+          console.log(`Uploading to Cloudinary: ${filename}`);
           const result = await new Promise<any>((resolve, reject) => {
             cloudinary.uploader.upload(
               dataURI,
@@ -89,8 +105,14 @@ export async function POST(request: Request) {
                 resource_type: 'auto'
               },
               (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
+                if (error) {
+                  console.log(`Cloudinary error: ${error.message}`);
+                  reject(error);
+                }
+                else {
+                  console.log(`Cloudinary success: ${result.secure_url}`);
+                  resolve(result);
+                }
               }
             );
           });
@@ -101,18 +123,23 @@ export async function POST(request: Request) {
             index
           };
         } catch (error) {
+          console.error(`Error processing file ${file.name}:`, error);
           return {
-            error: `Erro ao processar arquivo ${file.name}`,
+            error: `Erro ao processar arquivo ${file.name}: ${error.message}`,
             index
           };
         }
       });
 
+      // Wait for all uploads
+      console.log("Waiting for all uploads to complete...");
       const results = await Promise.all(uploadPromises);
 
-      // Separar uploads bem-sucedidos e falhas
+      // Separate successes from failures
       const successfulUploads = results.filter(r => !r.error);
       const errors = results.filter(r => r.error);
+
+      console.log(`Upload complete: ${successfulUploads.length} successful, ${errors.length} failed`);
 
       return NextResponse.json({
         urls: successfulUploads,
@@ -120,15 +147,19 @@ export async function POST(request: Request) {
         errors: errors.length > 0 ? errors : undefined
       });
     } else {
-      // Processar um único arquivo (compatibilidade com implementação existente)
+      // Process a single file
+      console.log("Processing single file upload");
       const file = formData.get("file") as File;
 
       if (!file) {
+        console.log("No file provided");
         return NextResponse.json({ error: "Nenhum arquivo enviado" }, { status: 400 });
       }
 
+      // Validate file
       const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
       if (!allowedTypes.includes(file.type)) {
+        console.log(`Invalid file type: ${file.type}`);
         return NextResponse.json(
           { error: "Tipo de arquivo não permitido. Use JPG, PNG, GIF ou WebP." },
           { status: 400 }
@@ -137,50 +168,67 @@ export async function POST(request: Request) {
 
       const maxSize = 5 * 1024 * 1024;
       if (file.size > maxSize) {
+        console.log(`File too large: ${file.size} bytes`);
         return NextResponse.json(
           { error: "Arquivo muito grande. Máximo 5MB." },
           { status: 400 }
         );
       }
 
-      // Obter os bytes do arquivo
+      // Get file bytes
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      // Gerar nome de arquivo único
+      // Generate filename
       const timestamp = Date.now();
       const ext = file.name.split(".").pop();
       const filename = `${type}-${timestamp}.${ext}`;
+      console.log(`Generated filename: ${filename}`);
 
-      // Converter buffer para base64 para upload no Cloudinary
+      // Convert to base64
       const base64Data = buffer.toString('base64');
       const dataURI = `data:${file.type};base64,${base64Data}`;
 
-      // Upload para o Cloudinary
-      const result = await new Promise<any>((resolve, reject) => {
-        cloudinary.uploader.upload(
-          dataURI,
-          {
-            folder: 'portal-omocodoteamo',
-            public_id: filename.split('.')[0],  // Nome do arquivo sem extensão
-            resource_type: 'auto'
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
+      // Upload to Cloudinary
+      console.log(`Uploading to Cloudinary: ${filename}`);
+      try {
+        const result = await new Promise<any>((resolve, reject) => {
+          cloudinary.uploader.upload(
+            dataURI,
+            {
+              folder: 'portal-omocodoteamo',
+              public_id: filename.split('.')[0],
+              resource_type: 'auto'
+            },
+            (error, result) => {
+              if (error) {
+                console.log(`Cloudinary error: ${error.message}`);
+                reject(error);
+              }
+              else {
+                console.log(`Cloudinary success: ${result.secure_url}`);
+                resolve(result);
+              }
+            }
+          );
+        });
+
+        // Return secure URL
+        console.log("Upload complete");
+        const url = result.secure_url;
+        return NextResponse.json({ url, filename });
+      } catch (uploadError) {
+        console.error("Cloudinary upload error:", uploadError);
+        return NextResponse.json(
+          { error: `Erro ao fazer upload: ${uploadError.message}` },
+          { status: 500 }
         );
-      });
-
-      // URL segura da imagem no Cloudinary
-      const url = result.secure_url;
-
-      return NextResponse.json({ url, filename });
+      }
     }
   } catch (error) {
-    console.error("Erro ao fazer upload:", error);
+    console.error("Error in upload API:", error);
     return NextResponse.json(
-      { error: "Erro ao fazer upload do arquivo" },
+      { error: `Erro ao fazer upload do arquivo: ${error.message}` },
       { status: 500 }
     );
   }
