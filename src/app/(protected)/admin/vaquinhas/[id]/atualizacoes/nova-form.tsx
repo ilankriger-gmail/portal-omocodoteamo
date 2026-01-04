@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Upload, X, Loader2 } from "lucide-react";
-import { ImageUploadMultipleFix } from "@/components/admin/image-upload-multiple-fix";
+import { ImageUploadMultiple } from "@/components/admin/image-upload-multiple-fixed";
 import { CarouselImage } from "@/components/ui/image-carousel";
 
 const tipos = [
@@ -17,7 +17,7 @@ const tipos = [
   { value: "GALERIA", label: "Galeria de Fotos" },
 ];
 
-export function NovaAtualizacaoFormFix({ vaquinhaId }: { vaquinhaId: string }) {
+export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
@@ -32,6 +32,18 @@ export function NovaAtualizacaoFormFix({ vaquinhaId }: { vaquinhaId: string }) {
   });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Debug effect to track state changes
+  useEffect(() => {
+    console.log("[Form] State updated:");
+    console.log(`- Type: ${form.tipo}`);
+    console.log(`- Image count: ${form.imagens.length}`);
+    console.log(`- Gallery uploading: ${galleryUploading}`);
+
+    if (form.imagens.length > 0) {
+      console.log("- Image IDs:", form.imagens.map(img => img.id).join(", "));
+    }
+  }, [form, galleryUploading]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -98,14 +110,22 @@ export function NovaAtualizacaoFormFix({ vaquinhaId }: { vaquinhaId: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Add extra logging right at the start of submission
+    console.log("==== FORM SUBMISSION START ====");
+    console.log("Current form state:", JSON.stringify(form, null, 2));
+    console.log(`Gallery has ${form.imagens.length} images`);
+    console.log(`Gallery uploading status: ${galleryUploading}`);
+
     setLoading(true);
     setSubmitError(null);
 
     try {
-      console.log("Submitting form:", JSON.stringify(form, null, 2));
+      console.log("Starting validation checks...");
 
       // Validations
       if (form.conteudo.trim() === "") {
+        console.log("Validation error: Empty content");
         setSubmitError("O conteúdo da atualização não pode estar vazio");
         setLoading(false);
         return;
@@ -113,6 +133,7 @@ export function NovaAtualizacaoFormFix({ vaquinhaId }: { vaquinhaId: string }) {
 
       // Specific validation for gallery type
       if (form.tipo === "GALERIA" && form.imagens.length === 0) {
+        console.log("Validation error: Gallery has no images");
         setSubmitError("Adicione pelo menos uma imagem à galeria");
         setLoading(false);
         return;
@@ -120,6 +141,7 @@ export function NovaAtualizacaoFormFix({ vaquinhaId }: { vaquinhaId: string }) {
 
       // Validation for FOTO or COMPROVANTE types
       if ((form.tipo === "FOTO" || form.tipo === "COMPROVANTE") && !form.imagemUrl) {
+        console.log(`Validation error: Missing image for ${form.tipo} type`);
         setSubmitError(`Adicione uma imagem para o tipo ${form.tipo === "FOTO" ? "Foto" : "Comprovante"}`);
         setLoading(false);
         return;
@@ -127,18 +149,22 @@ export function NovaAtualizacaoFormFix({ vaquinhaId }: { vaquinhaId: string }) {
 
       // Validation for VIDEO type
       if (form.tipo === "VIDEO" && !form.videoUrl) {
+        console.log("Validation error: Missing video URL");
         setSubmitError("Adicione o link do vídeo do YouTube");
         setLoading(false);
         return;
       }
 
       console.log(`Sending request to /api/vaquinhas/${vaquinhaId}/atualizacoes`);
+      console.log("Request payload:", JSON.stringify(form, null, 2));
 
       const res = await fetch(`/api/vaquinhas/${vaquinhaId}/atualizacoes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
+
+      console.log(`Response status: ${res.status}`);
 
       if (res.ok) {
         console.log("Update created successfully");
@@ -168,6 +194,7 @@ export function NovaAtualizacaoFormFix({ vaquinhaId }: { vaquinhaId: string }) {
       console.error("Form submission error:", error);
       setSubmitError("Ocorreu um erro ao publicar a atualização. Tente novamente.");
     } finally {
+      console.log("==== FORM SUBMISSION END ====");
       setLoading(false);
     }
   };
@@ -190,12 +217,33 @@ export function NovaAtualizacaoFormFix({ vaquinhaId }: { vaquinhaId: string }) {
   // Handler for receiving images from multiple upload component
   const handleImagesChange = (images: CarouselImage[]) => {
     console.log(`Received ${images.length} images from gallery upload component`);
-    console.log("Image data:", JSON.stringify(images.map(img => ({ id: img.id, url: img.url.substring(0, 50) + '...' })), null, 2));
-    setForm(prev => ({ ...prev, imagens: images }));
+
+    if (images.length > 0) {
+      console.log("Image data:", JSON.stringify(images.map(img => ({ id: img.id, url: img.url.substring(0, 20) + '...' })), null, 2));
+    }
+
+    setForm(prev => {
+      const newState = { ...prev, imagens: images };
+      console.log(`Updated form state, now has ${newState.imagens.length} images`);
+      return newState;
+    });
   };
 
   return (
     <form onSubmit={handleSubmit} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-4">
+      {/* Debug information */}
+      <div className="p-2 bg-blue-900/20 border border-blue-500/30 rounded-lg text-xs">
+        <p className="font-medium text-blue-400 mb-1">Status da Forma (Debug):</p>
+        <p className="text-blue-300">Tipo: {form.tipo}</p>
+        <p className="text-blue-300">Imagens: {form.imagens.length} (carrossel)</p>
+        <p className="text-blue-300">Upload em progresso: {galleryUploading ? 'Sim' : 'Não'}</p>
+        {form.imagens.length > 0 && (
+          <div className="mt-1 text-blue-300">
+            <p>IDs: {form.imagens.map(img => img.id.substring(0, 5)).join(', ')}</p>
+          </div>
+        )}
+      </div>
+
       <div>
         <label className="block text-sm font-medium text-white mb-1">Tipo</label>
         <select
@@ -272,7 +320,7 @@ export function NovaAtualizacaoFormFix({ vaquinhaId }: { vaquinhaId: string }) {
           <label className="block text-sm font-medium text-white mb-2">
             Galeria de Imagens
           </label>
-          <ImageUploadMultipleFix
+          <ImageUploadMultiple
             onImagesChange={handleImagesChange}
             onUploadStart={handleGalleryUploadStart}
             onUploadComplete={handleGalleryUploadComplete}
@@ -309,7 +357,7 @@ export function NovaAtualizacaoFormFix({ vaquinhaId }: { vaquinhaId: string }) {
         disabled={uploading || galleryUploading}
         className="w-full"
       >
-        {galleryUploading ? 'Aguarde o upload das imagens...' : 'Publicar Atualização'}
+        {galleryUploading ? 'Aguarde o upload das imagens...' : 'Publicar Atualização (FIXED)'}
       </Button>
     </form>
   );

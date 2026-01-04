@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Upload, X, Loader2, Plus } from "lucide-react";
 import { CarouselImage } from "../ui/image-carousel";
 
@@ -24,7 +24,7 @@ interface ImageUploadMultipleProps {
   onUploadComplete?: () => void;
 }
 
-export function ImageUploadMultipleFix({
+export function ImageUploadMultiple({
   onImagesChange,
   maxImages = 10,
   className = "",
@@ -45,6 +45,12 @@ export function ImageUploadMultipleFix({
       legenda: img.legenda
     }))
   );
+
+  // Debug effect to track image state changes
+  useEffect(() => {
+    console.log(`[Debug] Image state updated, now has ${images.length} images`);
+    console.log(`[Debug] Images with URLs: ${images.filter(img => img.url).length}`);
+  }, [images]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -165,13 +171,19 @@ export function ImageUploadMultipleFix({
         const data = await res.json();
         console.log(`File uploaded: ${image.file.name} -> ${data.url}`);
 
-        setImages((prev) =>
-          prev.map((img) =>
+        // Immediately update the image with the URL
+        setImages((prev) => {
+          const newImages = prev.map((img) =>
             img.id === image.id
               ? { ...img, uploading: false, url: data.url }
               : img
-          )
-        );
+          );
+
+          // Immediately call updateParentWithImages after state update
+          setTimeout(() => updateParentWithImages(), 0);
+
+          return newImages;
+        });
 
         // Return success
         return data.url;
@@ -214,6 +226,7 @@ export function ImageUploadMultipleFix({
   };
 
   const removeImage = (id: string) => {
+    console.log(`Removing image with ID: ${id}`);
     setImages((prev) => prev.filter((img) => img.id !== id));
 
     // Use setTimeout to ensure state has updated before calling updateParentWithImages
@@ -233,11 +246,21 @@ export function ImageUploadMultipleFix({
       }));
 
     console.log(`Updating parent with ${uploadedImages.length} images`);
+    console.log("Image data:", JSON.stringify(uploadedImages.map(img => ({ id: img.id, url: img.url.substring(0, 20) + '...' })), null, 2));
+
+    // Force update to the parent component
     onImagesChange(uploadedImages);
   }, [images, onImagesChange]);
 
   return (
     <div className={`space-y-3 ${className}`}>
+      {/* Debug info - helps troubleshoot image upload issues */}
+      <div className="p-2 bg-blue-900/20 border border-blue-500/30 rounded-lg text-xs mb-2">
+        <p className="text-blue-400">Status: {allUploadsComplete ? 'Pronto' : 'Enviando...'}</p>
+        <p className="text-blue-400">Total de imagens: {images.length}</p>
+        <p className="text-blue-400">Imagens com URL: {images.filter(img => !img.uploading && img.url && !img.error).length}</p>
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {images.map((image) => (
           <div
