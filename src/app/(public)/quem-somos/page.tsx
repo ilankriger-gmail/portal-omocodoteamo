@@ -84,7 +84,7 @@ export default async function QuemSomosPage() {
   const { config, perfis, parceiro } = await getData();
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 py-8">
+    <div className="max-w-5xl mx-auto px-4 py-8">
       {/* Profile Header - Instagram Style */}
       <div className="flex items-start gap-6 mb-6">
         {/* Avatar com borda gradiente */}

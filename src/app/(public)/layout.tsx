@@ -80,7 +80,7 @@ export default function PublicLayout({
 
       {/* Main Content */}
       <main className={`pb-16 md:pb-0 transition-all duration-200 ${collapsed ? 'md:ml-[72px]' : 'md:ml-[220px] xl:md:ml-[245px]'}`}>
-        <div className="max-w-[1400px] mx-auto">
+        <div className="max-w-5xl mx-auto">
           {children}
           <Footer />
         </div>

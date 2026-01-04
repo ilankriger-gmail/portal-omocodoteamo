@@ -115,7 +115,7 @@ export default async function HomePage() {
     : 0;
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 py-6">
+    <div className="max-w-5xl mx-auto px-4 py-6">
       {/* Banner Editável */}
       {config?.bannerAtivo && (config?.bannerTexto || config?.bannerImageUrl) && (
         config.bannerLink ? (

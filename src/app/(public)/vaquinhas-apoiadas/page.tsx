@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function VaquinhasApoiadasPage() {
   return (
-    <div className="max-w-[1400px] mx-auto px-4 py-8">
+    <div className="max-w-5xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-6">
         <div className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center mx-auto mb-3">
