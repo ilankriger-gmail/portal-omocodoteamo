@@ -16,6 +16,23 @@ export function isValidImageUrl(url: string | null | undefined): url is string {
  * Alguns sites usam @ no usuário, outros não, esta função padroniza isso
  */
 export function generateSocialUrl(plataforma: string, usuario: string): string {
+  // Se for WhatsApp e parece ser uma URL completa, retornar como está
+  if (plataforma === 'whatsapp' && (
+    usuario.startsWith('https://') ||
+    usuario.startsWith('http://') ||
+    usuario.startsWith('wa.me/') ||
+    usuario.startsWith('chat.whatsapp.com/')
+  )) {
+    // Garantir que a URL comece com https://
+    if (usuario.startsWith('wa.me/')) {
+      return `https://${usuario}`;
+    } else if (usuario.startsWith('chat.whatsapp.com/')) {
+      return `https://${usuario}`;
+    } else {
+      return usuario; // Já é uma URL completa
+    }
+  }
+
   // Remover @ do início se existir
   const cleanUsuario = usuario.startsWith('@') ? usuario.substring(1) : usuario;
 
@@ -35,7 +52,11 @@ export function generateSocialUrl(plataforma: string, usuario: string): string {
     case 'kwai':
       return `https://kwai.com/@${cleanUsuario}`;
     case 'whatsapp':
-      // Assumindo que o "usuário" é o número telefônico
+      // Se chegou aqui, assumimos que é um número de telefone ou grupo
+      if (usuario.includes('group')) {
+        return usuario; // Retornar link de grupo como está
+      }
+      // Caso contrário, assumimos que é um número de telefone
       return `https://wa.me/${cleanUsuario}`;
     default:
       return `https://${plataforma}.com/${cleanUsuario}`;
