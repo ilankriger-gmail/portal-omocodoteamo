@@ -9,6 +9,8 @@
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
+    "db:seed:vercel": "ts-node --compiler-options {\"module\":\"CommonJS\"} scripts/seed-vercel.ts",
+    "db:seed:neon": "chmod +x scripts/seed-neon.sh && ./scripts/seed-neon.sh",
     "db:studio": "prisma studio",
     "migrate:slugs": "ts-node --compiler-options {\"module\":\"CommonJS\"} scripts/migrate-slugs.ts"
   },

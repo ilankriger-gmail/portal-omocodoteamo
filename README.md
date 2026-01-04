@@ -29,8 +29,43 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Implantação na Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Preparação do Banco de Dados Neon
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Antes de implantar o projeto na Vercel, é necessário preparar o banco de dados Neon:
+
+1. Certifique-se de que a variável de ambiente `DATABASE_URL` está configurada com a conexão correta para o banco Neon
+
+2. Execute o script de seed para inicializar o banco de dados:
+
+```bash
+npm run db:seed:neon
+```
+
+Este script irá:
+- Sincronizar o esquema do Prisma com o banco Neon
+- Criar um usuário administrador
+- Configurar as informações básicas do site
+- Criar perfis sociais e fontes de renda
+- Criar uma vaquinha de teste para demonstração
+
+3. Verifique na interface da Neon se as tabelas foram criadas e populadas corretamente
+
+### Configuração da Vercel
+
+Configure as seguintes variáveis de ambiente na Vercel:
+
+- `DATABASE_URL`: URL de conexão com o banco Neon
+- `NEXTAUTH_URL`: URL do site em produção (https://portal.omocodoteamo.com.br)
+- `NEXTAUTH_SECRET`: Chave secreta para autenticação
+- `CRON_SECRET`: Chave secreta para proteção de endpoints cron
+
+### Processo de Implantação
+
+O processo de implantação na Vercel é simplificado:
+
+1. Conecte seu repositório GitHub à Vercel
+2. Configure as variáveis de ambiente mencionadas acima
+3. Implante o projeto
+4. Se ocorrerem erros durante o build relacionados ao banco de dados, execute o script de seed novamente
