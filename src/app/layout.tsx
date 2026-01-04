@@ -89,7 +89,8 @@ async function getConfigData() {
 
     return {
       gaId: config?.googleAnalyticsId || null,
-      adsenseId: config?.adsAtivado ? config?.googleAdSenseId : null
+      // Desativando AdSense temporariamente para resolver problemas de build
+      adsenseId: null // Removido: config?.adsAtivado ? config?.googleAdSenseId : null
     };
   }, {
     gaId: null,

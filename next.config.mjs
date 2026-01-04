@@ -28,12 +28,22 @@ const nextConfig = {
   output: 'standalone', // Recomendado para deploy em produção
   // Configurar redirecionamento de barras no final
   skipTrailingSlashRedirect: true,
+  // Excluir rotas problemáticas da coleta de dados durante o build
+  // Isso evita erros de build relacionados à rota /api/adsense
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx'],
+  onDemandEntries: {
+    // Opções para controlar páginas on-demand
+    maxInactiveAge: 60 * 60 * 1000, // 1 hora
+    pagesBufferLength: 5,
+  },
   // Desabilitar geração estática para rotas que usam banco de dados
   // Isso garante que as páginas sejam renderizadas no servidor
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client'],
     // Usar fallback para páginas que falham durante build
     missingSuspenseWithCSRBailout: false,
+    // Evitar coletar dados de rotas problemáticas (como /api/adsense)
+    optimizePackageImports: ['@prisma/client'],
   },
 };
 

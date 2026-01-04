@@ -16,6 +16,10 @@ export function AdUnit({
   adFormat = "auto",
   className = "",
 }: AdUnitProps) {
+  // Temporariamente desativado para resolver problemas de build na Vercel
+  return null;
+
+  /* Código original comentado para referência futura
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -36,4 +40,5 @@ export function AdUnit({
       />
     </div>
   );
+  */
 }

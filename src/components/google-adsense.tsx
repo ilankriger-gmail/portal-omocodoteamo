@@ -19,6 +19,11 @@ export function GoogleAdSense({
   adStyle = { display: "block" },
   className = "",
 }: GoogleAdSenseProps) {
+  // Temporariamente desativado para resolver problemas de build na Vercel
+  // Não faz mais nada independente dos parâmetros passados
+  return null;
+
+  /* Código original comentado para referência futura
   useEffect(() => {
     // Skip if we don't have a client ID
     if (!adClient) return;
@@ -46,17 +51,9 @@ export function GoogleAdSense({
 
   // Don't render anything if we don't have a client ID
   if (!adClient) return null;
+  */
 
-  return (
-    <div className={className}>
-      <ins
-        className="adsbygoogle"
-        style={adStyle}
-        data-ad-client={adClient}
-        data-ad-slot={adSlot}
-        data-ad-format={adFormat}
-        {...(adLayout ? { "data-ad-layout": adLayout } : {})}
-      />
-    </div>
-  );
+  // Componente completamente desabilitado
+  // O return null acima impede que este código seja executado
+  return null;
 }
