@@ -14,10 +14,12 @@
     "db:seed:neon": "chmod +x scripts/seed-neon.sh && ./scripts/seed-neon.sh",
     "db:studio": "prisma studio",
     "migrate:slugs": "ts-node --compiler-options {\"module\":\"CommonJS\"} scripts/migrate-slugs.ts",
-    "update-profiles": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/update-social-profiles.ts",
-    "update-followers": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/update-followers.ts",
-    "update-telegram": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/update-telegram-profiles.ts",
-    "check-telegram": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/check-telegram.ts"
+    "update-profiles": "ts-node --project scripts/tsconfig.json scripts/update-social-profiles.ts",
+    "update-followers": "ts-node --project scripts/tsconfig.json scripts/update-followers.ts",
+    "update-followers-fix": "ts-node --project scripts/tsconfig.json scripts/update-followers-fix.ts",
+    "update-telegram": "ts-node --project scripts/tsconfig.json scripts/update-telegram-profiles.ts",
+    "check-telegram": "ts-node --project scripts/tsconfig.json scripts/check-telegram.ts",
+    "debug-puppeteer": "ts-node --project scripts/tsconfig.json scripts/debug-puppeteer.ts"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -25,6 +27,7 @@
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "@sparticuz/chromium": "^143.0.4",
+    "@types/react-dropzone": "^4.2.2",
     "bcryptjs": "^3.0.3",
     "cheerio": "^1.1.2",
     "cloudinary": "^2.8.0",
@@ -37,6 +40,7 @@
     "puppeteer-core": "^24.34.0",
     "react": "^18",
     "react-dom": "^18",
+    "react-dropzone": "^14.3.8",
     "react-icons": "^5.5.0",
     "zod": "^4.3.4"
   },
@@ -47,6 +51,8 @@
     "@types/react-dom": "^18",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.1.1",
+    "form-data": "^4.0.5",
+    "node-fetch": "^3.3.2",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
