@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Image, Video, FileCheck, MessageSquare, Images } from "lucide-react";
-import { NovaAtualizacaoForm } from "./nova-form-fixed";
+import { NovaAtualizacaoForm } from "./nova-form";
 import { DeleteAtualizacaoButton } from "./delete-button";
 import { StatsForm } from "./stats-form";
 import { ImageCarousel } from "@/components/ui/image-carousel";
@@ -79,7 +79,7 @@ export default async function AtualizacoesPage({
       <div className="mb-6">
         <h1 className="text-2xl font-bold">{vaquinha.titulo}</h1>
         <div className="flex flex-wrap gap-4 mt-1">
-          <p className="text-zinc-400">Thread de atualizações (VERSÃO CORRIGIDA)</p>
+          <p className="text-zinc-400">Thread de atualizações</p>
           <div className="flex items-center gap-3 text-sm">
             <div className="flex items-center gap-1">
               <span className="bg-blue-900/20 text-blue-400 p-1 rounded-md">
@@ -226,7 +226,7 @@ export default async function AtualizacoesPage({
           </div>
 
           <div>
-            <h2 className="text-lg font-semibold mb-4">Nova Atualização (VERSÃO CORRIGIDA)</h2>
+            <h2 className="text-lg font-semibold mb-4">Nova Atualização</h2>
             <NovaAtualizacaoForm vaquinhaId={id} />
           </div>
         </div>
