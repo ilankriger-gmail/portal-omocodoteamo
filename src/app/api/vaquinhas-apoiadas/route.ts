@@ -10,6 +10,10 @@ export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 export const revalidate = 0;
 
+// Verifica se estamos no ambiente de build da Vercel
+const isBuild = process.env.NODE_ENV === "production" &&
+                process.env.NEXT_PHASE === "phase-production-build";
+
 // Cache em memória
 let cachedData: VaquinhaScrapedData[] | null = null;
 let lastFetch: number = 0;
@@ -198,6 +202,31 @@ async function scrapeVaquinha(url: string): Promise<Partial<VaquinhaScrapedData>
 }
 
 export async function GET(req: Request) {
+  // Durante o build, retornar dados mock
+  if (isBuild) {
+    console.log("[vaquinhas-apoiadas] Ignorando execução durante o build da Vercel");
+    return NextResponse.json({
+      vaquinhas: [
+        {
+          id: "vaquinha-apoiada-teste",
+          nome: "Vaquinha Apoiada de Teste",
+          link: "https://www.vakinha.com.br/exemplo-apoiada",
+          descricao: "Exemplo de vaquinha apoiada para build",
+          valorArrecadado: "R$ 10.500,00",
+          valorArrecadadoNum: 10500,
+          meta: "R$ 15.000,00",
+          metaNum: 15000,
+          progresso: 70,
+          fetchedAt: new Date().toISOString(),
+          build: true
+        }
+      ],
+      cached: true,
+      lastFetch: Date.now(),
+      nextFetch: Date.now(),
+    });
+  }
+
   const { searchParams } = new URL(req.url);
   const forceRefresh = searchParams.get("refresh") === "true";
   const now = Date.now();

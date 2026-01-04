@@ -2,7 +2,32 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+// Definimos a API como dinâmica para que seja executada em runtime
+export const dynamic = 'force-dynamic';
+
+// Desabilitar cache
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+
+// Verifica se estamos no ambiente de build da Vercel
+const isBuild = process.env.NODE_ENV === "production" &&
+                process.env.NEXT_PHASE === "phase-production-build";
+
 export async function POST(req: Request) {
+  // Durante o build, retornar dados mock
+  if (isBuild) {
+    console.log("[scrape-vakinha] Ignorando execução durante o build da Vercel");
+    return NextResponse.json({
+      titulo: "Exemplo de Vaquinha",
+      descricao: "Descrição de exemplo para build",
+      imagemUrl: "/exemplo.jpg",
+      chavePix: "exemplo@pix.com",
+      meta: 5000,
+      arrecadado: 1200,
+      build: true
+    });
+  }
+
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ message: "Não autorizado" }, { status: 401 });
