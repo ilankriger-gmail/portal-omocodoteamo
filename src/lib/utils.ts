@@ -47,7 +47,8 @@ export function generateSocialUrl(plataforma: string, usuario: string): string {
     'facebook': 'https://facebook.com/{usuario}',
     'kwai': 'https://kwai.com/@{usuario}',
     'threads': 'https://threads.net/@{usuario}',
-    'x': 'https://x.com/{usuario}'
+    'x': 'https://x.com/{usuario}',
+    'telegram': 'https://t.me/{usuario}'
   };
 
   // Usar formato específico ou gerar um padrão

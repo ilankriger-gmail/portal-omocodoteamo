@@ -15,6 +15,7 @@ import {
   FaWhatsapp,
   FaXTwitter,
   FaThreads,
+  FaTelegram,
 } from "react-icons/fa6";
 
 // Ícone customizado do Kwai
@@ -55,9 +56,10 @@ const plataformaConfig: Record<string, { icon: React.ElementType; color: string;
   whatsapp: { icon: FaWhatsapp, color: "text-white", bgColor: "bg-green-600", label: "WhatsApp" },
   x: { icon: FaXTwitter, color: "text-white", bgColor: "bg-black", label: "X (Twitter)" },
   threads: { icon: FaThreads, color: "text-white", bgColor: "bg-zinc-900", label: "Threads" },
+  telegram: { icon: FaTelegram, color: "text-white", bgColor: "bg-blue-500", label: "Telegram" },
 };
 
-const plataformas = ["instagram", "tiktok", "youtube", "facebook", "kwai", "whatsapp", "x", "threads"];
+const plataformas = ["instagram", "tiktok", "youtube", "facebook", "kwai", "whatsapp", "x", "threads", "telegram"];
 
 export function PerfilCard({ perfil }: { perfil: Perfil }) {
   const router = useRouter();
