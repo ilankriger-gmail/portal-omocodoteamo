@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, User, Heart, HandHeart, Send, ShieldAlert, HelpCircle, Menu } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Footer } from "@/components/footer";
-import { AdUnit } from "@/components/ad-unit";
 
 const menuItems = [
   { href: "/", icon: Home, label: "Início" },
@@ -24,26 +23,6 @@ export default function PublicLayout({
 }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const [adClient, setAdClient] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Desativado temporariamente para permitir o build na Vercel
-    // async function fetchAdSenseConfig() {
-    //   try {
-    //     const response = await fetch('/api/adsense');
-    //     if (response.ok) {
-    //       const data = await response.json();
-    //       setAdClient(data.adClient);
-    //     }
-    //   } catch (error) {
-    //     console.error('Failed to load AdSense config:', error);
-    //   }
-    // }
-    // fetchAdSenseConfig();
-
-    // Temporariamente definimos como null para o build funcionar
-    setAdClient(null);
-  }, []);
 
   return (
     <div className="min-h-screen bg-black">
@@ -102,25 +81,7 @@ export default function PublicLayout({
       {/* Main Content */}
       <main className={`pb-16 md:pb-0 transition-all duration-200 ${collapsed ? 'md:ml-[72px]' : 'md:ml-[220px] xl:md:ml-[245px]'}`}>
         <div className="max-w-[630px] mx-auto">
-          {/* Top ad unit */}
-          {adClient && pathname !== '/' && (
-            <div className="my-4">
-              <AdUnit adClient={adClient} className="bg-zinc-900/30 p-2 rounded-lg" />
-            </div>
-          )}
-
           {children}
-
-          {/* Bottom ad unit */}
-          {adClient && (
-            <div className="my-4">
-              <AdUnit
-                adClient={adClient}
-                className="bg-zinc-900/30 p-2 rounded-lg"
-                adFormat="horizontal"
-              />
-            </div>
-          )}
           <Footer />
         </div>
       </main>
