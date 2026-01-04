@@ -3,7 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { v2 as cloudinary } from 'cloudinary';
 
-// Configurar Cloudinary com as credenciais
+// Carregar configuração do Cloudinary
+// Usado para upload de imagens em produção (Vercel)
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dwnbmcg00',
   api_key: process.env.CLOUDINARY_API_KEY || '172667994195663',
