@@ -59,6 +59,72 @@ export function DropzoneUpload({
     updateParentWithImages();
   }, [images, updateParentWithImages]);
 
+  // Upload a single file to the server
+  const uploadFile = async (image: ImageUploadState) => {
+    console.log(`[DropzoneUpload] Starting upload for ${image.file.name}`);
+    try {
+      const formData = new FormData();
+      formData.append("file", image.file);
+      formData.append("type", "atualizacao");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        console.log(`[DropzoneUpload] File uploaded: ${image.file.name} -> ${data.url}`);
+
+        // Update the image state with the URL
+        setImages((prev) => {
+          const newImages = prev.map((img) =>
+            img.id === image.id
+              ? { ...img, uploading: false, url: data.url }
+              : img
+          );
+          return newImages;
+        });
+
+        return data.url;
+      } else {
+        let errorMessage;
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.error || "Erro ao fazer upload";
+        } catch {
+          errorMessage = `Erro HTTP ${res.status}`;
+        }
+
+        console.error(`[DropzoneUpload] Upload error for ${image.file.name}:`, errorMessage);
+
+        // Update image with error
+        setImages((prev) =>
+          prev.map((img) =>
+            img.id === image.id
+              ? { ...img, uploading: false, error: errorMessage }
+              : img
+          )
+        );
+
+        throw new Error(errorMessage);
+      }
+    } catch (error) {
+      console.error(`[DropzoneUpload] Error uploading ${image.file.name}:`, error);
+
+      // Update state with error
+      setImages((prev) =>
+        prev.map((img) =>
+          img.id === image.id
+            ? { ...img, uploading: false, error: error.message || "Erro desconhecido" }
+            : img
+        )
+      );
+
+      throw error;
+    }
+  };
+
   // Handle files dropped or selected
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (images.length + acceptedFiles.length > maxImages) {
