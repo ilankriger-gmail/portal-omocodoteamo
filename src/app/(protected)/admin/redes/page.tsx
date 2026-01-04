@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PerfilCard } from "./perfil-card";
+import { PerfilReordering } from "./perfil-reordering";
 
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
@@ -46,10 +46,8 @@ export default async function RedesSociaisPage() {
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
-          {perfis.map((perfil) => (
-            <PerfilCard key={perfil.id} perfil={perfil} />
-          ))}
+        <div className="relative pl-10">
+          <PerfilReordering perfis={perfis} />
         </div>
       )}
     </div>

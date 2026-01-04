@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2, Plus, ExternalLink, ChevronUp, ChevronDown, Pencil, X, AlertCircle, Clock } from "lucide-react";
+import Image from "next/image";
+import { Trash2, Plus, ExternalLink, ChevronUp, ChevronDown, Pencil, X, AlertCircle, Clock, User, Camera, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { generateSocialUrl } from "@/lib/utils";
 import {
   FaInstagram,
   FaTiktok,
@@ -38,6 +40,9 @@ type RedeSocial = {
 type Perfil = {
   id: string;
   nome: string;
+  descricao?: string;
+  avatarUrl?: string | null;
+  ordem?: number;
   redesSociais: RedeSocial[];
 };
 
@@ -58,6 +63,7 @@ export function PerfilCard({ perfil }: { perfil: Perfil }) {
   const router = useRouter();
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [editingRede, setEditingRede] = useState<RedeSocial | null>(null);
   const [newRede, setNewRede] = useState({
     plataforma: "instagram",
@@ -66,6 +72,70 @@ export function PerfilCard({ perfil }: { perfil: Perfil }) {
     seguidores: "",
     tipo: "oficial",
   });
+
+  // Preview das URLs geradas
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [editPreviewUrl, setEditPreviewUrl] = useState("");
+
+  // Atualizar preview URL quando mudar plataforma ou usuário (novo formulário)
+  useEffect(() => {
+    if (newRede.usuario) {
+      setPreviewUrl(generateSocialUrl(newRede.plataforma, newRede.usuario));
+    } else {
+      setPreviewUrl("");
+    }
+  }, [newRede.plataforma, newRede.usuario]);
+
+  // Atualizar preview URL quando mudar plataforma ou usuário (edição)
+  useEffect(() => {
+    if (editingRede?.usuario) {
+      setEditPreviewUrl(generateSocialUrl(editingRede.plataforma, editingRede.usuario));
+    } else {
+      setEditPreviewUrl("");
+    }
+  }, [editingRede?.plataforma, editingRede?.usuario]);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validar tamanho e tipo
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Arquivo deve ter no máximo 5MB");
+      return;
+    }
+
+    setUploadingAvatar(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", "perfil-social");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Erro no upload");
+
+      const { url } = await res.json();
+
+      // Atualizar o avatar do perfil via API
+      await fetch(`/api/perfis/${perfil.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ avatarUrl: url }),
+      });
+
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao fazer upload da imagem");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   // Separar redes por tipo
   const redesOficiais = [...perfil.redesSociais]
@@ -80,12 +150,16 @@ export function PerfilCard({ perfil }: { perfil: Perfil }) {
     e.preventDefault();
     setLoading(true);
     try {
+      // Gerar URL automaticamente
+      const generatedUrl = generateSocialUrl(newRede.plataforma, newRede.usuario);
+
       await fetch("/api/redes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           perfilId: perfil.id,
           ...newRede,
+          url: generatedUrl, // Usar URL gerada automaticamente
           seguidores: newRede.seguidores ? parseInt(newRede.seguidores) : null,
         }),
       });
@@ -104,13 +178,16 @@ export function PerfilCard({ perfil }: { perfil: Perfil }) {
     if (!editingRede) return;
     setLoading(true);
     try {
+      // Gerar URL automaticamente
+      const generatedUrl = generateSocialUrl(editingRede.plataforma, editingRede.usuario);
+
       await fetch(`/api/redes/${editingRede.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           plataforma: editingRede.plataforma,
           usuario: editingRede.usuario,
-          url: editingRede.url,
+          url: generatedUrl, // Usar URL gerada automaticamente
           seguidores: editingRede.seguidores,
           tipo: editingRede.tipo,
         }),
@@ -268,7 +345,46 @@ export function PerfilCard({ perfil }: { perfil: Perfil }) {
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-white">{perfil.nome}</h3>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            {/* Avatar com fallback */}
+            <div className={`h-14 w-14 rounded-full flex items-center justify-center overflow-hidden bg-zinc-800 border border-zinc-700 ${uploadingAvatar ? 'opacity-50' : ''}`}>
+              {perfil.avatarUrl ? (
+                <Image
+                  src={perfil.avatarUrl}
+                  alt={perfil.nome}
+                  width={56}
+                  height={56}
+                  className="object-cover"
+                />
+              ) : (
+                <User size={24} className="text-zinc-500" />
+              )}
+              {uploadingAvatar && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Loader2 className="w-5 h-5 text-white animate-spin" />
+                </div>
+              )}
+            </div>
+
+            {/* Botão de upload escondido sobre o avatar */}
+            <input
+              type="file"
+              id={`avatar-upload-${perfil.id}`}
+              className="hidden"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              onChange={handleAvatarUpload}
+            />
+            <label
+              htmlFor={`avatar-upload-${perfil.id}`}
+              className="absolute inset-0 cursor-pointer rounded-full hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 hover:opacity-100"
+              title="Alterar imagem do perfil"
+            >
+              <Camera size={16} className="text-white" />
+            </label>
+          </div>
+          <h3 className="text-lg font-semibold text-white">{perfil.nome}</h3>
+        </div>
         <button
           onClick={handleDeletePerfil}
           className="text-zinc-500 hover:text-red-500 transition-colors"
@@ -309,13 +425,12 @@ export function PerfilCard({ perfil }: { perfil: Perfil }) {
                 placeholder="@usuario"
                 required
               />
-              <Input
-                label="URL"
-                value={editingRede.url}
-                onChange={(e) => setEditingRede({ ...editingRede, url: e.target.value })}
-                placeholder="https://..."
-                required
-              />
+              <div>
+                <label className="block text-sm font-medium text-white mb-1">URL (gerada automaticamente)</label>
+                <div className="px-3 py-2 bg-black/50 border border-zinc-700 rounded-lg text-zinc-500 text-sm truncate">
+                  {editPreviewUrl || 'URL será gerada automaticamente'}
+                </div>
+              </div>
               <Input
                 label="Seguidores"
                 type="number"
@@ -397,13 +512,12 @@ export function PerfilCard({ perfil }: { perfil: Perfil }) {
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Input
-              label="URL"
-              value={newRede.url}
-              onChange={(e) => setNewRede({ ...newRede, url: e.target.value })}
-              placeholder="https://..."
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium text-white mb-1">URL (gerada automaticamente)</label>
+              <div className="px-3 py-2 bg-black/50 border border-zinc-700 rounded-lg text-zinc-500 text-sm truncate">
+                {previewUrl || 'URL será gerada automaticamente'}
+              </div>
+            </div>
             <Input
               label="Seguidores"
               type="number"
