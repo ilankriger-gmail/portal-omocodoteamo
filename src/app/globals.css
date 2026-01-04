@@ -5,29 +5,63 @@
 :root {
   /* Base - tema escuro sempre */
   --background: #09090b;
-  --foreground: #fafafa;
+  --foreground: #FFFFFF; /* Melhorado para branco puro */
+  --foreground-secondary: #E5E5E5; /* Texto secundário mais claro */
+  --foreground-tertiary: #B0B0B0; /* Texto terciário com contraste adequado */
 
   /* Cores da marca */
   --brand-red: #dc2626;
   --brand-yellow: #facc15;
   --brand-purple: #9333ea;
+  --brand-green: #22C55E; /* Verde para botões */
 
   /* Botões */
-  --btn-primary-bg: #000000;
-  --btn-primary-border: #dc2626;
-  --btn-secondary-border: #3f3f46;
+  --btn-primary-bg: #22C55E; /* Verde mais vibrante */
+  --btn-primary-text: #FFFFFF; /* Texto branco para contraste */
+  --btn-primary-border: #22C55E;
+  --btn-secondary-border: #4B5563; /* Borda mais contrastante */
   --btn-accent-border: #9333ea;
 
   /* Superfícies */
   --surface: #18181b;
   --surface-hover: #27272a;
+  --surface-card: #1F1F23; /* Superfície mais clara para cards */
   --border: #3f3f46;
+  --border-light: #4B5563; /* Borda mais clara para destaque */
+
+  /* Espaçamento */
+  --space-xs: 0.5rem;   /* 8px */
+  --space-sm: 0.75rem;  /* 12px */
+  --space-md: 1.25rem;  /* 20px */
+  --space-lg: 2rem;     /* 32px */
+  --space-xl: 3rem;     /* 48px */
+  --space-2xl: 4rem;    /* 64px */
+
+  /* Tipografia */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1.0625rem; /* 17px */
+  --font-size-lg: 1.25rem;    /* 20px */
+  --font-size-xl: 1.5rem;     /* 24px */
+  --font-size-2xl: 1.875rem;  /* 30px */
+  --font-size-3xl: 2.25rem;   /* 36px */
+
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-geist-sans), Arial, sans-serif;
+  font-size: var(--font-size-base); /* Tamanho base melhorado */
+  line-height: 1.6; /* Melhor espaçamento entre linhas para legibilidade */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @layer utilities {
@@ -37,6 +71,7 @@ body {
 }
 
 @layer components {
+  /* Efeitos de vidro */
   .glass {
     @apply bg-zinc-900/60 backdrop-blur-md border border-white/10;
   }
@@ -47,5 +82,68 @@ body {
 
   .glass-dark {
     @apply bg-zinc-900/80 backdrop-blur-lg border border-white/20;
+  }
+
+  /* Tipografia */
+  .heading-xl {
+    @apply text-foreground text-4xl font-extrabold leading-tight;
+  }
+
+  .heading-lg {
+    @apply text-foreground text-3xl font-bold leading-tight;
+  }
+
+  .heading-md {
+    @apply text-foreground text-2xl font-bold leading-tight;
+  }
+
+  .heading-sm {
+    @apply text-foreground text-xl font-semibold leading-snug;
+  }
+
+  .subtitle {
+    @apply text-foreground-secondary text-lg font-medium leading-normal;
+  }
+
+  .body-lg {
+    @apply text-foreground-secondary text-lg leading-relaxed;
+  }
+
+  .body {
+    @apply text-foreground-secondary text-base leading-relaxed;
+  }
+
+  .body-sm {
+    @apply text-foreground-tertiary text-sm leading-relaxed;
+  }
+
+  .caption {
+    @apply text-foreground-tertiary text-xs leading-normal;
+  }
+
+  /* Espaçamento */
+  .section-spacing {
+    @apply my-12 md:my-16;
+  }
+
+  .content-spacing {
+    @apply my-6 md:my-8;
+  }
+
+  .content-padding {
+    @apply px-4 md:px-6;
+  }
+
+  /* Containers de layout */
+  .container-sm {
+    @apply max-w-2xl mx-auto px-4;
+  }
+
+  .container-md {
+    @apply max-w-4xl mx-auto px-4;
+  }
+
+  .container-lg {
+    @apply max-w-6xl mx-auto px-4;
   }
 }
