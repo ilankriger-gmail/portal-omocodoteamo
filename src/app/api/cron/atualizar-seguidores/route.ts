@@ -11,11 +11,10 @@ export const revalidate = 0;
 const isBuild = process.env.NODE_ENV === "production" &&
                 process.env.NEXT_PHASE === "phase-production-build";
 
-// Plataformas que suportam scraping
-const PLATAFORMAS_SUPORTADAS = ["instagram", "youtube", "tiktok", "facebook", "kwai", "threads"];
-
-// Rate limiting: delay entre cada scrape para evitar bloqueios
-const DELAY_ENTRE_SCRAPES = 3000; // 3 segundos
+// Variáveis que serão inicializadas apenas durante o runtime
+// Movidas para dentro da função para evitar carregamento durante build
+let PLATAFORMAS_SUPORTADAS: string[] = [];
+let DELAY_ENTRE_SCRAPES: number = 0;
 
 export async function GET(request: Request) {
   // Durante o build, retorna uma resposta mock
@@ -28,21 +27,25 @@ export async function GET(request: Request) {
     });
   }
 
-  // Importar módulos apenas em runtime para evitar problemas durante o build
-  const { prisma } = await import("@/lib/prisma");
-  const { buscarSeguidores } = await import("@/lib/scrapers");
-  const { closeBrowser } = await import("@/lib/scrapers/browser");
-
-  // Verificar token secreto
-  const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-
-  // Em produção, exigir token
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
-  }
-
   try {
+    // Inicializar variáveis apenas durante runtime
+    PLATAFORMAS_SUPORTADAS = ["instagram", "youtube", "tiktok", "facebook", "kwai", "threads"];
+    DELAY_ENTRE_SCRAPES = 3000; // 3 segundos
+
+    // Importar módulos apenas em runtime para evitar problemas durante o build
+    const { prisma } = await import("@/lib/prisma");
+    const { buscarSeguidores } = await import("@/lib/scrapers");
+    const { closeBrowser } = await import("@/lib/scrapers/browser");
+
+    // Verificar token secreto
+    const authHeader = request.headers.get("authorization");
+    const cronSecret = process.env.CRON_SECRET;
+
+    // Em produção, exigir token
+    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
+
     // Buscar todas as redes sociais que suportam scraping
     const redes = await prisma.redeSocial.findMany({
       where: {
@@ -129,6 +132,7 @@ export async function GET(request: Request) {
     console.error("[Cron] Erro geral:", error);
 
     try {
+      // Importar closeBrowser novamente dentro do catch para garantir que está disponível
       const { closeBrowser } = await import("@/lib/scrapers/browser");
       await closeBrowser();
     } catch (e) {

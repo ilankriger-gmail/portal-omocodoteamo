@@ -39,11 +39,10 @@ const nextConfig = {
   // Desabilitar geração estática para rotas que usam banco de dados
   // Isso garante que as páginas sejam renderizadas no servidor
   experimental: {
-    serverComponentsExternalPackages: ['@prisma/client'],
+    // Remover @prisma/client pois estava causando conflito
+    // serverComponentsExternalPackages: ['@prisma/client'],
     // Usar fallback para páginas que falham durante build
     missingSuspenseWithCSRBailout: false,
-    // Evitar coletar dados de rotas problemáticas (como /api/adsense)
-    optimizePackageImports: ['@prisma/client'],
   },
 };
 
