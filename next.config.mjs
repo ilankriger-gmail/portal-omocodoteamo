@@ -66,7 +66,7 @@ const nextConfig = {
   // Isso garante que as páginas sejam renderizadas no servidor
   experimental: {
     // Pacotes externos que devem ser carregados apenas em runtime, não durante build
-    serverComponentsExternalPackages: ['puppeteer', 'puppeteer-core', '@sparticuz/chromium'],
+    serverComponentsExternalPackages: ['puppeteer', 'puppeteer-core', '@sparticuz/chromium', '@prisma/client', 'prisma'],
     // Usar fallback para páginas que falham durante build
     missingSuspenseWithCSRBailout: false,
   },
