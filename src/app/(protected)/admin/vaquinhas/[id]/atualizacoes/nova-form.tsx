@@ -22,6 +22,7 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [galleryUploading, setGalleryUploading] = useState(false);
   const [form, setForm] = useState({
     tipo: "TEXTO",
     conteudo: "",
@@ -82,9 +83,30 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
     setLoading(true);
 
     try {
+      // Validações
+      if (form.conteudo.trim() === "") {
+        alert("O conteúdo da atualização não pode estar vazio");
+        setLoading(false);
+        return;
+      }
+
       // Validação específica para galeria
       if (form.tipo === "GALERIA" && form.imagens.length === 0) {
         alert("Adicione pelo menos uma imagem à galeria");
+        setLoading(false);
+        return;
+      }
+
+      // Validação para tipo FOTO ou COMPROVANTE
+      if ((form.tipo === "FOTO" || form.tipo === "COMPROVANTE") && !form.imagemUrl) {
+        alert(`Adicione uma imagem para o tipo ${form.tipo === "FOTO" ? "Foto" : "Comprovante"}`);
+        setLoading(false);
+        return;
+      }
+
+      // Validação para tipo VIDEO
+      if (form.tipo === "VIDEO" && !form.videoUrl) {
+        alert("Adicione o link do vídeo do YouTube");
         setLoading(false);
         return;
       }
@@ -107,10 +129,13 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
         router.refresh();
       } else {
         const errorData = await res.json();
-        alert(errorData.error || "Erro ao publicar");
+        const errorMessage = errorData.error || "Erro ao publicar atualização";
+        alert(errorMessage);
+        console.error("API Error:", errorData);
       }
-    } catch {
-      alert("Erro ao publicar");
+    } catch (error) {
+      console.error("Form submission error:", error);
+      alert("Ocorreu um erro ao publicar a atualização. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -119,6 +144,15 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
   const showImageUpload = form.tipo === "FOTO" || form.tipo === "COMPROVANTE";
   const showGalleryUpload = form.tipo === "GALERIA";
   const showVideoInput = form.tipo === "VIDEO";
+
+  // Gallery upload status handlers
+  const handleGalleryUploadStart = () => {
+    setGalleryUploading(true);
+  };
+
+  const handleGalleryUploadComplete = () => {
+    setGalleryUploading(false);
+  };
 
   // Handler para receber imagens do componente de upload múltiplo
   const handleImagesChange = (images: CarouselImage[]) => {
@@ -205,6 +239,8 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
           </label>
           <ImageUploadMultiple
             onImagesChange={handleImagesChange}
+            onUploadStart={handleGalleryUploadStart}
+            onUploadComplete={handleGalleryUploadComplete}
             maxImages={10}
           />
           {form.imagens.length > 0 && (
@@ -226,8 +262,13 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
         />
       )}
 
-      <Button type="submit" loading={loading} disabled={uploading} className="w-full">
-        Publicar Atualização
+      <Button
+        type="submit"
+        loading={loading}
+        disabled={uploading || galleryUploading}
+        className="w-full"
+      >
+        {galleryUploading ? 'Aguarde o upload das imagens...' : 'Publicar Atualização'}
       </Button>
     </form>
   );

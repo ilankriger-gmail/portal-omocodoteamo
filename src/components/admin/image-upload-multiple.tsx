@@ -12,6 +12,7 @@ type ImageUpload = {
   progress: number;
   url?: string; // URL do servidor após upload
   legenda?: string;
+  error?: string; // Error message if upload fails
 };
 
 interface ImageUploadMultipleProps {
@@ -19,6 +20,8 @@ interface ImageUploadMultipleProps {
   maxImages?: number;
   className?: string;
   initialImages?: CarouselImage[];
+  onUploadStart?: () => void;
+  onUploadComplete?: () => void;
 }
 
 export function ImageUploadMultiple({
@@ -26,8 +29,11 @@ export function ImageUploadMultiple({
   maxImages = 10,
   className = "",
   initialImages = [],
+  onUploadStart,
+  onUploadComplete,
 }: ImageUploadMultipleProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [allUploadsComplete, setAllUploadsComplete] = useState(true);
   const [images, setImages] = useState<ImageUpload[]>(() =>
     initialImages.map(img => ({
       id: img.id,
@@ -44,13 +50,47 @@ export function ImageUploadMultiple({
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
+    // Check file count limit
     if (images.length + files.length > maxImages) {
       alert(`Você pode adicionar no máximo ${maxImages} imagens`);
       return;
     }
 
-    // Create preview images
-    const newImages = files.map((file) => ({
+    // Validate file types and sizes before uploading
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const invalidFiles: string[] = [];
+
+    // Check each file for validity
+    files.forEach(file => {
+      if (!allowedTypes.includes(file.type)) {
+        invalidFiles.push(`${file.name} (tipo não permitido)`);
+      } else if (file.size > maxSize) {
+        invalidFiles.push(`${file.name} (tamanho excede 5MB)`);
+      }
+    });
+
+    // Alert if there are invalid files
+    if (invalidFiles.length > 0) {
+      alert(`Os seguintes arquivos não puderam ser adicionados:\n${invalidFiles.join('\n')}`);
+
+      // If all files are invalid, return early
+      if (invalidFiles.length === files.length) {
+        // Reset input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        return;
+      }
+    }
+
+    // Filter out invalid files
+    const validFiles = files.filter(file =>
+      allowedTypes.includes(file.type) && file.size <= maxSize
+    );
+
+    // Create preview images for valid files
+    const newImages = validFiles.map((file) => ({
       id: Math.random().toString(36).slice(2),
       file,
       previewUrl: URL.createObjectURL(file),
@@ -60,15 +100,30 @@ export function ImageUploadMultiple({
     }));
 
     setImages((prev) => [...prev, ...newImages]);
+    setAllUploadsComplete(false);
 
-    // Upload each file
-    for (const newImage of newImages) {
-      await uploadFile(newImage);
+    if (onUploadStart) {
+      onUploadStart();
     }
 
-    // Reset input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    // Upload files in parallel
+    try {
+      await Promise.all(newImages.map(uploadFile));
+    } catch (error) {
+      console.error("Error uploading files:", error);
+    } finally {
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      setAllUploadsComplete(true);
+      // Update parent with successfully uploaded images
+      updateParentWithImages();
+
+      if (onUploadComplete) {
+        onUploadComplete();
+      }
     }
   };
 
@@ -93,21 +148,28 @@ export function ImageUploadMultiple({
           )
         );
 
-        // Update parent component with all successful uploads
-        updateParentWithImages();
+        // Do not update parent immediately - wait for all uploads to complete
+        return data.url;
       } else {
-        handleUploadError(image);
+        const errorData = await res.json();
+        const errorMessage = errorData.error || "Erro ao fazer upload";
+        throw new Error(errorMessage);
       }
     } catch (error) {
-      handleUploadError(image);
+      console.error(`Error uploading ${image.file.name}:`, error);
+      setImages((prev) =>
+        prev.map((img) =>
+          img.id === image.id
+            ? { ...img, uploading: false, error: error.message }
+            : img
+        )
+      );
+      // Mark this image as failed but allow other uploads to continue
+      throw error;
     }
   };
 
-  const handleUploadError = (image: ImageUpload) => {
-    alert(`Erro ao fazer upload da imagem ${image.file.name}`);
-    setImages((prev) => prev.filter((img) => img.id !== image.id));
-    updateParentWithImages();
-  };
+  // Error handling is now integrated in the uploadFile function
 
   const removeImage = (id: string) => {
     setImages((prev) => prev.filter((img) => img.id !== id));
@@ -122,8 +184,9 @@ export function ImageUploadMultiple({
   };
 
   const updateParentWithImages = useCallback(() => {
+    // Only send successfully uploaded images to parent (not uploading, has URL, no error)
     const uploadedImages = images
-      .filter((img) => !img.uploading && img.url)
+      .filter((img) => !img.uploading && img.url && !img.error)
       .map((img) => ({
         id: img.id,
         url: img.url!,
@@ -147,7 +210,7 @@ export function ImageUploadMultiple({
   return (
     <div className={`space-y-3 ${className}`}>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {images.map((image, index) => (
+        {images.map((image) => (
           <div
             key={image.id}
             className="relative aspect-square bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800"
@@ -158,67 +221,37 @@ export function ImageUploadMultiple({
               className="w-full h-full object-cover"
             />
 
+            {/* Upload status indicators */}
             {image.uploading && (
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                <Loader2 className="animate-spin text-white" size={24} />
+              <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
+                <Loader2 className="animate-spin text-white mb-2" size={24} />
+                <p className="text-white text-xs">Enviando...</p>
               </div>
             )}
 
-            <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2 flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => removeImage(image.id)}
-                className="text-red-400 hover:text-red-300 p-1"
-                title="Remover imagem"
-              >
-                <X size={14} />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  const legenda = prompt("Legenda da imagem:", image.legenda);
-                  if (legenda !== null) updateLegenda(image.id, legenda);
-                }}
-                className="text-blue-400 hover:text-blue-300 p-1"
-                title="Adicionar legenda"
-              >
-                <Edit size={14} />
-              </button>
-
-              <div className="flex-grow text-center text-xs text-zinc-400">
-                {index + 1}/{images.length}
+            {/* Error indicator */}
+            {image.error && (
+              <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
+                <X className="text-red-500 mb-2" size={24} />
+                <p className="text-red-400 text-xs text-center px-2">
+                  Erro ao enviar
+                </p>
               </div>
+            )}
 
-              <button
-                type="button"
-                onClick={() => moveImage(index, index - 1)}
-                disabled={index === 0}
-                className={`p-1 ${
-                  index === 0 ? "text-zinc-600 cursor-not-allowed" : "text-zinc-400 hover:text-white"
-                }`}
-                title="Mover para esquerda"
-              >
-                <ChevronLeft size={14} />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => moveImage(index, index + 1)}
-                disabled={index === images.length - 1}
-                className={`p-1 ${
-                  index === images.length - 1
-                    ? "text-zinc-600 cursor-not-allowed"
-                    : "text-zinc-400 hover:text-white"
-                }`}
-                title="Mover para direita"
-              >
-                <ChevronRight size={14} />
-              </button>
-            </div>
+            {/* Simple control - just remove button */}
+            <button
+              type="button"
+              onClick={() => removeImage(image.id)}
+              className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 hover:bg-red-500"
+              title="Remover imagem"
+            >
+              <X size={14} />
+            </button>
           </div>
         ))}
 
+        {/* Add image button */}
         {images.length < maxImages && (
           <button
             type="button"
@@ -233,6 +266,7 @@ export function ImageUploadMultiple({
         )}
       </div>
 
+      {/* Hidden file input */}
       <input
         ref={fileInputRef}
         type="file"
@@ -242,6 +276,7 @@ export function ImageUploadMultiple({
         className="hidden"
       />
 
+      {/* Empty state - shown when no images are selected */}
       {images.length === 0 && (
         <div
           onClick={() => fileInputRef.current?.click()}
@@ -254,6 +289,14 @@ export function ImageUploadMultiple({
           <p className="text-zinc-600 text-xs mt-1">
             JPG, PNG, GIF ou WEBP (máx. 5MB cada)
           </p>
+        </div>
+      )}
+
+      {/* Upload status indicator */}
+      {!allUploadsComplete && (
+        <div className="text-center text-sm text-green-400 mt-2">
+          <Loader2 className="animate-spin inline-block mr-2 align-middle" size={16} />
+          Enviando imagens...
         </div>
       )}
     </div>
