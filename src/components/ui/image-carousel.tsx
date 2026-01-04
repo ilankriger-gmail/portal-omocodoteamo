@@ -18,6 +18,7 @@ interface ImageCarouselProps {
   autoPlay?: boolean;
   interval?: number;
   className?: string;
+  captionLines?: number; // New prop: number of lines to show before truncation
 }
 
 export function ImageCarousel({
@@ -27,7 +28,18 @@ export function ImageCarousel({
   autoPlay = false,
   interval = 5000,
   className = "",
+  captionLines = 2, // Default to 2 lines
 }: ImageCarouselProps) {
+  // Helper function for line clamp classes
+  const getLineClampClass = (lines: number): string => {
+    switch (lines) {
+      case 1: return "line-clamp-1";
+      case 3: return "line-clamp-3";
+      case 4: return "line-clamp-4";
+      default: return "line-clamp-2";
+    }
+  };
+
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: images.length > 1 });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
@@ -112,8 +124,15 @@ export function ImageCarousel({
           />
 
           {showCaptions && images[0].legenda && (
-            <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2 text-white text-sm">
-              {images[0].legenda}
+            <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2 max-h-[30%] overflow-hidden"
+                 role="complementary"
+                 aria-label="Legenda da imagem">
+              <p
+                className={`text-white text-xs sm:text-sm ${getLineClampClass(captionLines)} break-words text-shadow`}
+                title={images[0].legenda} // Shows full text on hover
+              >
+                {images[0].legenda}
+              </p>
             </div>
           )}
         </div>
@@ -141,8 +160,15 @@ export function ImageCarousel({
               />
 
               {showCaptions && image.legenda && (
-                <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2 text-white text-sm">
-                  {image.legenda}
+                <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2 max-h-[30%] overflow-hidden"
+                     role="complementary"
+                     aria-label="Legenda da imagem">
+                  <p
+                    className={`text-white text-xs sm:text-sm ${getLineClampClass(captionLines)} break-words text-shadow`}
+                    title={image.legenda} // Shows full text on hover
+                  >
+                    {image.legenda}
+                  </p>
                 </div>
               )}
             </div>
