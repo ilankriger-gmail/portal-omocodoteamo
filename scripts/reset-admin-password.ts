@@ -15,7 +15,7 @@ const prisma = new PrismaClient({
 
 // Email e nova senha do administrador
 const ADMIN_EMAIL = "admin@omocodoteamo.com.br";
-const NEW_PASSWORD = "Portal@2026!"; // Senha mais segura para ambiente de produção
+const NEW_PASSWORD = "admin123"; // Senha simples para garantir compatibilidade
 
 async function main() {
   try {
