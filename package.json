@@ -15,7 +15,9 @@
     "db:studio": "prisma studio",
     "migrate:slugs": "ts-node --compiler-options {\"module\":\"CommonJS\"} scripts/migrate-slugs.ts",
     "update-profiles": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/update-social-profiles.ts",
-    "update-followers": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/update-followers.ts"
+    "update-followers": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/update-followers.ts",
+    "update-telegram": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/update-telegram-profiles.ts",
+    "check-telegram": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/check-telegram.ts"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"

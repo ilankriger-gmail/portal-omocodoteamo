@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Perfis Sociais a serem atualizados
+  // Perfis Sociais a serem atualizados com Telegram
   const perfisSociais = [
     {
       id: "nextleveldj",
@@ -18,6 +18,7 @@ async function main() {
         { plataforma: "threads", usuario: "nextleveldj", url: "https://www.threads.net/@nextleveldj", ordem: 6 },
         { plataforma: "kwai", usuario: "nextleveldj", url: "https://kwai.com/@nextleveldj", ordem: 7 },
         { plataforma: "x", usuario: "nextleveldj", url: "https://x.com/nextleveldj", ordem: 8 },
+        { plataforma: "telegram", usuario: "nextleveldj", url: "https://t.me/nextleveldj", ordem: 9 },
       ],
     },
     {
@@ -33,6 +34,7 @@ async function main() {
         { plataforma: "threads", usuario: "omocodoteamo", url: "https://threads.net/@omocodoteamo", ordem: 6 },
         { plataforma: "kwai", usuario: "omocodoteamo", url: "https://kwai.com/@omocodoteamo", ordem: 7 },
         { plataforma: "x", usuario: "omocodoteamo", url: "https://x.com/omocodoteamo", ordem: 8 },
+        { plataforma: "telegram", usuario: "omocodoteamo", url: "https://t.me/omocodoteamo", ordem: 9 },
       ],
     },
     {
@@ -48,6 +50,7 @@ async function main() {
         { plataforma: "threads", usuario: "ongdoteamo", url: "https://threads.net/@ongdoteamo", ordem: 6 },
         { plataforma: "kwai", usuario: "ongdoteamo", url: "https://kwai.com/@ongdoteamo", ordem: 7 },
         { plataforma: "x", usuario: "ongdoteamo", url: "https://x.com/ongdoteamo", ordem: 8 },
+        { plataforma: "telegram", usuario: "ongdoteamo", url: "https://t.me/ongdoteamo", ordem: 9 },
       ],
     },
   ];
@@ -66,33 +69,45 @@ async function main() {
       },
     });
 
-    // Deletar redes sociais existentes para o perfil
-    await prisma.redeSocial.deleteMany({
+    // Buscar redes sociais existentes
+    const redesExistentes = await prisma.redeSocial.findMany({
       where: { perfilId: perfil.id },
     });
-    console.log(`- Redes sociais existentes para ${perfilData.nome} foram removidas`);
 
-    // Criar as novas redes sociais do perfil
-    for (const rede of perfilData.redes) {
-      const redeId = `${perfilData.id}-${rede.plataforma}`;
-      await prisma.redeSocial.create({
-        data: {
-          id: redeId,
-          perfilId: perfil.id,
-          plataforma: rede.plataforma,
-          usuario: rede.usuario,
-          url: rede.url,
-          seguidores: null,
-          ordem: rede.ordem,
-        },
-      });
-      console.log(`- Rede social criada: ${rede.plataforma} (${rede.usuario})`);
+    // Verificar se já existe rede Telegram
+    const telegramExistente = redesExistentes.find(
+      (rede) => rede.plataforma === "telegram"
+    );
+
+    if (telegramExistente) {
+      console.log(`- Perfil ${perfilData.nome} já possui Telegram`);
+    } else {
+      // Adicionar apenas a rede Telegram
+      const telegramRede = perfilData.redes.find(
+        (rede) => rede.plataforma === "telegram"
+      );
+
+      if (telegramRede) {
+        const redeId = `${perfilData.id}-${telegramRede.plataforma}`;
+        await prisma.redeSocial.create({
+          data: {
+            id: redeId,
+            perfilId: perfil.id,
+            plataforma: telegramRede.plataforma,
+            usuario: telegramRede.usuario,
+            url: telegramRede.url,
+            seguidores: null,
+            ordem: telegramRede.ordem,
+          },
+        });
+        console.log(`- Rede social Telegram criada para ${perfilData.nome}`);
+      }
     }
 
     console.log(`✅ Perfil ${perfilData.nome} atualizado com sucesso\n`);
   }
 
-  console.log("Atualização concluída!");
+  console.log("Atualização do Telegram concluída!");
 }
 
 main()
