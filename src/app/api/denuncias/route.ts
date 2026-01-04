@@ -8,7 +8,21 @@ export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 export const revalidate = 0;
 
+// Verifica se estamos no ambiente de build da Vercel
+const isBuild = process.env.NODE_ENV === "production" &&
+                process.env.NEXT_PHASE === "phase-production-build";
+
 export async function POST(request: Request) {
+  // Durante o build, retornar dados mock
+  if (isBuild) {
+    console.log("[denuncias] Ignorando execução durante o build da Vercel");
+    return NextResponse.json({
+      success: true,
+      id: "mock-id-build-time",
+      build: true
+    });
+  }
+
   try {
     const body = await request.json();
     const { perfilFalso, plataforma, descricao, imagemUrl, contato } = body;
@@ -41,6 +55,15 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
+  // Durante o build, retornar dados mock
+  if (isBuild) {
+    console.log("[denuncias] Ignorando execução durante o build da Vercel");
+    return NextResponse.json({
+      denuncias: [],
+      build: true
+    });
+  }
+
   // Apenas admin pode ver denúncias
   return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 }
