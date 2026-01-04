@@ -3,6 +3,9 @@ import { HelpCircle } from "lucide-react";
 import { FAQAccordion } from "./faq-accordion";
 import type { Metadata } from "next";
 
+// Definimos a página como dinâmica para que seja executada em runtime
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Dúvidas Frequentes | Portal da Transparência O Moço do Te Amo",
   description: "Encontre respostas para as perguntas mais comuns sobre o Portal da Transparência e como ajudamos pessoas.",

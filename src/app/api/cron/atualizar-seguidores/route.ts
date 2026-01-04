@@ -3,6 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { buscarSeguidores } from "@/lib/scrapers";
 import { closeBrowser } from "@/lib/scrapers/browser";
 
+// Definimos a API como dinâmica para que seja executada em runtime
+export const dynamic = 'force-dynamic';
+
+// Desabilitar cache
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+
 // Plataformas que suportam scraping
 const PLATAFORMAS_SUPORTADAS = ["instagram", "youtube", "tiktok", "facebook", "kwai", "threads"];
 
