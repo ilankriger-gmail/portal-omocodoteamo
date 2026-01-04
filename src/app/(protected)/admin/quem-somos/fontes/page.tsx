@@ -5,6 +5,7 @@ import { FonteForm } from "./fonte-form";
 import { DeleteButton } from "../../config/links/delete-button";
 
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 export default async function FontesPage() {
   const fontes = await prisma.fonteRenda.findMany();

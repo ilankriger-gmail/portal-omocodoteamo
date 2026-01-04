@@ -6,6 +6,8 @@ import { NovaAtualizacaoForm } from "./nova-form";
 import { DeleteAtualizacaoButton } from "./delete-button";
 import { StatsForm } from "./stats-form";
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 // Extrai o ID do vídeo do YouTube de várias URLs possíveis
 function getYoutubeEmbedUrl(url: string): string | null {
   const patterns = [

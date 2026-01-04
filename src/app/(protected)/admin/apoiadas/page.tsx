@@ -3,6 +3,9 @@ import { Trash2, ExternalLink, HeartHandshake } from "lucide-react";
 import { revalidatePath } from "next/cache";
 import { AdicionarVaquinhaForm } from "./adicionar-form";
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 async function getVaquinhasApoiadas() {
   return prisma.vaquinhaApoiada.findMany({
     orderBy: { nome: "asc" },

@@ -16,6 +16,8 @@ import {
 import { ESTADOS_BRASIL, getCidadesByEstado } from "@/lib/ibge";
 import type { Cidade } from "@/types/brasil";
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 const tiposNecessidade = [
   { id: "dinheiro", label: "Dinheiro", emoji: "💰" },
   { id: "presenca", label: "Presença do Ilan", emoji: "🤝" },

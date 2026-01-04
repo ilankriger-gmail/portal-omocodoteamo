@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { UsersList } from "./users-list";
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 async function getUsers() {
   return prisma.user.findMany({
     select: {

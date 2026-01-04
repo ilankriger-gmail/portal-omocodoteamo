@@ -16,6 +16,7 @@ import {
 import { CopyPixButton } from "./copy-pix";
 
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 function getYouTubeEmbedUrl(url: string): string | null {
   const patterns = [

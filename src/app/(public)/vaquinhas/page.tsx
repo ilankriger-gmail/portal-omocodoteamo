@@ -3,6 +3,7 @@ import { VaquinhasClientList } from "./vaquinhas-client-list";
 
 // Definimos a página como dinâmica para que seja executada em runtime
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 export const metadata = {
   title: "Vaquinhas | Portal da Transparência O Moço do Te Amo",

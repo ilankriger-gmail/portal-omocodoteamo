@@ -6,6 +6,8 @@ import Image from "next/image";
 import { Heart, Clock, Search, ChevronLeft, ChevronRight, TrendingUp } from "lucide-react";
 import { isValidImageUrl } from "@/lib/utils";
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 interface VaquinhaData {
   id: string;
   slug: string;

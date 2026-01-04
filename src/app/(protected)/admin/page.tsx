@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { Heart, Users, TrendingUp, Clock } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 async function getStats() {
   const [
     vaquinhasAtivas,

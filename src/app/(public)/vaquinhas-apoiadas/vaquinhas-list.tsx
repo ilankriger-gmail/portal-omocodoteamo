@@ -6,6 +6,8 @@ import { ExternalLink, Heart, RefreshCw, Clock, Search, Users, ChevronLeft, Chev
 import { isValidImageUrl } from "@/lib/utils";
 import { CopyButton } from "./copy-button";
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 interface VaquinhaData {
   id: string;
   nome: string;

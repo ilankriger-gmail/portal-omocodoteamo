@@ -10,6 +10,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { isValidImageUrl } from "@/lib/utils";
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 type Vaquinha = {
   id: string;
   titulo: string;

@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { DollarSign } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 async function getFontesCount() {
   const count = await prisma.fonteRenda.count();
   return count;

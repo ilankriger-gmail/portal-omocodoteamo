@@ -12,6 +12,7 @@ import {
 import { DenunciaForm } from "./denuncia-form";
 
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 // Ícone customizado do Kwai
 const KwaiIcon = ({ className }: { className?: string }) => (

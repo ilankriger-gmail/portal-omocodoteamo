@@ -8,6 +8,7 @@ import { Pagination } from "./pagination";
 import { isValidImageUrl } from "@/lib/utils";
 
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 export default async function VaquinhasPage({
   searchParams,

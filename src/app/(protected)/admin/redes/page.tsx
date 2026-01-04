@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PerfilCard } from "./perfil-card";
 
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 export default async function RedesSociaisPage() {
   const perfis = await prisma.perfilSocial.findMany({

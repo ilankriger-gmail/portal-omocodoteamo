@@ -65,8 +65,8 @@ const nextConfig = {
   // Desabilitar geração estática para rotas que usam banco de dados
   // Isso garante que as páginas sejam renderizadas no servidor
   experimental: {
-    // Remover @prisma/client pois estava causando conflito
-    // serverComponentsExternalPackages: ['@prisma/client'],
+    // Pacotes externos que devem ser carregados apenas em runtime, não durante build
+    serverComponentsExternalPackages: ['puppeteer', 'puppeteer-core', '@sparticuz/chromium'],
     // Usar fallback para páginas que falham durante build
     missingSuspenseWithCSRBailout: false,
   },

@@ -8,6 +8,7 @@ import { safeDbOperation } from "@/lib/db-fallback";
 
 // Definimos o layout como dinâmico para que seja executado em runtime
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",

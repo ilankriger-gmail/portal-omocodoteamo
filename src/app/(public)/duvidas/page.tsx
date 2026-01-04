@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 
 // Definimos a página como dinâmica para que seja executada em runtime
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 export const metadata: Metadata = {
   title: "Dúvidas Frequentes | Portal da Transparência O Moço do Te Amo",

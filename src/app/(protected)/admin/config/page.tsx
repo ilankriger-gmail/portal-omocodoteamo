@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { ConfigForm } from "./config-form";
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 async function getConfig() {
   let config = await prisma.config.findFirst();
 

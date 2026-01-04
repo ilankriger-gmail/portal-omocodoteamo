@@ -5,6 +5,10 @@ import { Heart, Users, TrendingUp, ShieldAlert, HandHeart } from "lucide-react";
 import { isValidImageUrl } from "@/lib/utils";
 import type { Metadata } from "next";
 
+// Força a renderização dinâmica da página em cada acesso
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 // Metadata para SEO
 export const metadata: Metadata = {
   title: "Portal da Transparência | O Moço do Te Amo",
@@ -16,9 +20,6 @@ export const metadata: Metadata = {
   },
   keywords: ["transparência", "doações", "vaquinhas", "campanhas sociais", "O Moço do Te Amo", "ajuda humanitária"],
 };
-
-// Força a renderização dinâmica da página em cada acesso
-export const dynamic = 'force-dynamic';
 
 async function getData() {
   try {

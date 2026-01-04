@@ -4,6 +4,8 @@ import { ArrowLeft, GripVertical } from "lucide-react";
 import { LinkForm } from "./link-form";
 import { DeleteButton } from "./delete-button";
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 export default async function LinksPage() {
   const links = await prisma.linkSocial.findMany({
     orderBy: { ordem: "asc" },

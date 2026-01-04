@@ -11,6 +11,9 @@ import {
 } from "react-icons/fa6";
 import { ShieldAlert, Users, MapPin, Calendar, TrendingUp, DollarSign } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 // Ícone customizado do Kwai
 const KwaiIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
@@ -29,8 +32,6 @@ export const metadata = {
   },
   keywords: ["quem somos", "o moço do te amo", "perfis oficiais", "fontes de renda", "transparência", "redes sociais oficiais"],
 };
-
-export const dynamic = 'force-dynamic';
 
 const plataformaConfig: Record<string, {
   icon: React.ElementType;

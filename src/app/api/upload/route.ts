@@ -6,6 +6,7 @@ import { existsSync } from "fs";
 import path from "path";
 
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);

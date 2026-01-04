@@ -3,6 +3,8 @@ import Link from "next/link";
 import { StatusSelect } from "./status-select";
 import { User, MapPin, Mail, Phone, Calendar, Heart, DollarSign, Link2, Users } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 const faixaValorLabels: Record<string, string> = {
   ate_1000: "Até R$ 1.000",
   ate_5000: "Até R$ 5.000",

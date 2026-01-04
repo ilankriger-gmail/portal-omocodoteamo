@@ -10,6 +10,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { isValidImageUrl } from "@/lib/utils";
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 export default function NovaVaquinhaPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);

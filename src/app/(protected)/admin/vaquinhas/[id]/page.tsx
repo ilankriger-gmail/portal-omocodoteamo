@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { EditVaquinhaForm } from "./edit-form";
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 export default async function EditarVaquinhaPage({
   params,
 }: {
