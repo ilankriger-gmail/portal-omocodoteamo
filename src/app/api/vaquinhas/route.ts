@@ -4,6 +4,13 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { generateSlug, ensureUniqueSlug } from "@/lib/slug";
 
+// Definimos a API como dinâmica para que seja executada em runtime
+export const dynamic = 'force-dynamic';
+
+// Desabilitar cache
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+
 export async function GET() {
   const vaquinhas = await prisma.vaquinha.findMany({
     orderBy: { createdAt: "desc" },
