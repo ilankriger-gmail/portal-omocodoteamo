@@ -27,20 +27,22 @@ export default function PublicLayout({
   const [adClient, setAdClient] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch AdSense configuration from API
-    async function fetchAdSenseConfig() {
-      try {
-        const response = await fetch('/api/adsense');
-        if (response.ok) {
-          const data = await response.json();
-          setAdClient(data.adClient);
-        }
-      } catch (error) {
-        console.error('Failed to load AdSense config:', error);
-      }
-    }
+    // Desativado temporariamente para permitir o build na Vercel
+    // async function fetchAdSenseConfig() {
+    //   try {
+    //     const response = await fetch('/api/adsense');
+    //     if (response.ok) {
+    //       const data = await response.json();
+    //       setAdClient(data.adClient);
+    //     }
+    //   } catch (error) {
+    //     console.error('Failed to load AdSense config:', error);
+    //   }
+    // }
+    // fetchAdSenseConfig();
 
-    fetchAdSenseConfig();
+    // Temporariamente definimos como null para o build funcionar
+    setAdClient(null);
   }, []);
 
   return (
