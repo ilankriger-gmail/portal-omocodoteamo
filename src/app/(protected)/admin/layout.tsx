@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { Sidebar } from "@/components/admin/sidebar";
 import { MobileNav } from "@/components/admin/mobile-nav";
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminLayout({
   children,
 }: {

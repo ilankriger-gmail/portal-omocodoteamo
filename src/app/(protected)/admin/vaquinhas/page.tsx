@@ -7,6 +7,8 @@ import { SearchForm } from "./search-form";
 import { Pagination } from "./pagination";
 import { isValidImageUrl } from "@/lib/utils";
 
+export const dynamic = 'force-dynamic';
+
 export default async function VaquinhasPage({
   searchParams,
 }: {

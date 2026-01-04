@@ -12,7 +12,10 @@ import {
   MessageSquare,
   Heart,
 } from "lucide-react";
+
 import { CopyPixButton } from "./copy-pix";
+
+export const dynamic = 'force-dynamic';
 
 function getYouTubeEmbedUrl(url: string): string | null {
   const patterns = [

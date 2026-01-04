@@ -30,7 +30,7 @@ export const metadata = {
   keywords: ["quem somos", "o moço do te amo", "perfis oficiais", "fontes de renda", "transparência", "redes sociais oficiais"],
 };
 
-export const revalidate = 86400; // Revalidar a cada 24 horas
+export const dynamic = 'force-dynamic';
 
 const plataformaConfig: Record<string, {
   icon: React.ElementType;

@@ -11,6 +11,8 @@ import {
 } from "react-icons/fa6";
 import { DenunciaForm } from "./denuncia-form";
 
+export const dynamic = 'force-dynamic';
+
 // Ícone customizado do Kwai
 const KwaiIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
