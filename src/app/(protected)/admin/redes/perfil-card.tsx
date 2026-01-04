@@ -422,9 +422,15 @@ export function PerfilCard({ perfil }: { perfil: Perfil }) {
                 label="Usuário"
                 value={editingRede.usuario}
                 onChange={(e) => setEditingRede({ ...editingRede, usuario: e.target.value })}
-                placeholder="@usuario"
+                placeholder={editingRede.plataforma === "whatsapp" ? "https://chat.whatsapp.com/..." : "@usuario"}
                 required
               />
+              {editingRede.plataforma === "whatsapp" && (
+                <div className="text-xs text-yellow-500 mt-1">
+                  <span className="font-semibold">Atenção:</span> Insira apenas links de grupo do WhatsApp no formato:
+                  <span className="block mt-1 text-zinc-400">https://chat.whatsapp.com/AbCdEfGhIjKl...</span>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-white mb-1">URL (gerada automaticamente)</label>
                 <div className="px-3 py-2 bg-black/50 border border-zinc-700 rounded-lg text-zinc-500 text-sm truncate">
@@ -507,9 +513,15 @@ export function PerfilCard({ perfil }: { perfil: Perfil }) {
               label="Usuário"
               value={newRede.usuario}
               onChange={(e) => setNewRede({ ...newRede, usuario: e.target.value })}
-              placeholder="@usuario"
+              placeholder={newRede.plataforma === "whatsapp" ? "https://chat.whatsapp.com/..." : "@usuario"}
               required
             />
+            {newRede.plataforma === "whatsapp" && (
+              <div className="text-xs text-yellow-500 mt-1">
+                <span className="font-semibold">Atenção:</span> Insira apenas links de grupo do WhatsApp no formato:
+                <span className="block mt-1 text-zinc-400">https://chat.whatsapp.com/AbCdEfGhIjKl...</span>
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
