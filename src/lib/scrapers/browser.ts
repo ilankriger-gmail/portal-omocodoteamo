@@ -1,4 +1,4 @@
-import { Browser, Page } from "puppeteer";
+import type { Browser, Page } from "puppeteer";
 
 let browserInstance: Browser | null = null;
 

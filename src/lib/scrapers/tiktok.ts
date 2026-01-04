@@ -1,10 +1,12 @@
 import type { ScraperResult } from "./index";
-import { getBrowser, delay } from "./browser";
 
 export async function scrapTiktok(url: string): Promise<ScraperResult> {
   let browser = null;
 
   try {
+    // Import dinâmico de browser.ts
+    const { getBrowser, delay } = await import("./browser");
+
     // Extrair username da URL
     const username = extractUsername(url);
     if (!username) {
@@ -87,7 +89,11 @@ export async function scrapTiktok(url: string): Promise<ScraperResult> {
     const numero = parseFollowerCount(seguidores);
     return { seguidores: numero, erro: null };
   } catch (error) {
-    if (browser) await browser.close();
+    if (browser) {
+      // Import browser.ts para fechar o browser
+      const { closeBrowser } = await import("./browser");
+      await browser.close();
+    }
     return {
       seguidores: null,
       erro: `TikTok: ${error instanceof Error ? error.message : "Erro desconhecido"}`,

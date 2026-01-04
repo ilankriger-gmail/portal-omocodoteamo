@@ -1,10 +1,12 @@
 import type { ScraperResult } from "./index";
-import { getBrowser, delay } from "./browser";
 
 export async function scrapKwai(url: string): Promise<ScraperResult> {
   let browser = null;
 
   try {
+    // Import dinâmico de browser.ts
+    const { getBrowser, delay } = await import("./browser");
+
     // Normalizar URL
     const profileUrl = normalizeUrl(url);
     if (!profileUrl) {
@@ -71,7 +73,11 @@ export async function scrapKwai(url: string): Promise<ScraperResult> {
     const numero = parseFollowerCount(seguidores);
     return { seguidores: numero, erro: null };
   } catch (error) {
-    if (browser) await browser.close();
+    if (browser) {
+      // Import browser.ts para fechar o browser
+      const { closeBrowser } = await import("./browser");
+      await browser.close();
+    }
     return {
       seguidores: null,
       erro: `Kwai: ${error instanceof Error ? error.message : "Erro desconhecido"}`,

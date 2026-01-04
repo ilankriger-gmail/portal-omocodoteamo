@@ -1,10 +1,12 @@
 import type { ScraperResult } from "./index";
-import { getBrowser, delay } from "./browser";
 
 export async function scrapYoutube(url: string): Promise<ScraperResult> {
   let browser = null;
 
   try {
+    // Import dinâmico de browser.ts
+    const { getBrowser, delay } = await import("./browser");
+
     // Extrair channel ID ou handle da URL
     const channelUrl = normalizeYoutubeUrl(url);
     if (!channelUrl) {
@@ -79,7 +81,11 @@ export async function scrapYoutube(url: string): Promise<ScraperResult> {
     const numero = parseSubscriberCount(inscritos);
     return { seguidores: numero, erro: null };
   } catch (error) {
-    if (browser) await browser.close();
+    if (browser) {
+      // Import browser.ts para fechar o browser
+      const { closeBrowser } = await import("./browser");
+      await browser.close();
+    }
     return {
       seguidores: null,
       erro: `YouTube: ${error instanceof Error ? error.message : "Erro desconhecido"}`,
