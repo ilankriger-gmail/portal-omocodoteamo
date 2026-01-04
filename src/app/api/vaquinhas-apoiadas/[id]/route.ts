@@ -3,6 +3,13 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 
+// Definimos a API como dinâmica para que seja executada em runtime
+export const dynamic = 'force-dynamic';
+
+// Desabilitar cache
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+
 export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
