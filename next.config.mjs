@@ -1,5 +1,31 @@
 /** @type {import('next').NextConfig} */
+
+// Função para excluir rotas problemáticas durante o build
+const excludeAdsenseBuild = () => {
+  const isVercelBuild = process.env.NODE_ENV === 'production' &&
+                         process.env.NEXT_PHASE === 'phase-production-build';
+
+  if (isVercelBuild) {
+    console.log('Configuração para excluir rotas problemáticas durante o build da Vercel');
+    return {
+      redirects: async () => {
+        return [
+          {
+            source: '/api/adsense',
+            destination: '/api',
+            permanent: false,
+          },
+        ]
+      }
+    };
+  }
+
+  return {};
+};
+
+// Combinar configurações com as exclusões de build
 const nextConfig = {
+  ...excludeAdsenseBuild(),
   images: {
     remotePatterns: [
       { hostname: 'i.imgur.com' },
