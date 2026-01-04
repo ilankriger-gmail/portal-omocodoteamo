@@ -1,5 +1,16 @@
 import { NextResponse } from "next/server";
 
+// Definimos a API como dinâmica para que seja executada em runtime
+export const dynamic = 'force-dynamic';
+
+// Desabilitar cache
+export const fetchCache = 'force-no-store';
+export const revalidate = 0;
+
+// Verifica se estamos no ambiente de build da Vercel
+const isBuild = process.env.NODE_ENV === "production" &&
+                process.env.NEXT_PHASE === "phase-production-build";
+
 // Cache em memória
 let cachedData: ParceiroData | null = null;
 let lastFetch: number = 0;
@@ -95,6 +106,29 @@ async function scrapeVakinha(): Promise<ParceiroData> {
 }
 
 export async function GET() {
+  // Durante o build, retorna uma resposta mock estática
+  if (isBuild) {
+    console.log("[Parceiro] Ignorando execução durante o build da Vercel");
+    return NextResponse.json({
+      nome: "NextlevelDJ | O Moço do Te Amo",
+      localizacao: "Curitiba, PR",
+      ativoDesde: "Dezembro de 2022",
+      avatarUrl: "/uploads/nextleveldj-avatar.jpg",
+      valorArrecadado: "R$ 1.013.242,93",
+      valorArrecadadoNum: 1013242.93,
+      vaquinhasCriadas: 116,
+      pessoasImpactadas: 34216,
+      causas: ["Saúde / Tratamentos", "Sonhos / Outros", "Fome / Desnutrição"],
+      redesSociais: {
+        facebook: "https://facebook.com/nextleveldjajuda",
+        instagram: "https://instagram.com/omocodoteamo",
+        youtube: "https://youtube.com/channel/UCumJc10FZDVTnOQwnaTX66w",
+      },
+      fetchedAt: new Date().toISOString(),
+      build: true,
+    });
+  }
+
   const now = Date.now();
 
   // Verifica se o cache é válido (menos de 1 dia)
