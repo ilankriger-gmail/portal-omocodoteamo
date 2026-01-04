@@ -1,7 +1,4 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { buscarSeguidores } from "@/lib/scrapers";
-import { closeBrowser } from "@/lib/scrapers/browser";
 
 // Definimos a API como dinâmica para que seja executada em runtime
 export const dynamic = 'force-dynamic';
@@ -10,6 +7,10 @@ export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
 export const revalidate = 0;
 
+// Verifica se estamos no ambiente de build da Vercel
+const isBuild = process.env.NODE_ENV === "production" &&
+                process.env.NEXT_PHASE === "phase-production-build";
+
 // Plataformas que suportam scraping
 const PLATAFORMAS_SUPORTADAS = ["instagram", "youtube", "tiktok", "facebook", "kwai", "threads"];
 
@@ -17,6 +18,21 @@ const PLATAFORMAS_SUPORTADAS = ["instagram", "youtube", "tiktok", "facebook", "k
 const DELAY_ENTRE_SCRAPES = 3000; // 3 segundos
 
 export async function GET(request: Request) {
+  // Durante o build, retorna uma resposta mock
+  if (isBuild) {
+    console.log("[Cron] Ignorando execução durante o build da Vercel");
+    return NextResponse.json({
+      mensagem: "Build time - API será executada apenas em runtime",
+      build: true,
+      executadoEm: new Date().toISOString(),
+    });
+  }
+
+  // Importar módulos apenas em runtime para evitar problemas durante o build
+  const { prisma } = await import("@/lib/prisma");
+  const { buscarSeguidores } = await import("@/lib/scrapers");
+  const { closeBrowser } = await import("@/lib/scrapers/browser");
+
   // Verificar token secreto
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
@@ -111,7 +127,13 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("[Cron] Erro geral:", error);
-    await closeBrowser();
+
+    try {
+      const { closeBrowser } = await import("@/lib/scrapers/browser");
+      await closeBrowser();
+    } catch (e) {
+      console.error("[Cron] Erro ao fechar browser:", e);
+    }
 
     return NextResponse.json(
       {

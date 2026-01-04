@@ -1,6 +1,10 @@
-import puppeteer, { Browser, Page } from "puppeteer";
+import { Browser, Page } from "puppeteer";
 
 let browserInstance: Browser | null = null;
+
+// Verifica se estamos no ambiente de build da Vercel
+const isBuild = process.env.NODE_ENV === "production" &&
+                process.env.NEXT_PHASE === "phase-production-build";
 
 // Função de delay para substituir page.waitForTimeout (deprecado)
 export async function delay(ms: number): Promise<void> {
@@ -8,12 +12,24 @@ export async function delay(ms: number): Promise<void> {
 }
 
 export async function getBrowser(): Promise<Browser> {
+  // Durante o build da Vercel, retorna uma Promise que rejeitará
+  // quando realmente tentarem usar o browser
+  if (isBuild) {
+    console.log("[browser] Ignorando inicialização do browser durante o build");
+    return Promise.reject(
+      new Error("Browser não disponível durante o build")
+    ) as unknown as Promise<Browser>;
+  }
+
   // Para produção na Vercel, usaria puppeteer-core + @sparticuz/chromium
   // Por enquanto, usando puppeteer completo para desenvolvimento local
 
   if (browserInstance && browserInstance.isConnected()) {
     return browserInstance;
   }
+
+  // Importar puppeteer dinamicamente para evitar carregamento durante o build
+  const puppeteer = await import("puppeteer");
 
   const isProduction = process.env.NODE_ENV === "production";
 
@@ -29,9 +45,10 @@ export async function getBrowser(): Promise<Browser> {
         executablePath: await chromium.default.executablePath(),
         headless: true,
       });
-    } catch {
+    } catch (error) {
+      console.error("[browser] Erro ao inicializar chromium serverless:", error);
       // Fallback para puppeteer normal
-      browserInstance = await puppeteer.launch({
+      browserInstance = await puppeteer.default.launch({
         headless: true,
         args: [
           "--no-sandbox",
@@ -45,7 +62,7 @@ export async function getBrowser(): Promise<Browser> {
     }
   } else {
     // Desenvolvimento: usar puppeteer com Chromium bundled
-    browserInstance = await puppeteer.launch({
+    browserInstance = await puppeteer.default.launch({
       headless: true,
       args: [
         "--no-sandbox",
@@ -59,6 +76,12 @@ export async function getBrowser(): Promise<Browser> {
 }
 
 export async function closeBrowser(): Promise<void> {
+  // Durante o build, não faz nada
+  if (isBuild) {
+    console.log("[browser] Ignorando fechamento do browser durante o build");
+    return;
+  }
+
   if (browserInstance) {
     await browserInstance.close();
     browserInstance = null;
