@@ -4,6 +4,7 @@ import "./globals.css";
 import { prisma } from "@/lib/prisma";
 import { GoogleAnalytics } from "@/components/google-analytics";
 import { GoogleAdSense } from "@/components/google-adsense";
+import { safeDbOperation } from "@/lib/db-fallback";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -60,7 +61,21 @@ export const metadata: Metadata = {
 };
 
 async function getConfigData() {
-  try {
+  // Verifica se estamos no build
+  const isBuild = process.env.NODE_ENV === "production" &&
+                 process.env.NEXT_PHASE === "phase-production-build";
+
+  // Durante o build, retorna valores padrão
+  if (isBuild) {
+    console.log("Build time: Usando valores padrão para configuração");
+    return {
+      gaId: null,
+      adsenseId: null
+    };
+  }
+
+  // Em runtime, usa operação segura com fallback
+  return await safeDbOperation(async () => {
     const config = await prisma.config.findFirst({
       select: {
         googleAnalyticsId: true,
@@ -68,16 +83,15 @@ async function getConfigData() {
         adsAtivado: true
       },
     });
+
     return {
       gaId: config?.googleAnalyticsId || null,
       adsenseId: config?.adsAtivado ? config?.googleAdSenseId : null
     };
-  } catch {
-    return {
-      gaId: null,
-      adsenseId: null
-    };
-  }
+  }, {
+    gaId: null,
+    adsenseId: null
+  });
 }
 
 export default async function RootLayout({
