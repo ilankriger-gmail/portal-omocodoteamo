@@ -21,6 +21,7 @@ export default async function VaquinhasPage() {
   // Converter para formato serializável
   const vaquinhasData = vaquinhas.map((v) => ({
     id: v.id,
+    slug: v.slug, // Adicionando o campo slug necessário para os links
     titulo: v.titulo,
     descricao: v.descricao,
     imagemUrl: v.imagemUrl,
