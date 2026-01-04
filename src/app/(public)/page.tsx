@@ -64,7 +64,7 @@ async function getData() {
         }
       }),
       prisma.vaquinhaApoiada.findMany({
-        take: 4,
+        take: 6, // Aumentado para 6 vaquinhas apoiadas
         select: {
           id: true,
           nome: true,
