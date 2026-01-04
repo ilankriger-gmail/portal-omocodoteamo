@@ -4,6 +4,22 @@ import { compare } from "bcryptjs";
 import { prisma } from "./prisma";
 
 export const authOptions: NextAuthOptions = {
+  // Configuração para manter o usuário conectado mesmo após fechar o navegador
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 30 * 24 * 60 * 60, // 30 dias em segundos
+      },
+    },
+  },
+  // Configurações de segurança para permitir sessões mais longas
+  debug: process.env.NODE_ENV === 'development',
+  secret: process.env.NEXTAUTH_SECRET || "um-segredo-muito-seguro-para-o-portal",
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -40,6 +56,10 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 dias em segundos
+  },
+  jwt: {
+    maxAge: 30 * 24 * 60 * 60, // 30 dias em segundos (deve corresponder ao maxAge da sessão)
   },
   pages: {
     signIn: "/admin/login",

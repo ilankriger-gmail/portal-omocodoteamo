@@ -21,6 +21,9 @@ export default function LoginPage() {
         email,
         password,
         redirect: false,
+        callbackUrl: "/admin",
+        // Adiciona o parâmetro para lembrar o usuário
+        remember: true,
       });
 
       if (result?.error) {
