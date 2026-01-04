@@ -25,16 +25,52 @@ async function getData() {
   try {
     const [config, vaquinhas, vaquinhasApoiadas] = await Promise.all([
       prisma.config.findFirst({
-        include: {
-          vaquinhaFixada: true, // Incluir campanha fixada se houver
+        select: {
+          bannerAtivo: true,
+          bannerTexto: true,
+          bannerImageUrl: true,
+          bannerLink: true,
+          avatarUrl: true,
+          vaquinhaFixadaId: true,
+          vaquinhaFixada: {
+            select: {
+              id: true,
+              titulo: true,
+              slug: true,
+              descricao: true,
+              status: true,
+              meta: true,
+              valorAtual: true,
+              videoUrl: true,
+              imagemUrl: true,
+            }
+          }
         },
       }),
       prisma.vaquinha.findMany({
         where: { status: "ATIVA" },
         orderBy: { createdAt: "desc" },
+        take: 5, // Limitar a 5 vaquinhas para a página inicial
+        select: {
+          id: true,
+          titulo: true,
+          slug: true,
+          descricao: true,
+          status: true,
+          meta: true,
+          valorAtual: true,
+          videoUrl: true,
+          imagemUrl: true,
+        }
       }),
       prisma.vaquinhaApoiada.findMany({
         take: 4,
+        select: {
+          id: true,
+          nome: true,
+          descricao: true,
+          link: true,
+        }
       }),
     ]);
 

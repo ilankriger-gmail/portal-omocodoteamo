@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import Image from "next/image";
 import { ShieldAlert, Users } from "lucide-react";
 import {
   FaInstagram,
@@ -186,10 +187,13 @@ export default async function DenunciarPage() {
                     <div className="p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600">
                       <div className="p-[2px] rounded-full bg-zinc-900">
                         {perfil.avatarUrl ? (
-                          <img
+                          <Image
                             src={perfil.avatarUrl}
                             alt={perfil.nome}
+                            width={40}
+                            height={40}
                             className="w-10 h-10 rounded-full object-cover"
+                            loading="lazy"
                           />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">

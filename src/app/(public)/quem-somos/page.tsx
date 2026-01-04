@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 import {
   FaInstagram,
   FaTiktok,
@@ -90,10 +91,13 @@ export default async function QuemSomosPage() {
         <div className="flex-shrink-0">
           <div className="p-[3px] rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600">
             <div className="p-[3px] rounded-full bg-black">
-              <img
+              <Image
                 src={config?.avatarUrl || "/uploads/nextleveldj-avatar.jpg"}
                 alt="Ilan"
+                width={96}
+                height={96}
                 className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover"
+                priority
               />
             </div>
           </div>
@@ -206,10 +210,13 @@ export default async function QuemSomosPage() {
                     <div className="p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600">
                       <div className="p-[2px] rounded-full bg-zinc-900">
                         {perfil.avatarUrl ? (
-                          <img
+                          <Image
                             src={perfil.avatarUrl}
                             alt={perfil.nome}
+                            width={40}
+                            height={40}
                             className="w-10 h-10 rounded-full object-cover"
+                            loading="lazy"
                           />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
