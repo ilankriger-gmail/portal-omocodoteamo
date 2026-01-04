@@ -6,12 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Upload, X, Loader2 } from "lucide-react";
+import { ImageUploadMultiple } from "@/components/admin/image-upload-multiple";
+import { CarouselImage } from "@/components/ui/image-carousel";
 
 const tipos = [
   { value: "TEXTO", label: "Texto" },
   { value: "FOTO", label: "Foto" },
   { value: "VIDEO", label: "Vídeo (YouTube)" },
   { value: "COMPROVANTE", label: "Comprovante" },
+  { value: "GALERIA", label: "Galeria de Fotos" },
 ];
 
 export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
@@ -24,6 +27,7 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
     conteudo: "",
     imagemUrl: "",
     videoUrl: "",
+    imagens: [] as CarouselImage[],
   });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -78,6 +82,13 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
     setLoading(true);
 
     try {
+      // Validação específica para galeria
+      if (form.tipo === "GALERIA" && form.imagens.length === 0) {
+        alert("Adicione pelo menos uma imagem à galeria");
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch(`/api/vaquinhas/${vaquinhaId}/atualizacoes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -85,11 +96,18 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
       });
 
       if (res.ok) {
-        setForm({ tipo: "TEXTO", conteudo: "", imagemUrl: "", videoUrl: "" });
+        setForm({
+          tipo: "TEXTO",
+          conteudo: "",
+          imagemUrl: "",
+          videoUrl: "",
+          imagens: [],
+        });
         setPreviewUrl(null);
         router.refresh();
       } else {
-        alert("Erro ao publicar");
+        const errorData = await res.json();
+        alert(errorData.error || "Erro ao publicar");
       }
     } catch {
       alert("Erro ao publicar");
@@ -99,6 +117,13 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
   };
 
   const showImageUpload = form.tipo === "FOTO" || form.tipo === "COMPROVANTE";
+  const showGalleryUpload = form.tipo === "GALERIA";
+  const showVideoInput = form.tipo === "VIDEO";
+
+  // Handler para receber imagens do componente de upload múltiplo
+  const handleImagesChange = (images: CarouselImage[]) => {
+    setForm(prev => ({ ...prev, imagens: images }));
+  };
 
   return (
     <form onSubmit={handleSubmit} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-4">
@@ -173,7 +198,24 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
         </div>
       )}
 
-      {form.tipo === "VIDEO" && (
+      {showGalleryUpload && (
+        <div>
+          <label className="block text-sm font-medium text-white mb-2">
+            Galeria de Imagens
+          </label>
+          <ImageUploadMultiple
+            onImagesChange={handleImagesChange}
+            maxImages={10}
+          />
+          {form.imagens.length > 0 && (
+            <p className="text-xs text-zinc-500 mt-1">
+              {form.imagens.length} {form.imagens.length === 1 ? 'imagem' : 'imagens'} adicionada{form.imagens.length === 1 ? '' : 's'}
+            </p>
+          )}
+        </div>
+      )}
+
+      {showVideoInput && (
         <Input
           id="videoUrl"
           label="Link do YouTube"

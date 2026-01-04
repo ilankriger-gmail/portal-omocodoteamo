@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Image, Video, FileCheck, MessageSquare } from "lucide-react";
+import { ArrowLeft, Image, Video, FileCheck, MessageSquare, Images } from "lucide-react";
 import { NovaAtualizacaoForm } from "./nova-form";
 import { DeleteAtualizacaoButton } from "./delete-button";
 import { StatsForm } from "./stats-form";
+import { ImageCarousel } from "@/components/ui/image-carousel";
 
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
@@ -36,6 +37,11 @@ export default async function AtualizacoesPage({
     include: {
       atualizacoes: {
         orderBy: { createdAt: "desc" },
+        include: {
+          imagens: {
+            orderBy: { ordem: "asc" },
+          }
+        }
       },
     },
   });
@@ -49,6 +55,7 @@ export default async function AtualizacoesPage({
     FOTO: Image,
     VIDEO: Video,
     COMPROVANTE: FileCheck,
+    GALERIA: Images,
   };
 
   const tipoLabel = {
@@ -56,6 +63,7 @@ export default async function AtualizacoesPage({
     FOTO: "Foto",
     VIDEO: "Vídeo",
     COMPROVANTE: "Comprovante",
+    GALERIA: "Galeria",
   };
 
   return (
@@ -140,7 +148,22 @@ export default async function AtualizacoesPage({
 
                     <p className="whitespace-pre-wrap">{att.conteudo}</p>
 
-                    {att.imagemUrl && (
+                    {/* Exibição de carrossel para o tipo GALERIA */}
+                    {att.tipo === "GALERIA" && att.imagens && att.imagens.length > 0 && (
+                      <div className="mt-3 max-w-md">
+                        <ImageCarousel
+                          images={att.imagens.map(img => ({
+                            id: img.id,
+                            url: img.url,
+                            legenda: img.legenda || undefined,
+                          }))}
+                          showCaptions={true}
+                        />
+                      </div>
+                    )}
+
+                    {/* Manter suporte para imagem única do tipo FOTO ou COMPROVANTE */}
+                    {(att.tipo === "FOTO" || att.tipo === "COMPROVANTE") && att.imagemUrl && (
                       <img
                         src={att.imagemUrl}
                         alt="Imagem"

@@ -48,6 +48,15 @@ export async function POST(
   try {
     const body = await req.json();
 
+    // Validar se é galeria e tem imagens
+    if (body.tipo === "GALERIA" && (!body.imagens || !body.imagens.length)) {
+      return NextResponse.json(
+        { error: "Galeria precisa ter pelo menos uma imagem" },
+        { status: 400 }
+      );
+    }
+
+    // Criar a atualização
     const atualizacao = await prisma.atualizacao.create({
       data: {
         vaquinhaId: id,
@@ -57,6 +66,35 @@ export async function POST(
         videoUrl: body.videoUrl || null,
       },
     });
+
+    // Se for galeria, criar as imagens relacionadas
+    if (body.tipo === "GALERIA" && body.imagens && body.imagens.length > 0) {
+      // Criar as entradas na tabela ImagemAtualizacao
+      await Promise.all(
+        body.imagens.map(async (imagem: { url: string; legenda?: string }, index: number) => {
+          await prisma.imagemAtualizacao.create({
+            data: {
+              atualizacaoId: atualizacao.id,
+              url: imagem.url,
+              legenda: imagem.legenda || null,
+              ordem: index,
+            },
+          });
+        })
+      );
+
+      // Buscar a atualização com as imagens para retornar
+      const atualizacaoCompleta = await prisma.atualizacao.findUnique({
+        where: { id: atualizacao.id },
+        include: {
+          imagens: {
+            orderBy: { ordem: "asc" },
+          },
+        },
+      });
+
+      return NextResponse.json(atualizacaoCompleta, { status: 201 });
+    }
 
     return NextResponse.json(atualizacao, { status: 201 });
   } catch (error) {
@@ -95,7 +133,12 @@ export async function GET(
 
     const atualizacoes = await prisma.atualizacao.findMany({
       where: { vaquinhaId: id },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
+      include: {
+        imagens: {
+          orderBy: { ordem: "asc" },
+        },
+      },
     });
 
     return NextResponse.json({ atualizacoes });

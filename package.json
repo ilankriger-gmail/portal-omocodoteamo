@@ -13,7 +13,9 @@
     "db:seed:vercel": "ts-node --compiler-options {\"module\":\"CommonJS\"} scripts/seed-vercel.ts",
     "db:seed:neon": "chmod +x scripts/seed-neon.sh && ./scripts/seed-neon.sh",
     "db:studio": "prisma studio",
-    "migrate:slugs": "ts-node --compiler-options {\"module\":\"CommonJS\"} scripts/migrate-slugs.ts"
+    "migrate:slugs": "ts-node --compiler-options {\"module\":\"CommonJS\"} scripts/migrate-slugs.ts",
+    "update-profiles": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/update-social-profiles.ts",
+    "update-followers": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/update-followers.ts"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -24,6 +26,7 @@
     "bcryptjs": "^3.0.3",
     "cheerio": "^1.1.2",
     "cloudinary": "^2.8.0",
+    "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.562.0",
     "next": "14.2.35",
     "next-auth": "^4.24.13",

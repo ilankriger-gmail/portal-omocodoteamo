@@ -11,7 +11,9 @@ import {
   FileCheck,
   MessageSquare,
   Heart,
+  Images,
 } from "lucide-react";
+import { ImageCarousel } from "@/components/ui/image-carousel";
 
 import { CopyPixButton } from "./copy-pix";
 
@@ -55,6 +57,11 @@ export default async function VaquinhaPage({
     include: {
       atualizacoes: {
         orderBy: { createdAt: "desc" },
+        include: {
+          imagens: {
+            orderBy: { ordem: "asc" },
+          }
+        }
       },
     },
   });
@@ -71,6 +78,7 @@ export default async function VaquinhaPage({
     FOTO: ImageIcon,
     VIDEO: Video,
     COMPROVANTE: FileCheck,
+    GALERIA: Images,
   };
 
   return (
@@ -259,7 +267,22 @@ export default async function VaquinhaPage({
                       {att.conteudo}
                     </p>
 
-                    {isValidImageUrl(att.imagemUrl) && (
+                    {/* Exibição de carrossel para o tipo GALERIA */}
+                    {att.tipo === "GALERIA" && att.imagens && att.imagens.length > 0 && (
+                      <div className="mt-3 rounded-xl overflow-hidden relative">
+                        <ImageCarousel
+                          images={att.imagens.map(img => ({
+                            id: img.id,
+                            url: img.url,
+                            legenda: img.legenda || undefined,
+                          }))}
+                          showCaptions={true}
+                        />
+                      </div>
+                    )}
+
+                    {/* Manter suporte para imagem única do tipo FOTO ou COMPROVANTE */}
+                    {(att.tipo === "FOTO" || att.tipo === "COMPROVANTE") && isValidImageUrl(att.imagemUrl) && (
                       <div className="mt-3 rounded-xl overflow-hidden relative">
                         <div className="relative w-full aspect-video">
                           <NextImage

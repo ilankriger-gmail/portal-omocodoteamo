@@ -83,14 +83,28 @@ model Vaquinha {
 }
 
 model Atualizacao {
-  id         String          @id @default(cuid())
+  id         String              @id @default(cuid())
   vaquinhaId String
   conteudo   String
   tipo       TipoAtualizacao
-  imagemUrl  String?
+  imagemUrl  String?             // Mantido para compatibilidade
   videoUrl   String?
-  createdAt  DateTime        @default(now())
-  vaquinha   Vaquinha        @relation(fields: [vaquinhaId], references: [id], onDelete: Cascade)
+  createdAt  DateTime            @default(now())
+  vaquinha   Vaquinha            @relation(fields: [vaquinhaId], references: [id], onDelete: Cascade)
+  imagens    ImagemAtualizacao[] // Relação para múltiplas imagens
+}
+
+model ImagemAtualizacao {
+  id            String       @id @default(cuid())
+  atualizacaoId String
+  url           String
+  legenda       String?      // Legenda opcional para a imagem
+  ordem         Int          @default(0)
+  createdAt     DateTime     @default(now())
+  atualizacao   Atualizacao  @relation(fields: [atualizacaoId], references: [id], onDelete: Cascade)
+
+  @@index([atualizacaoId])
+  @@unique([atualizacaoId, ordem]) // Garante ordenação única
 }
 
 model Inscricao {
@@ -171,6 +185,7 @@ enum TipoAtualizacao {
   FOTO
   VIDEO
   COMPROVANTE
+  GALERIA    // Novo tipo para carrossel de imagens
 }
 
 enum InscricaoStatus {
