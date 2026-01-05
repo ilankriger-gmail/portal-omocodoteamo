@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { ImageCarousel } from "@/components/ui/image-carousel";
 import { SocialMediaViewer } from "@/components/ui/social-media-viewer";
+import { InstagramEmbed } from "@/components/ui/instagram-embed";
 
 import { CopyPixButton } from "./copy-pix";
 
@@ -102,7 +103,7 @@ export default async function VaquinhaPage({
       {/* Back */}
       <Link
         href="/vaquinhas"
-        className="inline-flex items-center gap-2 text-zinc-500 hover:text-white text-sm mb-6"
+        className="inline-flex items-center gap-2 text-zinc-300 hover:text-white text-sm mb-6"
       >
         <ArrowLeft size={18} />
         Voltar
@@ -148,10 +149,10 @@ export default async function VaquinhaPage({
           </div>
         </div>
         <div className="flex-1">
-          <h1 className="text-white font-semibold text-sm">{vaquinha.titulo}</h1>
+          <h1 className="text-white font-semibold text-base">{vaquinha.titulo}</h1>
           <span
-            className={`text-xs ${
-              vaquinha.status === "ATIVA" ? "text-green-400" : "text-zinc-500"
+            className={`text-sm ${
+              vaquinha.status === "ATIVA" ? "text-green-400" : "text-zinc-400"
             }`}
           >
             {vaquinha.status === "ATIVA" ? "Campanha Ativa" : "Encerrada"}
@@ -160,7 +161,7 @@ export default async function VaquinhaPage({
       </div>
 
       {/* Description */}
-      <p className="text-zinc-300 text-sm leading-relaxed mb-6 whitespace-pre-wrap">
+      <p className="text-zinc-200 text-base leading-relaxed mb-6 whitespace-pre-wrap">
         {vaquinha.descricao}
       </p>
 
@@ -168,14 +169,14 @@ export default async function VaquinhaPage({
       <div className="bg-zinc-900/50 rounded-2xl p-4 mb-6">
         <div className="flex items-center justify-between text-sm mb-3">
           <div>
-            <p className="text-zinc-500 text-xs">Arrecadado</p>
-            <p className="text-green-400 font-semibold">
+            <p className="text-zinc-300 text-sm">Arrecadado</p>
+            <p className="text-green-400 font-semibold text-lg">
               R$ {vaquinha.valorAtual.toLocaleString("pt-BR")}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-zinc-500 text-xs">Meta</p>
-            <p className="text-white font-semibold">
+            <p className="text-zinc-300 text-sm">Meta</p>
+            <p className="text-white font-semibold text-lg">
               R$ {vaquinha.meta.toLocaleString("pt-BR")}
             </p>
           </div>
@@ -187,7 +188,7 @@ export default async function VaquinhaPage({
             style={{ width: `${progress}%` }}
           />
         </div>
-        <p className="text-zinc-500 text-xs text-right">{progress.toFixed(0)}%</p>
+        <p className="text-zinc-300 text-sm text-right">{progress.toFixed(0)}%</p>
 
         {/* Estatísticas de engajamento */}
         <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-zinc-800">
@@ -198,8 +199,8 @@ export default async function VaquinhaPage({
               </svg>
             </span>
             <div>
-              <p className="text-white font-semibold text-sm">{vaquinha.coracoes || 0}</p>
-              <p className="text-zinc-500 text-xs">corações</p>
+              <p className="text-white font-semibold text-base">{vaquinha.coracoes || 0}</p>
+              <p className="text-zinc-300 text-sm">corações</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -209,8 +210,8 @@ export default async function VaquinhaPage({
               </svg>
             </span>
             <div>
-              <p className="text-white font-semibold text-sm">{vaquinha.doacoes || 0}</p>
-              <p className="text-zinc-500 text-xs">doações</p>
+              <p className="text-white font-semibold text-base">{vaquinha.doacoes || 0}</p>
+              <p className="text-zinc-300 text-sm">doações</p>
             </div>
           </div>
         </div>
@@ -219,11 +220,11 @@ export default async function VaquinhaPage({
       {/* PIX */}
       {vaquinha.status === "ATIVA" && (
         <div className="mb-6">
-          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">
+          <p className="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3">
             Chave PIX
           </p>
-          <div className="bg-zinc-900/50 rounded-xl p-3 mb-3">
-            <p className="text-zinc-300 text-sm font-mono break-all">
+          <div className="bg-zinc-900/50 rounded-xl p-4 mb-3">
+            <p className="text-zinc-200 text-base font-mono break-all">
               {vaquinha.chavePix}
             </p>
           </div>
@@ -236,7 +237,7 @@ export default async function VaquinhaPage({
         href={vaquinha.linkOriginal}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center justify-center gap-2 w-full py-3 bg-transparent border border-zinc-800 hover:bg-zinc-900 text-zinc-400 rounded-xl text-sm transition-colors mb-6"
+        className="flex items-center justify-center gap-2 w-full py-3 bg-transparent border border-zinc-800 hover:bg-zinc-900 text-zinc-300 rounded-xl text-sm transition-colors mb-6"
       >
         <ExternalLink size={16} />
         Ver na Vakinha.com.br
@@ -250,7 +251,7 @@ export default async function VaquinhaPage({
           {/* Timeline */}
           <div>
             <div className="flex flex-wrap justify-between items-center mb-4">
-              <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              <p className="text-sm font-semibold text-zinc-300 uppercase tracking-wider">
                 Atualizações ({vaquinha.atualizacoes.length})
               </p>
             </div>
@@ -280,7 +281,7 @@ export default async function VaquinhaPage({
                       >
                         <Icon size={14} />
                       </span>
-                      <span className="text-zinc-500 text-xs">
+                      <span className="text-zinc-300 text-sm">
                         {new Date(att.createdAt).toLocaleDateString("pt-BR", {
                           day: "2-digit",
                           month: "short",
@@ -289,7 +290,7 @@ export default async function VaquinhaPage({
                       </span>
                     </div>
 
-                    <p className="text-zinc-300 text-sm whitespace-pre-wrap">
+                    <p className="text-zinc-200 text-base whitespace-pre-wrap leading-relaxed">
                       {att.conteudo}
                     </p>
 
@@ -326,26 +327,7 @@ export default async function VaquinhaPage({
                     {/* Embed do Instagram */}
                     {att.tipo === "INSTAGRAM" && att.videoUrl && (
                       <div className="mt-3">
-                        {getInstagramEmbedUrl(att.videoUrl) ? (
-                          <div className="w-full">
-                            <iframe
-                              src={getInstagramEmbedUrl(att.videoUrl)}
-                              title="Post do Instagram"
-                              className="w-full rounded-lg border-0"
-                              style={{ minHeight: "500px" }}
-                              allowFullScreen
-                            />
-                          </div>
-                        ) : (
-                          <a
-                            href={att.videoUrl}
-                            target="_blank"
-                            className="inline-flex items-center gap-2 text-pink-400 text-sm hover:underline"
-                          >
-                            <Instagram size={14} />
-                            Ver no Instagram
-                          </a>
-                        )}
+                        <InstagramEmbed url={att.videoUrl} />
                       </div>
                     )}
 

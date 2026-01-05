@@ -143,7 +143,7 @@ export default function PublicLayout({
                     strokeWidth={isActive ? 2.5 : 2}
                   />
                 </div>
-                <span className={`text-[10px] mt-0.5 transition-all duration-300 ${isActive ? 'text-green-500 font-medium' : ''}`}>
+                <span className={`text-xs mt-0.5 transition-all duration-300 ${isActive ? 'text-green-500 font-medium' : 'text-zinc-400'}`}>
                   {item.label}
                 </span>
               </Link>

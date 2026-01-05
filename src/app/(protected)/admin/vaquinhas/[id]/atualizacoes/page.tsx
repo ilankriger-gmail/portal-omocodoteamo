@@ -7,6 +7,7 @@ import { DeleteAtualizacaoButton } from "./delete-button";
 import { StatsForm } from "./stats-form";
 import { ImageCarousel } from "@/components/ui/image-carousel";
 import { SocialMediaViewer } from "@/components/ui/social-media-viewer";
+import { InstagramEmbed } from "@/components/ui/instagram-embed";
 
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
@@ -202,27 +203,8 @@ export default async function AtualizacoesPage({
 
                     {/* Embed do Instagram */}
                     {att.tipo === "INSTAGRAM" && att.videoUrl && (
-                      <div className="mt-3 space-y-2">
-                        {getInstagramEmbedUrl(att.videoUrl) ? (
-                          <div className="max-w-md">
-                            <iframe
-                              src={getInstagramEmbedUrl(att.videoUrl)}
-                              title="Post do Instagram"
-                              className="w-full rounded-lg border-0"
-                              style={{ minHeight: "500px" }}
-                              allowFullScreen
-                            />
-                          </div>
-                        ) : (
-                          <a
-                            href={att.videoUrl}
-                            target="_blank"
-                            className="inline-flex items-center gap-2 text-pink-400 hover:underline"
-                          >
-                            <Instagram size={16} />
-                            Ver no Instagram
-                          </a>
-                        )}
+                      <div className="mt-3 space-y-2 max-w-md">
+                        <InstagramEmbed url={att.videoUrl} />
                         <div className="text-xs text-zinc-500">
                           <a
                             href={att.videoUrl}

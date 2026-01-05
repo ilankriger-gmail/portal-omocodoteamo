@@ -108,13 +108,13 @@ export default async function QuemSomosPage() {
           <h1 className="text-xl font-semibold text-white mb-1">O Moço do Te Amo</h1>
 
           {parceiro && (
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-zinc-400 text-xs mb-3">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-zinc-300 text-sm mb-3">
               <span className="flex items-center gap-1">
-                <MapPin size={12} />
+                <MapPin size={14} />
                 {parceiro.localizacao}
               </span>
               <span className="flex items-center gap-1">
-                <Calendar size={12} />
+                <Calendar size={14} />
                 Desde {parceiro.ativoDesde}
               </span>
             </div>
@@ -126,19 +126,19 @@ export default async function QuemSomosPage() {
               <span className="block text-lg font-semibold text-white">
                 {parceiro?.vaquinhasCriadas || 116}
               </span>
-              <span className="text-zinc-500 text-xs">vaquinhas</span>
+              <span className="text-zinc-300 text-sm">vaquinhas</span>
             </div>
             <div>
               <span className="block text-lg font-semibold text-white">
                 {parceiro ? formatCurrency(parceiro.valorArrecadadoNum) : "R$ 1M+"}
               </span>
-              <span className="text-zinc-500 text-xs">arrecadados</span>
+              <span className="text-zinc-300 text-sm">arrecadados</span>
             </div>
             <div>
               <span className="block text-lg font-semibold text-white">
                 {parceiro ? formatSeguidores(parceiro.pessoasImpactadas) : "34K"}
               </span>
-              <span className="text-zinc-500 text-xs">pessoas</span>
+              <span className="text-zinc-300 text-sm">pessoas</span>
             </div>
           </div>
         </div>
@@ -157,7 +157,7 @@ export default async function QuemSomosPage() {
       {parceiro?.causas && (
         <div className="flex flex-wrap gap-2 mb-6">
           {parceiro.causas.map((causa: string, i: number) => (
-            <span key={i} className="px-3 py-1 bg-zinc-900 rounded-full text-zinc-400 text-xs">
+            <span key={i} className="px-3 py-1.5 bg-zinc-900 rounded-full text-zinc-300 text-sm">
               {causa}
             </span>
           ))}
@@ -189,10 +189,10 @@ export default async function QuemSomosPage() {
       {/* Perfis Oficiais */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-4">
-          <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+          <span className="text-sm font-semibold text-zinc-300 uppercase tracking-wider">
             Perfis Oficiais
           </span>
-          <span className="text-xs text-zinc-600">• únicos verificados</span>
+          <span className="text-sm text-zinc-400">• únicos verificados</span>
         </div>
 
         {perfis.length === 0 ? (
@@ -236,7 +236,7 @@ export default async function QuemSomosPage() {
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-white text-sm">{perfil.nome}</h3>
                       {totalSeguidores > 0 && (
-                        <p className="text-zinc-500 text-xs">
+                        <p className="text-zinc-300 text-sm">
                           {formatSeguidores(totalSeguidores)} seguidores
                         </p>
                       )}
@@ -246,7 +246,7 @@ export default async function QuemSomosPage() {
                   {/* Canais Oficiais */}
                   {redesOficiais.length > 0 && (
                     <div className="mb-3">
-                      <p className="text-[10px] text-green-400 font-semibold uppercase tracking-wider mb-2">
+                      <p className="text-xs text-green-400 font-semibold uppercase tracking-wider mb-2">
                         Canais Oficiais
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -262,10 +262,10 @@ export default async function QuemSomosPage() {
                               rel="noopener noreferrer"
                               className="flex items-center gap-2 px-3 py-2 bg-zinc-800/80 hover:bg-zinc-700/80 rounded-xl transition-colors"
                             >
-                              <Icon className={`w-4 h-4 ${cfg.color}`} />
-                              <span className="text-white text-xs font-medium">{rede.usuario}</span>
+                              <Icon className={`w-5 h-5 ${cfg.color}`} />
+                              <span className="text-white text-sm font-medium">{rede.usuario}</span>
                               {rede.seguidores && (
-                                <span className="text-zinc-500 text-xs">
+                                <span className="text-zinc-300 text-sm">
                                   {formatSeguidores(rede.seguidores)}
                                 </span>
                               )}
@@ -279,7 +279,7 @@ export default async function QuemSomosPage() {
                   {/* Canais Reserva */}
                   {redesReserva.length > 0 && (
                     <div>
-                      <p className="text-[10px] text-yellow-400 font-semibold uppercase tracking-wider mb-2">
+                      <p className="text-xs text-yellow-400 font-semibold uppercase tracking-wider mb-2">
                         Canais Reserva
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -295,10 +295,10 @@ export default async function QuemSomosPage() {
                               rel="noopener noreferrer"
                               className="flex items-center gap-2 px-3 py-2 bg-zinc-800/50 hover:bg-zinc-700/50 rounded-xl transition-colors opacity-80"
                             >
-                              <Icon className={`w-4 h-4 ${cfg.color}`} />
-                              <span className="text-white text-xs font-medium">{rede.usuario}</span>
+                              <Icon className={`w-5 h-5 ${cfg.color}`} />
+                              <span className="text-white text-sm font-medium">{rede.usuario}</span>
                               {rede.seguidores && (
-                                <span className="text-zinc-500 text-xs">
+                                <span className="text-zinc-300 text-sm">
                                   {formatSeguidores(rede.seguidores)}
                                 </span>
                               )}
@@ -326,7 +326,7 @@ export default async function QuemSomosPage() {
           </div>
           <div>
             <h2 className="text-white font-semibold text-sm">De Onde Vem o Dinheiro</h2>
-            <p className="text-zinc-500 text-xs">Transparência total sobre as fontes</p>
+            <p className="text-zinc-300 text-sm">Transparência total sobre as fontes</p>
           </div>
         </div>
 
@@ -346,7 +346,7 @@ export default async function QuemSomosPage() {
               <div className="w-3 h-3 rounded-full bg-blue-500" />
               <span className="text-white text-sm">Publicidade</span>
             </div>
-            <span className="text-zinc-400 text-sm font-medium">87,2%</span>
+            <span className="text-zinc-200 text-sm font-medium">87,2%</span>
           </div>
 
           <div className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-xl">
@@ -354,7 +354,7 @@ export default async function QuemSomosPage() {
               <div className="w-3 h-3 rounded-full bg-yellow-500" />
               <span className="text-white text-sm">AdSense</span>
             </div>
-            <span className="text-zinc-400 text-sm font-medium">12,1%</span>
+            <span className="text-zinc-200 text-sm font-medium">12,1%</span>
           </div>
 
           <div className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-xl">
@@ -362,7 +362,7 @@ export default async function QuemSomosPage() {
               <div className="w-3 h-3 rounded-full bg-green-500" />
               <span className="text-white text-sm">Doação direta</span>
             </div>
-            <span className="text-zinc-400 text-sm font-medium">0,7%</span>
+            <span className="text-zinc-200 text-sm font-medium">0,7%</span>
           </div>
         </div>
       </div>
