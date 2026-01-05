@@ -19,10 +19,10 @@ const menuItems = [
 // Itens principais para mobile (5 itens max)
 const mobileMenuItems = [
   { href: "/", icon: Home, label: "Início" },
-  { href: "/vaquinhas", icon: Heart, label: "Vaquinhas" },
-  { href: "/participar", icon: Send, label: "Enviar" },
-  { href: "/vaquinhas-apoiadas", icon: HandHeart, label: "Apoiadas" },
   { href: "/quem-somos", icon: User, label: "Sobre" },
+  { href: "/vaquinhas", icon: Heart, label: "Vaquinhas" },
+  { href: "/vaquinhas-apoiadas", icon: HandHeart, label: "Apoiadas" },
+  { href: "/participar", icon: Send, label: "Enviar" },
 ];
 
 export default function PublicLayout({
@@ -138,12 +138,12 @@ export default function PublicLayout({
               >
                 <div className={`p-1.5 rounded-lg transition-all duration-300 ${isActive ? 'bg-green-600/20' : ''}`}>
                   <item.icon
-                    size={22}
+                    size={24}
                     className={`transition-all duration-300 ${isActive ? 'text-green-500' : ''}`}
                     strokeWidth={isActive ? 2.5 : 2}
                   />
                 </div>
-                <span className={`text-xs mt-0.5 transition-all duration-300 ${isActive ? 'text-green-500 font-medium' : 'text-zinc-400'}`}>
+                <span className={`text-sm mt-0.5 transition-all duration-300 ${isActive ? 'text-green-500 font-medium' : 'text-zinc-400'}`}>
                   {item.label}
                 </span>
               </Link>

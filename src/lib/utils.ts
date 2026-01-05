@@ -18,15 +18,22 @@ export function generateSocialUrl(plataforma: string, usuario: string): string {
   // Remoção do @ do início se existir
   const cleanUsuario = usuario.startsWith('@') ? usuario.substring(1) : usuario;
 
-  // Tratamento especial para WhatsApp - APENAS links de grupo
+  // Tratamento especial para WhatsApp - links de grupo ou canal
   if (plataforma === 'whatsapp') {
-    // Se já for um link de grupo completo, manter como está
-    if (usuario.startsWith('https://chat.whatsapp.com/')) {
+    // Se já for um link completo do WhatsApp, manter como está
+    if (usuario.startsWith('https://chat.whatsapp.com/') ||
+        usuario.startsWith('https://whatsapp.com/channel/') ||
+        usuario.startsWith('https://www.whatsapp.com/channel/')) {
       return usuario;
     }
 
     // Se for um link de grupo sem https, adicionar o prefixo
     if (usuario.startsWith('chat.whatsapp.com/')) {
+      return `https://${usuario}`;
+    }
+
+    // Se for um link de canal sem https, adicionar o prefixo
+    if (usuario.startsWith('whatsapp.com/channel/') || usuario.startsWith('www.whatsapp.com/channel/')) {
       return `https://${usuario}`;
     }
 

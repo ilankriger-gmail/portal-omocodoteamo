@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { Trash2, ExternalLink, HeartHandshake } from "lucide-react";
+import { Trash2, ExternalLink, HeartHandshake, Pencil, Key } from "lucide-react";
 import { revalidatePath } from "next/cache";
 import { AdicionarVaquinhaForm } from "./adicionar-form";
+import { EditarVaquinhaForm } from "./editar-form";
 
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
@@ -12,7 +13,7 @@ async function getVaquinhasApoiadas() {
   });
 }
 
-async function createVaquinhaApoiada(data: { nome: string; link: string; descricao: string; videoUrl: string }) {
+async function createVaquinhaApoiada(data: { nome: string; link: string; descricao: string; videoUrl: string; chavePix: string }) {
   "use server";
 
   // Limpar URL (remover UTM e outros parâmetros)
@@ -33,6 +34,28 @@ async function createVaquinhaApoiada(data: { nome: string; link: string; descric
       link: cleanLink,
       descricao: data.descricao || null,
       videoUrl: data.videoUrl || null,
+      chavePix: data.chavePix || null,
+    },
+  });
+
+  revalidatePath("/admin/apoiadas");
+  revalidatePath("/vaquinhas-apoiadas");
+}
+
+async function updateVaquinhaApoiada(data: { id: string; nome: string; link: string; descricao: string; videoUrl: string; chavePix: string }) {
+  "use server";
+
+  // Limpar URL (remover UTM e outros parâmetros)
+  const cleanLink = data.link.split("?")[0];
+
+  await prisma.vaquinhaApoiada.update({
+    where: { id: data.id },
+    data: {
+      nome: data.nome,
+      link: cleanLink,
+      descricao: data.descricao || null,
+      videoUrl: data.videoUrl || null,
+      chavePix: data.chavePix || null,
     },
   });
 
@@ -108,18 +131,30 @@ export default async function VaquinhasApoiadasPage() {
                     <ExternalLink size={12} />
                     {vaquinha.link}
                   </a>
+                  {vaquinha.chavePix && (
+                    <p className="text-green-400 text-xs flex items-center gap-1 mt-1">
+                      <Key size={12} />
+                      PIX: {vaquinha.chavePix}
+                    </p>
+                  )}
                 </div>
 
-                <form action={deleteVaquinhaApoiada}>
-                  <input type="hidden" name="id" value={vaquinha.id} />
-                  <button
-                    type="submit"
-                    className="p-2 text-zinc-500 hover:text-red-500 hover:bg-zinc-800 rounded-lg transition-colors"
-                    title="Excluir"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </form>
+                <div className="flex items-center gap-1">
+                  <EditarVaquinhaForm
+                    vaquinha={vaquinha}
+                    onUpdate={updateVaquinhaApoiada}
+                  />
+                  <form action={deleteVaquinhaApoiada}>
+                    <input type="hidden" name="id" value={vaquinha.id} />
+                    <button
+                      type="submit"
+                      className="p-2 text-zinc-500 hover:text-red-500 hover:bg-zinc-800 rounded-lg transition-colors"
+                      title="Excluir"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </form>
+                </div>
               </div>
             ))}
           </div>

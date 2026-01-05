@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Loader2, Search, Youtube } from "lucide-react";
+import { Plus, Loader2, Search, Youtube, Key } from "lucide-react";
 
 interface Props {
-  onAdd: (data: { nome: string; link: string; descricao: string; videoUrl: string }) => Promise<void>;
+  onAdd: (data: { nome: string; link: string; descricao: string; videoUrl: string; chavePix: string }) => Promise<void>;
 }
 
 export function AdicionarVaquinhaForm({ onAdd }: Props) {
@@ -15,6 +15,7 @@ export function AdicionarVaquinhaForm({ onAdd }: Props) {
     nome: "",
     descricao: "",
     videoUrl: "",
+    chavePix: "",
   });
 
   const handleScrape = async () => {
@@ -55,7 +56,7 @@ export function AdicionarVaquinhaForm({ onAdd }: Props) {
     setLoading(true);
     try {
       await onAdd(form);
-      setForm({ link: "", nome: "", descricao: "", videoUrl: "" });
+      setForm({ link: "", nome: "", descricao: "", videoUrl: "", chavePix: "" });
     } catch (error) {
       if (error instanceof Error) {
         alert(error.message);
@@ -148,6 +149,26 @@ export function AdicionarVaquinhaForm({ onAdd }: Props) {
         />
         <p className="text-zinc-500 text-xs mt-1">
           Cole o link de um vídeo vertical do YouTube para destacar a campanha
+        </p>
+      </div>
+
+      {/* Chave PIX */}
+      <div>
+        <label className="block text-sm font-medium text-zinc-400 mb-1">
+          <span className="flex items-center gap-2">
+            <Key size={16} className="text-green-500" />
+            Chave PIX (opcional)
+          </span>
+        </label>
+        <input
+          type="text"
+          value={form.chavePix}
+          onChange={(e) => setForm({ ...form, chavePix: e.target.value })}
+          placeholder="CPF, CNPJ, e-mail, telefone ou chave aleatória"
+          className="w-full px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+        />
+        <p className="text-zinc-500 text-xs mt-1">
+          Se o sistema não encontrar automaticamente, cole a chave PIX aqui
         </p>
       </div>
 

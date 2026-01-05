@@ -256,6 +256,8 @@ export async function GET(req: Request) {
         descricao: v.descricao,
         videoUrl: v.videoUrl,
         ...scraped,
+        // Usar chavePix do banco se existir (prioridade sobre scraper)
+        chavePix: v.chavePix || scraped.chavePix,
       } as VaquinhaScrapedData;
     })
   );

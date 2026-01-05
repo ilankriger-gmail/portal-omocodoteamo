@@ -133,6 +133,7 @@ model VaquinhaApoiada {
   link      String
   descricao String?
   videoUrl  String?
+  chavePix  String?
 }
 
 model PerfilOficial {

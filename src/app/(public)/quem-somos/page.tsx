@@ -263,7 +263,9 @@ export default async function QuemSomosPage() {
                               className="flex items-center gap-2 px-3 py-2 bg-zinc-800/80 hover:bg-zinc-700/80 rounded-xl transition-colors"
                             >
                               <Icon className={`w-5 h-5 ${cfg.color}`} />
-                              <span className="text-white text-sm font-medium">{rede.usuario}</span>
+                              <span className="text-white text-sm font-medium">
+                                {rede.plataforma === 'whatsapp' ? 'WhatsApp' : rede.usuario}
+                              </span>
                               {rede.seguidores && (
                                 <span className="text-zinc-300 text-sm">
                                   {formatSeguidores(rede.seguidores)}
@@ -296,7 +298,9 @@ export default async function QuemSomosPage() {
                               className="flex items-center gap-2 px-3 py-2 bg-zinc-800/50 hover:bg-zinc-700/50 rounded-xl transition-colors opacity-80"
                             >
                               <Icon className={`w-5 h-5 ${cfg.color}`} />
-                              <span className="text-white text-sm font-medium">{rede.usuario}</span>
+                              <span className="text-white text-sm font-medium">
+                                {rede.plataforma === 'whatsapp' ? 'WhatsApp' : rede.usuario}
+                              </span>
                               {rede.seguidores && (
                                 <span className="text-zinc-300 text-sm">
                                   {formatSeguidores(rede.seguidores)}

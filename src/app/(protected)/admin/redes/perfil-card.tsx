@@ -424,13 +424,13 @@ export function PerfilCard({ perfil }: { perfil: Perfil }) {
                 label="Usuário"
                 value={editingRede.usuario}
                 onChange={(e) => setEditingRede({ ...editingRede, usuario: e.target.value })}
-                placeholder={editingRede.plataforma === "whatsapp" ? "https://chat.whatsapp.com/..." : "@usuario"}
+                placeholder={editingRede.plataforma === "whatsapp" ? "https://whatsapp.com/channel/..." : "@usuario"}
                 required
               />
               {editingRede.plataforma === "whatsapp" && (
                 <div className="text-xs text-yellow-500 mt-1">
-                  <span className="font-semibold">Atenção:</span> Insira apenas links de grupo do WhatsApp no formato:
-                  <span className="block mt-1 text-zinc-400">https://chat.whatsapp.com/AbCdEfGhIjKl...</span>
+                  <span className="font-semibold">Atenção:</span> Insira o link do canal ou grupo do WhatsApp:
+                  <span className="block mt-1 text-zinc-400">https://whatsapp.com/channel/... ou https://chat.whatsapp.com/...</span>
                 </div>
               )}
               <div>
@@ -515,13 +515,13 @@ export function PerfilCard({ perfil }: { perfil: Perfil }) {
               label="Usuário"
               value={newRede.usuario}
               onChange={(e) => setNewRede({ ...newRede, usuario: e.target.value })}
-              placeholder={newRede.plataforma === "whatsapp" ? "https://chat.whatsapp.com/..." : "@usuario"}
+              placeholder={newRede.plataforma === "whatsapp" ? "https://whatsapp.com/channel/..." : "@usuario"}
               required
             />
             {newRede.plataforma === "whatsapp" && (
               <div className="text-xs text-yellow-500 mt-1">
-                <span className="font-semibold">Atenção:</span> Insira apenas links de grupo do WhatsApp no formato:
-                <span className="block mt-1 text-zinc-400">https://chat.whatsapp.com/AbCdEfGhIjKl...</span>
+                <span className="font-semibold">Atenção:</span> Insira o link do canal ou grupo do WhatsApp:
+                <span className="block mt-1 text-zinc-400">https://whatsapp.com/channel/... ou https://chat.whatsapp.com/...</span>
               </div>
             )}
           </div>

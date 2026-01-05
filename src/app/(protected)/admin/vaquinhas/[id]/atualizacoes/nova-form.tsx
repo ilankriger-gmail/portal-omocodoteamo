@@ -53,13 +53,6 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
     setSubmitError(null);
 
     try {
-      // Validações
-      if (form.conteudo.trim() === "") {
-        setSubmitError("O conteúdo da atualização não pode estar vazio");
-        setLoading(false);
-        return;
-      }
-
       // Validação específica para galeria
       if (form.tipo === "GALERIA") {
         const galleryValid = validateGalleryImages();
@@ -206,11 +199,10 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
 
       <Textarea
         id="conteudo"
-        label="Conteúdo"
+        label="Conteúdo (opcional)"
         value={form.conteudo}
         onChange={(e) => setForm({ ...form, conteudo: e.target.value })}
-        placeholder="Escreva a atualização..."
-        required
+        placeholder="Escreva a atualização (opcional)..."
       />
 
       {showSingleImageUpload && (
