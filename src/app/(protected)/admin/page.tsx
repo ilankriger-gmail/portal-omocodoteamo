@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Heart, Users, TrendingUp, Clock } from "lucide-react";
+import { Heart, Users, TrendingUp, Clock, Sparkles, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
@@ -9,11 +9,17 @@ async function getStats() {
     vaquinhasAtivas,
     vaquinhasTotal,
     inscricoesPendentes,
+    inscricoesTotal,
+    denunciasPendentes,
+    denunciasTotal,
     totalArrecadado,
   ] = await Promise.all([
     prisma.vaquinha.count({ where: { status: "ATIVA" } }),
     prisma.vaquinha.count(),
     prisma.inscricao.count({ where: { status: "PENDENTE" } }),
+    prisma.inscricao.count(),
+    prisma.denuncia.count({ where: { status: "PENDENTE" } }),
+    prisma.denuncia.count(),
     prisma.vaquinha.aggregate({ _sum: { valorAtual: true } }),
   ]);
 
@@ -21,6 +27,9 @@ async function getStats() {
     vaquinhasAtivas,
     vaquinhasTotal,
     inscricoesPendentes,
+    inscricoesTotal,
+    denunciasPendentes,
+    denunciasTotal,
     totalArrecadado: totalArrecadado._sum.valorAtual || 0,
   };
 }
@@ -62,11 +71,18 @@ export default async function AdminDashboard() {
       href: "/admin/vaquinhas",
     },
     {
-      label: "Inscrições Pendentes",
-      value: stats.inscricoesPendentes,
-      icon: Users,
+      label: "Sonhos Recebidos",
+      value: `${stats.inscricoesTotal} (${stats.inscricoesPendentes} pendentes)`,
+      icon: Sparkles,
       color: "bg-yellow-500",
-      href: "/admin/inscricoes?status=PENDENTE",
+      href: "/admin/inscricoes",
+    },
+    {
+      label: "Denúncias",
+      value: `${stats.denunciasTotal} (${stats.denunciasPendentes} pendentes)`,
+      icon: ShieldAlert,
+      color: "bg-red-500",
+      href: "/admin/denuncias",
     },
     {
       label: "Total de Campanhas",
@@ -81,7 +97,7 @@ export default async function AdminDashboard() {
     <div>
       <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
         {cards.map((card) => {
           const Icon = card.icon;
           return (

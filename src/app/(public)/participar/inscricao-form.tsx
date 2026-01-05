@@ -107,6 +107,14 @@ export function InscricaoForm() {
         setError("Por favor, informe um email válido");
         return false;
       }
+      if (form.paraQuem === "outra_pessoa" && !form.nomeBeneficiado.trim()) {
+        setError("Por favor, informe o nome da pessoa a ser beneficiada");
+        return false;
+      }
+      if (!form.telefone.trim()) {
+        setError("Por favor, informe seu telefone");
+        return false;
+      }
       return true;
     }
     else if (currentStep === 2) {
@@ -133,12 +141,38 @@ export function InscricaoForm() {
       }
       return true;
     }
+    else if (currentStep === 4) {
+      // Step 4: História e Situação
+      if (!form.historia.trim()) {
+        setError("Por favor, conte sua história");
+        return false;
+      }
+      if (form.historia.trim().length < 50) {
+        setError("Por favor, conte mais sobre sua história (mínimo 50 caracteres)");
+        return false;
+      }
+      if (!form.situacao.trim()) {
+        setError("Por favor, descreva por que você precisa de ajuda");
+        return false;
+      }
+      if (form.situacao.trim().length < 50) {
+        setError("Por favor, descreva melhor sua situação (mínimo 50 caracteres)");
+        return false;
+      }
+      return true;
+    }
 
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validar step 4 antes de enviar
+    if (!validateCurrentStep()) {
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -320,7 +354,7 @@ export function InscricaoForm() {
             {/* Telefone e Data de Nascimento */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-zinc-400 text-xs mb-1.5">Telefone</label>
+                <label className="block text-zinc-400 text-xs mb-1.5">Telefone *</label>
                 <input
                   type="tel"
                   value={form.telefone}

@@ -19,6 +19,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
+  ShieldAlert,
 } from "lucide-react";
 
 const menuItems = [
@@ -26,6 +27,7 @@ const menuItems = [
   { href: "/admin/vaquinhas", label: "Vaquinhas", icon: Heart },
   { href: "/admin/apoiadas", label: "Apoiadas", icon: HeartHandshake },
   { href: "/admin/inscricoes", label: "Sonhos", icon: Sparkles },
+  { href: "/admin/denuncias", label: "Denúncias", icon: ShieldAlert },
   { href: "/admin/redes", label: "Redes Sociais", icon: Share2 },
   { href: "/admin/faqs", label: "FAQs", icon: HelpCircle },
   { href: "/admin/quem-somos", label: "Quem Somos", icon: Users },

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, User, Heart, HandHeart, Send, ShieldAlert, HelpCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Home, User, Heart, HandHeart, Send, ShieldAlert, HelpCircle, ChevronLeft, MoreHorizontal, X } from "lucide-react";
 import { useState } from "react";
 import { Footer } from "@/components/footer";
 
@@ -12,17 +12,23 @@ const menuItems = [
   { href: "/vaquinhas", icon: Heart, label: "Vaquinhas" },
   { href: "/vaquinhas-apoiadas", icon: HandHeart, label: "Apoiadas" },
   { href: "/participar", icon: Send, label: "Envie seu Sonho" },
-  { href: "/duvidas", icon: HelpCircle, label: "Dúvidas" },
   { href: "/denunciar", icon: ShieldAlert, label: "Denunciar" },
+  { href: "/duvidas", icon: HelpCircle, label: "Dúvidas" },
 ];
 
-// Itens principais para mobile (5 itens max)
+// Itens principais para mobile (4 itens + botão Mais)
 const mobileMenuItems = [
   { href: "/", icon: Home, label: "Início" },
-  { href: "/quem-somos", icon: User, label: "Sobre" },
   { href: "/vaquinhas", icon: Heart, label: "Vaquinhas" },
   { href: "/vaquinhas-apoiadas", icon: HandHeart, label: "Apoiadas" },
   { href: "/participar", icon: Send, label: "Enviar" },
+];
+
+// Itens do menu "Mais" no mobile
+const mobileMoreItems = [
+  { href: "/quem-somos", icon: User, label: "Quem Somos" },
+  { href: "/duvidas", icon: HelpCircle, label: "Dúvidas" },
+  { href: "/denunciar", icon: ShieldAlert, label: "Denunciar" },
 ];
 
 export default function PublicLayout({
@@ -32,6 +38,10 @@ export default function PublicLayout({
 }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+
+  // Verifica se algum item do menu "Mais" está ativo
+  const isMoreItemActive = mobileMoreItems.some(item => pathname === item.href);
 
   return (
     <div className="min-h-screen bg-black">
@@ -149,7 +159,76 @@ export default function PublicLayout({
               </Link>
             );
           })}
+
+          {/* Botão Mais */}
+          <button
+            onClick={() => setMoreMenuOpen(!moreMenuOpen)}
+            className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all duration-300 min-w-[56px] ${
+              isMoreItemActive || moreMenuOpen
+                ? "text-white"
+                : "text-zinc-500 active:scale-95"
+            }`}
+          >
+            <div className={`p-1.5 rounded-lg transition-all duration-300 ${isMoreItemActive ? 'bg-green-600/20' : ''}`}>
+              {moreMenuOpen ? (
+                <X
+                  size={24}
+                  className="text-green-500 transition-all duration-300"
+                  strokeWidth={2.5}
+                />
+              ) : (
+                <MoreHorizontal
+                  size={24}
+                  className={`transition-all duration-300 ${isMoreItemActive ? 'text-green-500' : ''}`}
+                  strokeWidth={isMoreItemActive ? 2.5 : 2}
+                />
+              )}
+            </div>
+            <span className={`text-sm mt-0.5 transition-all duration-300 ${isMoreItemActive ? 'text-green-500 font-medium' : 'text-zinc-400'}`}>
+              Mais
+            </span>
+          </button>
         </div>
+
+        {/* Menu Mais - Popup */}
+        {moreMenuOpen && (
+          <>
+            {/* Overlay */}
+            <div
+              className="fixed inset-0 bg-black/60 -z-10"
+              onClick={() => setMoreMenuOpen(false)}
+            />
+
+            {/* Menu */}
+            <div className="absolute bottom-full left-0 right-0 bg-zinc-900 border-t border-zinc-800 rounded-t-2xl p-4 mb-0 animate-slide-up">
+              <div className="flex flex-col gap-1">
+                {mobileMoreItems.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMoreMenuOpen(false)}
+                      className={`flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-300 ${
+                        isActive
+                          ? "bg-green-600/20 text-white"
+                          : "text-zinc-300 hover:bg-zinc-800 active:bg-zinc-800"
+                      }`}
+                    >
+                      <item.icon
+                        size={24}
+                        className={isActive ? "text-green-500" : "text-zinc-400"}
+                      />
+                      <span className={`text-lg ${isActive ? "font-semibold text-green-500" : ""}`}>
+                        {item.label}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </>
+        )}
       </nav>
     </div>
   );

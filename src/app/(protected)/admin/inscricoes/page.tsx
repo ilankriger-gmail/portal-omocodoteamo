@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { StatusSelect } from "./status-select";
-import { User, MapPin, Mail, Phone, Calendar, Heart, DollarSign, Link2, Users } from "lucide-react";
+import { User, MapPin, Mail, Phone, Calendar, Heart, DollarSign, Link2, Users, Download, Cake, ChevronLeft, ChevronRight } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
+
 const faixaValorLabels: Record<string, string> = {
   ate_1000: "Até R$ 1.000",
   ate_5000: "Até R$ 5.000",
@@ -59,20 +60,23 @@ function getDateRange(periodo: string): { gte: Date; lte?: Date } | null {
 export default async function InscricoesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; faixa?: string; necessidade?: string; estado?: string; cidade?: string; periodo?: string }>;
+  searchParams: Promise<{
+    status?: string;
+    faixa?: string;
+    necessidade?: string;
+    estado?: string;
+    cidade?: string;
+    periodo?: string;
+    page?: string;
+    perPage?: string;
+  }>;
 }) {
-  const { status, faixa, necessidade, estado, cidade, periodo } = await searchParams;
+  const { status, faixa, necessidade, estado, cidade, periodo, page: pageParam, perPage: perPageParam } = await searchParams;
 
-  // Buscar todas as inscrições para construir os filtros
-  const allInscricoes = await prisma.inscricao.findMany({
-    orderBy: { createdAt: "desc" },
-  });
-
-  // Extrair estados e cidades únicos
-  const estados = [...new Set(allInscricoes.map(i => i.estado))].sort();
-  const cidades = estado
-    ? [...new Set(allInscricoes.filter(i => i.estado === estado).map(i => i.cidade))].sort()
-    : [...new Set(allInscricoes.map(i => i.cidade))].sort();
+  // Paginação
+  const page = Math.max(1, Number(pageParam) || 1);
+  const perPage = [10, 20, 50].includes(Number(perPageParam)) ? Number(perPageParam) : 10;
+  const skip = (page - 1) * perPage;
 
   // Construir filtro
   const whereClause: Record<string, unknown> = {};
@@ -98,10 +102,30 @@ export default async function InscricoesPage({
     }
   }
 
-  const inscricoes = await prisma.inscricao.findMany({
-    where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
-    orderBy: { createdAt: "desc" },
-  });
+  // Buscar inscrições com paginação
+  const [inscricoes, totalFiltered, allInscricoes] = await Promise.all([
+    prisma.inscricao.findMany({
+      where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: perPage,
+    }),
+    prisma.inscricao.count({
+      where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
+    }),
+    prisma.inscricao.findMany({
+      select: { status: true, estado: true, cidade: true },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  const totalPages = Math.ceil(totalFiltered / perPage);
+
+  // Extrair estados e cidades únicos
+  const estados = [...new Set(allInscricoes.map(i => i.estado))].filter(Boolean).sort();
+  const cidades = estado
+    ? [...new Set(allInscricoes.filter(i => i.estado === estado).map(i => i.cidade))].filter(Boolean).sort()
+    : [...new Set(allInscricoes.map(i => i.cidade))].filter(Boolean).sort();
 
   // Contadores por status
   const countByStatus = {
@@ -112,11 +136,13 @@ export default async function InscricoesPage({
   };
 
   // Construir query string para manter filtros
-  const buildQueryString = (newParams: Record<string, string | undefined>) => {
+  const buildQueryString = (newParams: Record<string, string | number | undefined>) => {
     const params = new URLSearchParams();
-    const allParams = { status, faixa, necessidade, estado, cidade, periodo, ...newParams };
+    const allParams = { status, faixa, necessidade, estado, cidade, periodo, page: String(page), perPage: String(perPage), ...newParams };
     Object.entries(allParams).forEach(([key, value]) => {
-      if (value) params.set(key, value);
+      if (value !== undefined && value !== null && value !== "") {
+        params.set(key, String(value));
+      }
     });
     const str = params.toString();
     return str ? `?${str}` : "";
@@ -131,26 +157,36 @@ export default async function InscricoesPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-2">Envie seu Sonho</h1>
-      <p className="text-zinc-400 text-sm mb-6">Gerencie as inscrições recebidas através do formulário de sonhos</p>
+      <div className="flex items-center justify-between mb-3">
+        <h1 className="text-3xl font-bold">Sonhos Recebidos</h1>
+        <a
+          href="/api/inscricoes/export"
+          download
+          className="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white text-base font-medium rounded-lg flex items-center gap-2 transition-colors"
+        >
+          <Download size={18} />
+          Exportar CSV
+        </a>
+      </div>
+      <p className="text-zinc-400 text-lg mb-6">Gerencie as inscrições recebidas através do formulário de sonhos</p>
 
       {/* Filtros */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-6 space-y-4">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-6 space-y-4">
         {/* Filtros por Status */}
         <div>
-          <label className="block text-sm text-zinc-400 mb-2">Status</label>
+          <label className="block text-base text-zinc-400 mb-2 font-medium">Status</label>
           <div className="flex gap-2 flex-wrap">
             <Link
               href="/admin/inscricoes"
-              className={`px-3 py-1.5 rounded-lg text-xs ${!status && !faixa && !necessidade && !estado && !cidade && !periodo ? "bg-green-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium ${!status && !faixa && !necessidade && !estado && !cidade && !periodo ? "bg-green-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
             >
               Todas ({allInscricoes.length})
             </Link>
             {(["PENDENTE", "ANALISANDO", "APROVADA", "RECUSADA"] as const).map((s) => (
               <Link
                 key={s}
-                href={`/admin/inscricoes${buildQueryString({ status: s })}`}
-                className={`px-3 py-1.5 rounded-lg text-xs border ${status === s ? statusColors[s] : "bg-zinc-800 text-zinc-300 border-transparent hover:bg-zinc-700"}`}
+                href={`/admin/inscricoes${buildQueryString({ status: s, page: 1 })}`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium border ${status === s ? statusColors[s] : "bg-zinc-800 text-zinc-300 border-transparent hover:bg-zinc-700"}`}
               >
                 {s.charAt(0) + s.slice(1).toLowerCase()} ({countByStatus[s]})
               </Link>
@@ -160,19 +196,19 @@ export default async function InscricoesPage({
 
         {/* Filtros por Faixa de Valor */}
         <div>
-          <label className="block text-sm text-zinc-400 mb-2">Valor do Sonho</label>
+          <label className="block text-base text-zinc-400 mb-2 font-medium">Valor do Sonho</label>
           <div className="flex gap-2 flex-wrap">
             <Link
-              href={`/admin/inscricoes${buildQueryString({ faixa: undefined })}`}
-              className={`px-3 py-1.5 rounded-lg text-xs ${!faixa ? "bg-zinc-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
+              href={`/admin/inscricoes${buildQueryString({ faixa: undefined, page: 1 })}`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium ${!faixa ? "bg-zinc-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
             >
               Todos
             </Link>
             {Object.entries(faixaValorLabels).map(([key, label]) => (
               <Link
                 key={key}
-                href={`/admin/inscricoes${buildQueryString({ faixa: key })}`}
-                className={`px-3 py-1.5 rounded-lg text-xs ${faixa === key ? "bg-green-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
+                href={`/admin/inscricoes${buildQueryString({ faixa: key, page: 1 })}`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${faixa === key ? "bg-green-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
               >
                 {label}
               </Link>
@@ -182,19 +218,19 @@ export default async function InscricoesPage({
 
         {/* Filtros por Tipo de Necessidade */}
         <div>
-          <label className="block text-sm text-zinc-400 mb-2">Tipo de Necessidade</label>
+          <label className="block text-base text-zinc-400 mb-2 font-medium">Tipo de Necessidade</label>
           <div className="flex gap-2 flex-wrap">
             <Link
-              href={`/admin/inscricoes${buildQueryString({ necessidade: undefined })}`}
-              className={`px-3 py-1.5 rounded-lg text-xs ${!necessidade ? "bg-zinc-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
+              href={`/admin/inscricoes${buildQueryString({ necessidade: undefined, page: 1 })}`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium ${!necessidade ? "bg-zinc-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
             >
               Todos
             </Link>
             {Object.entries(necessidadeLabels).map(([key, label]) => (
               <Link
                 key={key}
-                href={`/admin/inscricoes${buildQueryString({ necessidade: key })}`}
-                className={`px-3 py-1.5 rounded-lg text-xs ${necessidade === key ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
+                href={`/admin/inscricoes${buildQueryString({ necessidade: key, page: 1 })}`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${necessidade === key ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
               >
                 {label}
               </Link>
@@ -204,19 +240,19 @@ export default async function InscricoesPage({
 
         {/* Filtros por Período */}
         <div>
-          <label className="block text-sm text-zinc-400 mb-2">Período</label>
+          <label className="block text-base text-zinc-400 mb-2 font-medium">Período</label>
           <div className="flex gap-2 flex-wrap">
             <Link
-              href={`/admin/inscricoes${buildQueryString({ periodo: undefined })}`}
-              className={`px-3 py-1.5 rounded-lg text-xs ${!periodo ? "bg-zinc-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
+              href={`/admin/inscricoes${buildQueryString({ periodo: undefined, page: 1 })}`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium ${!periodo ? "bg-zinc-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
             >
               Todos
             </Link>
             {Object.entries(periodoLabels).map(([key, label]) => (
               <Link
                 key={key}
-                href={`/admin/inscricoes${buildQueryString({ periodo: key })}`}
-                className={`px-3 py-1.5 rounded-lg text-xs ${periodo === key ? "bg-cyan-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
+                href={`/admin/inscricoes${buildQueryString({ periodo: key, page: 1 })}`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${periodo === key ? "bg-cyan-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
               >
                 {label}
               </Link>
@@ -227,19 +263,19 @@ export default async function InscricoesPage({
         {/* Filtros por Estado e Cidade */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm text-zinc-400 mb-2">Estado</label>
-            <div className="flex gap-2 flex-wrap max-h-24 overflow-y-auto">
+            <label className="block text-base text-zinc-400 mb-2 font-medium">Estado</label>
+            <div className="flex gap-2 flex-wrap max-h-28 overflow-y-auto">
               <Link
-                href={`/admin/inscricoes${buildQueryString({ estado: undefined, cidade: undefined })}`}
-                className={`px-3 py-1.5 rounded-lg text-xs ${!estado ? "bg-zinc-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
+                href={`/admin/inscricoes${buildQueryString({ estado: undefined, cidade: undefined, page: 1 })}`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${!estado ? "bg-zinc-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
               >
                 Todos
               </Link>
               {estados.map((e) => (
                 <Link
                   key={e}
-                  href={`/admin/inscricoes${buildQueryString({ estado: e, cidade: undefined })}`}
-                  className={`px-3 py-1.5 rounded-lg text-xs ${estado === e ? "bg-orange-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
+                  href={`/admin/inscricoes${buildQueryString({ estado: e, cidade: undefined, page: 1 })}`}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium ${estado === e ? "bg-orange-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
                 >
                   {e}
                 </Link>
@@ -247,19 +283,19 @@ export default async function InscricoesPage({
             </div>
           </div>
           <div>
-            <label className="block text-sm text-zinc-400 mb-2">Cidade {estado && `(${estado})`}</label>
-            <div className="flex gap-2 flex-wrap max-h-24 overflow-y-auto">
+            <label className="block text-base text-zinc-400 mb-2 font-medium">Cidade {estado && `(${estado})`}</label>
+            <div className="flex gap-2 flex-wrap max-h-28 overflow-y-auto">
               <Link
-                href={`/admin/inscricoes${buildQueryString({ cidade: undefined })}`}
-                className={`px-3 py-1.5 rounded-lg text-xs ${!cidade ? "bg-zinc-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
+                href={`/admin/inscricoes${buildQueryString({ cidade: undefined, page: 1 })}`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${!cidade ? "bg-zinc-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
               >
                 Todas
               </Link>
               {cidades.map((c) => (
                 <Link
                   key={c}
-                  href={`/admin/inscricoes${buildQueryString({ cidade: c })}`}
-                  className={`px-3 py-1.5 rounded-lg text-xs ${cidade === c ? "bg-purple-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
+                  href={`/admin/inscricoes${buildQueryString({ cidade: c, page: 1 })}`}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium ${cidade === c ? "bg-purple-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
                 >
                   {c}
                 </Link>
@@ -270,10 +306,10 @@ export default async function InscricoesPage({
 
         {/* Limpar filtros */}
         {(status || faixa || necessidade || estado || cidade || periodo) && (
-          <div className="pt-2 border-t border-zinc-800">
+          <div className="pt-3 border-t border-zinc-800">
             <Link
               href="/admin/inscricoes"
-              className="text-xs text-red-400 hover:text-red-300"
+              className="text-sm text-red-400 hover:text-red-300 font-medium"
             >
               Limpar todos os filtros
             </Link>
@@ -284,47 +320,101 @@ export default async function InscricoesPage({
       {/* Filtros ativos */}
       {(status || faixa || necessidade || estado || cidade || periodo) && (
         <div className="flex flex-wrap gap-2 mb-4">
-          <span className="text-xs text-zinc-500">Filtros ativos:</span>
+          <span className="text-sm text-zinc-500">Filtros ativos:</span>
           {status && (
-            <span className="px-2 py-0.5 bg-yellow-900/30 text-yellow-400 text-xs rounded-full">
+            <span className="px-3 py-1 bg-yellow-900/30 text-yellow-400 text-sm rounded-full">
               Status: {status.charAt(0) + status.slice(1).toLowerCase()}
             </span>
           )}
           {faixa && (
-            <span className="px-2 py-0.5 bg-green-900/30 text-green-400 text-xs rounded-full">
+            <span className="px-3 py-1 bg-green-900/30 text-green-400 text-sm rounded-full">
               Valor: {faixaValorLabels[faixa]}
             </span>
           )}
           {necessidade && (
-            <span className="px-2 py-0.5 bg-blue-900/30 text-blue-400 text-xs rounded-full">
+            <span className="px-3 py-1 bg-blue-900/30 text-blue-400 text-sm rounded-full">
               Tipo: {necessidadeLabels[necessidade]}
             </span>
           )}
           {periodo && (
-            <span className="px-2 py-0.5 bg-cyan-900/30 text-cyan-400 text-xs rounded-full">
+            <span className="px-3 py-1 bg-cyan-900/30 text-cyan-400 text-sm rounded-full">
               Período: {periodoLabels[periodo]}
             </span>
           )}
           {estado && (
-            <span className="px-2 py-0.5 bg-orange-900/30 text-orange-400 text-xs rounded-full">
+            <span className="px-3 py-1 bg-orange-900/30 text-orange-400 text-sm rounded-full">
               Estado: {estado}
             </span>
           )}
           {cidade && (
-            <span className="px-2 py-0.5 bg-purple-900/30 text-purple-400 text-xs rounded-full">
+            <span className="px-3 py-1 bg-purple-900/30 text-purple-400 text-sm rounded-full">
               Cidade: {cidade}
             </span>
           )}
         </div>
       )}
 
-      {/* Contador de resultados */}
-      <div className="text-xs text-zinc-500 mb-4">
-        {inscricoes.length} inscrição{inscricoes.length !== 1 ? "ões" : ""} encontrada{inscricoes.length !== 1 ? "s" : ""}
+      {/* Paginação Superior */}
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-4 bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+        <div className="flex items-center gap-3">
+          <span className="text-base text-zinc-400">Exibir:</span>
+          <div className="flex gap-1">
+            {[10, 20, 50].map((n) => (
+              <Link
+                key={n}
+                href={`/admin/inscricoes${buildQueryString({ perPage: n, page: 1 })}`}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium ${perPage === n ? "bg-green-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
+              >
+                {n}
+              </Link>
+            ))}
+          </div>
+          <span className="text-base text-zinc-400">por página</span>
+        </div>
+
+        <div className="text-base text-zinc-300">
+          Mostrando <span className="font-semibold text-white">{Math.min(skip + 1, totalFiltered)}</span> - <span className="font-semibold text-white">{Math.min(skip + perPage, totalFiltered)}</span> de <span className="font-semibold text-white">{totalFiltered}</span> inscrições
+        </div>
+
+        <div className="flex items-center gap-2">
+          {page > 1 ? (
+            <Link
+              href={`/admin/inscricoes${buildQueryString({ page: page - 1 })}`}
+              className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg flex items-center gap-1 text-sm font-medium"
+            >
+              <ChevronLeft size={18} />
+              Anterior
+            </Link>
+          ) : (
+            <span className="px-3 py-2 bg-zinc-800/50 text-zinc-600 rounded-lg flex items-center gap-1 text-sm font-medium cursor-not-allowed">
+              <ChevronLeft size={18} />
+              Anterior
+            </span>
+          )}
+
+          <span className="px-4 py-2 bg-zinc-800 text-white rounded-lg text-sm font-medium">
+            {page} de {totalPages || 1}
+          </span>
+
+          {page < totalPages ? (
+            <Link
+              href={`/admin/inscricoes${buildQueryString({ page: page + 1 })}`}
+              className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg flex items-center gap-1 text-sm font-medium"
+            >
+              Próximo
+              <ChevronRight size={18} />
+            </Link>
+          ) : (
+            <span className="px-3 py-2 bg-zinc-800/50 text-zinc-600 rounded-lg flex items-center gap-1 text-sm font-medium cursor-not-allowed">
+              Próximo
+              <ChevronRight size={18} />
+            </span>
+          )}
+        </div>
       </div>
 
       {inscricoes.length === 0 ? (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center text-zinc-400">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 text-center text-zinc-400 text-lg">
           Nenhuma inscrição encontrada com os filtros selecionados
         </div>
       ) : (
@@ -334,33 +424,58 @@ export default async function InscricoesPage({
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <User size={16} className="text-zinc-500" />
-                    <h3 className="text-lg font-semibold text-white">{i.nome}</h3>
-                    {i.paraQuem === "outra_pessoa" && (
-                      <span className="px-2 py-0.5 bg-purple-900/50 text-purple-400 text-xs rounded-full">
+                  <div className="flex items-center gap-3 mb-2">
+                    <User size={20} className="text-zinc-500" />
+                    <h3 className="text-xl font-bold text-white">
+                      {i.nome || <span className="text-zinc-500 italic">Nome não informado</span>}
+                    </h3>
+                    {i.paraQuem === "outra_pessoa" && i.nomeBeneficiado && (
+                      <span className="px-3 py-1 bg-purple-900/50 text-purple-400 text-sm font-medium rounded-full">
                         Para: {i.nomeBeneficiado}
                       </span>
                     )}
                   </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-zinc-400">
-                    <span className="flex items-center gap-1">
-                      <MapPin size={14} />
-                      {i.cidade}, {i.estado}
+                  <div className="flex flex-wrap gap-x-5 gap-y-2 text-base text-zinc-400">
+                    <span className="flex items-center gap-2">
+                      <MapPin size={16} />
+                      {i.cidade && i.estado ? (
+                        `${i.cidade}, ${i.estado}`
+                      ) : (
+                        <span className="text-zinc-500 italic">Local não informado</span>
+                      )}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Mail size={14} />
-                      {i.email}
-                    </span>
+                    {i.email ? (
+                      <a
+                        href={`mailto:${i.email}`}
+                        className="flex items-center gap-2 hover:text-blue-400 transition-colors"
+                      >
+                        <Mail size={16} />
+                        {i.email}
+                      </a>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <Mail size={16} />
+                        <span className="text-zinc-500 italic">Email não informado</span>
+                      </span>
+                    )}
                     {i.telefone && (
-                      <span className="flex items-center gap-1">
-                        <Phone size={14} />
+                      <a
+                        href={`tel:${i.telefone}`}
+                        className="flex items-center gap-2 hover:text-green-400 transition-colors"
+                      >
+                        <Phone size={16} />
                         {i.telefone}
+                      </a>
+                    )}
+                    {i.dataNascimento && (
+                      <span className="flex items-center gap-2">
+                        <Cake size={16} />
+                        {new Date(i.dataNascimento).toLocaleDateString("pt-BR")}
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-2 mt-2 text-xs text-zinc-500">
-                    <Calendar size={12} />
+                  <div className="flex items-center gap-2 mt-3 text-sm text-zinc-500">
+                    <Calendar size={14} />
                     Enviado em{" "}
                     {new Date(i.createdAt).toLocaleDateString("pt-BR", {
                       day: "2-digit",
@@ -377,20 +492,20 @@ export default async function InscricoesPage({
               {/* Badges de informações */}
               <div className="flex flex-wrap gap-2 mb-4">
                 {i.faixaValor && (
-                  <span className="flex items-center gap-1 px-2 py-1 bg-green-900/30 text-green-400 text-xs rounded-lg">
-                    <DollarSign size={12} />
+                  <span className="flex items-center gap-2 px-3 py-1.5 bg-green-900/30 text-green-400 text-sm font-medium rounded-lg">
+                    <DollarSign size={14} />
                     {faixaValorLabels[i.faixaValor] || i.faixaValor}
                   </span>
                 )}
                 {i.necessidade && i.necessidade.length > 0 && (
-                  <span className="flex items-center gap-1 px-2 py-1 bg-blue-900/30 text-blue-400 text-xs rounded-lg">
-                    <Heart size={12} />
+                  <span className="flex items-center gap-2 px-3 py-1.5 bg-blue-900/30 text-blue-400 text-sm font-medium rounded-lg">
+                    <Heart size={14} />
                     {i.necessidade.map(n => necessidadeLabels[n] || n).join(", ")}
                   </span>
                 )}
                 {i.dataRealizacao && (
-                  <span className="flex items-center gap-1 px-2 py-1 bg-orange-900/30 text-orange-400 text-xs rounded-lg">
-                    <Calendar size={12} />
+                  <span className="flex items-center gap-2 px-3 py-1.5 bg-orange-900/30 text-orange-400 text-sm font-medium rounded-lg">
+                    <Calendar size={14} />
                     Realizar até: {new Date(i.dataRealizacao).toLocaleDateString("pt-BR")}
                   </span>
                 )}
@@ -399,15 +514,15 @@ export default async function InscricoesPage({
                     href={i.linkMidiaSocial}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 px-2 py-1 bg-purple-900/30 text-purple-400 text-xs rounded-lg hover:bg-purple-900/50"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-purple-900/30 text-purple-400 text-sm font-medium rounded-lg hover:bg-purple-900/50"
                   >
-                    <Link2 size={12} />
+                    <Link2 size={14} />
                     Link de Mídia
                   </a>
                 )}
                 {i.paraQuem === "outra_pessoa" && (
-                  <span className="flex items-center gap-1 px-2 py-1 bg-pink-900/30 text-pink-400 text-xs rounded-lg">
-                    <Users size={12} />
+                  <span className="flex items-center gap-2 px-3 py-1.5 bg-pink-900/30 text-pink-400 text-sm font-medium rounded-lg">
+                    <Users size={14} />
                     Para outra pessoa
                   </span>
                 )}
@@ -415,19 +530,48 @@ export default async function InscricoesPage({
 
               {/* Conteúdo */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-zinc-800 p-4 rounded-lg">
-                  <h4 className="font-medium text-sm text-zinc-400 mb-2">História / O Sonho</h4>
-                  <p className="whitespace-pre-wrap text-white text-sm">{i.historia}</p>
+                <div className="bg-zinc-800 p-5 rounded-lg">
+                  <h4 className="font-semibold text-base text-zinc-400 mb-3">História / O Sonho</h4>
+                  <p className="whitespace-pre-wrap text-white text-base leading-relaxed">{i.historia || <span className="text-zinc-500 italic">Não informado</span>}</p>
                 </div>
-                <div className="bg-zinc-800 p-4 rounded-lg">
-                  <h4 className="font-medium text-sm text-zinc-400 mb-2">
+                <div className="bg-zinc-800 p-5 rounded-lg">
+                  <h4 className="font-semibold text-base text-zinc-400 mb-3">
                     Situação Atual / Por que precisa de ajuda
                   </h4>
-                  <p className="whitespace-pre-wrap text-white text-sm">{i.situacao}</p>
+                  <p className="whitespace-pre-wrap text-white text-base leading-relaxed">{i.situacao || <span className="text-zinc-500 italic">Não informado</span>}</p>
                 </div>
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Paginação Inferior */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          {page > 1 && (
+            <Link
+              href={`/admin/inscricoes${buildQueryString({ page: page - 1 })}`}
+              className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg flex items-center gap-1 text-base font-medium"
+            >
+              <ChevronLeft size={20} />
+              Anterior
+            </Link>
+          )}
+
+          <span className="px-5 py-2 bg-zinc-900 border border-zinc-800 text-white rounded-lg text-base font-medium">
+            Página {page} de {totalPages}
+          </span>
+
+          {page < totalPages && (
+            <Link
+              href={`/admin/inscricoes${buildQueryString({ page: page + 1 })}`}
+              className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg flex items-center gap-1 text-base font-medium"
+            >
+              Próximo
+              <ChevronRight size={20} />
+            </Link>
+          )}
         </div>
       )}
     </div>
