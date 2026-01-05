@@ -123,10 +123,10 @@ export default async function HomePage() {
             href={config.bannerLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="block mb-6 -mx-4 sm:mx-0"
+            className="block mb-6 -mx-4 sm:mx-0 animate-fade-in-down"
           >
             {isValidImageUrl(config.bannerImageUrl) ? (
-              <div className="relative overflow-hidden sm:rounded-xl">
+              <div className="relative overflow-hidden sm:rounded-xl group">
                 <div className="relative w-full aspect-auto">
                   <Image
                     src={config.bannerImageUrl}
@@ -134,12 +134,12 @@ export default async function HomePage() {
                     width={2000}
                     height={600}
                     sizes="100vw"
-                    className="w-full hover:opacity-90 transition-opacity"
+                    className="w-full transition-all duration-500 group-hover:scale-[1.02] group-hover:brightness-110"
                     priority
                   />
                 </div>
                 {config.bannerTexto && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 transition-all duration-300 group-hover:bg-black/30">
                     <p className="text-white font-bold text-lg sm:text-xl drop-shadow-lg text-center px-4">
                       {config.bannerTexto}
                     </p>
@@ -147,7 +147,7 @@ export default async function HomePage() {
                 )}
               </div>
             ) : (
-              <div className="bg-black border-y border-zinc-800 sm:border sm:rounded-xl py-4 px-6 text-center hover:bg-zinc-900/50 transition-colors">
+              <div className="bg-black border-y border-zinc-800 sm:border sm:rounded-xl py-4 px-6 text-center hover:bg-zinc-900/50 transition-all duration-300 hover:border-zinc-700">
                 <p className="text-white font-medium text-sm sm:text-base">
                   {config.bannerTexto}
                 </p>
@@ -155,7 +155,7 @@ export default async function HomePage() {
             )}
           </a>
         ) : (
-          <div className="mb-6 -mx-4 sm:mx-0">
+          <div className="mb-6 -mx-4 sm:mx-0 animate-fade-in-down">
             {isValidImageUrl(config.bannerImageUrl) ? (
               <div className="relative overflow-hidden sm:rounded-xl">
                 <div className="relative w-full aspect-auto">
@@ -189,12 +189,12 @@ export default async function HomePage() {
       )}
 
       {/* Profile Header - Estilo Personalizado */}
-      <div className="relative mb-6 p-4 bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl">
+      <div className="relative mb-6 p-4 bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl animate-fade-in-up transition-all duration-300 hover:shadow-lg hover:shadow-green-900/10">
         <div className="flex items-center gap-4">
           {/* Avatar com efeito hexagonal */}
-          <div className="flex-shrink-0 relative">
+          <div className="flex-shrink-0 relative group">
             {isValidImageUrl(config?.avatarUrl) ? (
-              <div className="w-16 h-16 overflow-hidden rounded-xl bg-zinc-800 shadow-lg transform rotate-3">
+              <div className="w-16 h-16 overflow-hidden rounded-xl bg-zinc-800 shadow-lg transform rotate-3 transition-transform duration-500 group-hover:rotate-6 group-hover:scale-105">
                 <div className="relative w-full h-full">
                   <Image
                     src={config.avatarUrl}
@@ -206,11 +206,11 @@ export default async function HomePage() {
                 </div>
               </div>
             ) : (
-              <div className="w-16 h-16 rounded-xl bg-zinc-800 flex items-center justify-center transform rotate-3 shadow-lg">
+              <div className="w-16 h-16 rounded-xl bg-zinc-800 flex items-center justify-center transform rotate-3 shadow-lg transition-transform duration-500 group-hover:rotate-6 group-hover:scale-105">
                 <Users className="w-8 h-8 text-zinc-600" />
               </div>
             )}
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-600 rounded-full flex items-center justify-center animate-pulse-soft">
               <Heart size={12} className="text-white" fill="currentColor" />
             </div>
           </div>
@@ -226,13 +226,13 @@ export default async function HomePage() {
         <div className="mt-4 flex gap-2">
           <Link
             href="/quem-somos"
-            className="flex-1 py-2 bg-zinc-800/60 hover:bg-zinc-700/70 text-white text-sm font-medium rounded-lg text-center transition-colors border border-zinc-700/50"
+            className="flex-1 py-2.5 bg-zinc-800/60 hover:bg-zinc-700/70 text-white text-sm font-medium rounded-lg text-center transition-all duration-300 border border-zinc-700/50 hover:border-zinc-600 hover:-translate-y-0.5"
           >
             Quem Somos
           </Link>
           <Link
             href="/participar"
-            className="flex-1 py-2 bg-zinc-800/60 hover:bg-zinc-700/70 text-white text-sm font-medium rounded-lg text-center transition-colors border border-zinc-700/50"
+            className="flex-1 py-2.5 bg-zinc-800/60 hover:bg-zinc-700/70 text-white text-sm font-medium rounded-lg text-center transition-all duration-300 border border-zinc-700/50 hover:border-zinc-600 hover:-translate-y-0.5"
           >
             Envie seu Sonho
           </Link>
@@ -258,18 +258,18 @@ export default async function HomePage() {
 
       {/* MANCHETE PRINCIPAL - PRIMEIRA PÁGINA ESTILO JORNAL */}
       {vaquinhaDestaque && (
-        <div className="mb-10 -mx-4 sm:mx-0">
-          <div className="bg-zinc-950 relative">
+        <div className="mb-10 -mx-4 sm:mx-0 animate-fade-in-up animation-delay-100">
+          <div className="bg-zinc-950 relative overflow-hidden group">
             {/* Imagem Expandida de Manchete - Ocupando Toda Largura */}
             {isValidImageUrl(vaquinhaDestaque.imagemUrl) ? (
-              <div className="relative w-full">
+              <div className="relative w-full overflow-hidden">
                 <div className="relative w-full h-[300px] sm:h-[350px]">
                   <Image
                     src={vaquinhaDestaque.imagemUrl}
                     alt={vaquinhaDestaque.titulo}
                     fill
                     sizes="(max-width: 640px) 100vw, 800px"
-                    className="object-cover"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                     priority
                   />
                 </div>
@@ -355,7 +355,7 @@ export default async function HomePage() {
 
               <Link
                 href={`/vaquinhas/${vaquinhaDestaque.slug}`}
-                className="block w-full py-3 bg-black border-2 border-green-600 hover:bg-green-600/10 text-white text-sm font-bold uppercase text-center tracking-wide transition-colors"
+                className="block w-full py-3.5 bg-black border-2 border-green-600 hover:bg-green-600 text-white text-sm font-bold uppercase text-center tracking-wide transition-all duration-300 hover:shadow-lg hover:shadow-green-600/20"
               >
                 Leia mais e ajude
               </Link>
@@ -365,13 +365,13 @@ export default async function HomePage() {
       )}
 
       {/* Link para todas as campanhas */}
-      <div className="text-center mb-10">
+      <div className="text-center mb-10 animate-fade-in-up animation-delay-200">
         <Link
           href="/vaquinhas"
-          className="inline-flex items-center gap-2 bg-black border-2 border-green-600 hover:bg-green-600/10 px-4 py-2 text-white text-sm transition-colors"
+          className="inline-flex items-center gap-2 bg-black border-2 border-green-600 hover:bg-green-600 px-5 py-2.5 text-white text-sm transition-all duration-300 hover:shadow-lg hover:shadow-green-600/20 group"
         >
           VER TODAS AS CAMPANHAS
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-transform duration-300 group-hover:translate-x-1">
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
         </Link>
@@ -379,7 +379,7 @@ export default async function HomePage() {
 
       {/* ARTIGOS SECUNDÁRIOS (Estilo Jornal) */}
       {vaquinhasSecundarias.length > 0 && (
-        <div className="mb-8">
+        <div className="mb-8 animate-fade-in-up animation-delay-300">
           <div className="border-b-2 border-zinc-800 mb-4">
             <h3 className="text-sm font-bold uppercase text-white bg-zinc-800 inline-block px-2 py-1">
               OUTRAS CAMPANHAS
@@ -393,11 +393,11 @@ export default async function HomePage() {
                 <Link
                   key={vaquinha.id}
                   href={`/vaquinhas/${vaquinha.slug}`}
-                  className={`border-b border-zinc-800 pb-4 ${index === vaquinhasSecundarias.length - 1 ? 'border-b-0' : ''}`}
+                  className={`border-b border-zinc-800 pb-4 group transition-all duration-300 hover:bg-zinc-900/30 hover:px-2 hover:-mx-2 rounded-lg ${index === vaquinhasSecundarias.length - 1 ? 'border-b-0' : ''}`}
                 >
                   <div className="flex gap-4">
                     {/* Thumbnail pequena */}
-                    <div className="w-24 h-24 flex-shrink-0 bg-zinc-900 relative">
+                    <div className="w-24 h-24 flex-shrink-0 bg-zinc-900 relative overflow-hidden rounded-lg">
                       {isValidImageUrl(vaquinha.imagemUrl) ? (
                         <div className="relative w-full h-full">
                           <Image
@@ -405,7 +405,7 @@ export default async function HomePage() {
                             alt={vaquinha.titulo}
                             fill
                             sizes="96px"
-                            className="object-cover"
+                            className="object-cover transition-transform duration-500 group-hover:scale-110"
                             loading="lazy"
                           />
                         </div>
@@ -426,7 +426,7 @@ export default async function HomePage() {
                     </div>
 
                     <div className="flex-1">
-                      <h3 className="text-white text-sm font-bold mb-1 line-clamp-2 hover:text-green-400 transition-colors">
+                      <h3 className="text-white text-sm font-bold mb-1 line-clamp-2 group-hover:text-green-400 transition-colors duration-300">
                         {vaquinha.titulo}
                       </h3>
 
@@ -435,9 +435,9 @@ export default async function HomePage() {
                         <span>{Math.round(progress)}% arrecadado</span>
                       </div>
 
-                      <div className="w-full h-1.5 bg-zinc-800 overflow-hidden">
+                      <div className="w-full h-1.5 bg-zinc-800 overflow-hidden rounded-full">
                         <div
-                          className="h-full bg-green-600"
+                          className="h-full bg-green-600 transition-all duration-500 rounded-full"
                           style={{ width: `${progress}%` }}
                         />
                       </div>

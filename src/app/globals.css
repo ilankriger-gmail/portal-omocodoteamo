@@ -5,46 +5,46 @@
 :root {
   /* Base - tema escuro sempre */
   --background: #09090b;
-  --foreground: #FFFFFF; /* Melhorado para branco puro */
-  --foreground-secondary: #E5E5E5; /* Texto secundário mais claro */
-  --foreground-tertiary: #B0B0B0; /* Texto terciário com contraste adequado */
+  --foreground: #FFFFFF;
+  --foreground-secondary: #E5E5E5;
+  --foreground-tertiary: #B0B0B0;
 
   /* Cores da marca */
   --brand-red: #dc2626;
   --brand-yellow: #facc15;
   --brand-purple: #9333ea;
-  --brand-green: #22C55E; /* Verde para botões */
+  --brand-green: #22C55E;
 
   /* Botões */
-  --btn-primary-bg: #22C55E; /* Verde mais vibrante */
-  --btn-primary-text: #FFFFFF; /* Texto branco para contraste */
+  --btn-primary-bg: #22C55E;
+  --btn-primary-text: #FFFFFF;
   --btn-primary-border: #22C55E;
-  --btn-secondary-border: #4B5563; /* Borda mais contrastante */
+  --btn-secondary-border: #4B5563;
   --btn-accent-border: #9333ea;
 
   /* Superfícies */
   --surface: #18181b;
   --surface-hover: #27272a;
-  --surface-card: #1F1F23; /* Superfície mais clara para cards */
+  --surface-card: #1F1F23;
   --border: #3f3f46;
-  --border-light: #4B5563; /* Borda mais clara para destaque */
+  --border-light: #4B5563;
 
   /* Espaçamento */
-  --space-xs: 0.5rem;   /* 8px */
-  --space-sm: 0.75rem;  /* 12px */
-  --space-md: 1.25rem;  /* 20px */
-  --space-lg: 2rem;     /* 32px */
-  --space-xl: 3rem;     /* 48px */
-  --space-2xl: 4rem;    /* 64px */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1.25rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4rem;
 
   /* Tipografia */
-  --font-size-xs: 0.75rem;    /* 12px */
-  --font-size-sm: 0.875rem;   /* 14px */
-  --font-size-base: 1.0625rem; /* 17px */
-  --font-size-lg: 1.25rem;    /* 20px */
-  --font-size-xl: 1.5rem;     /* 24px */
-  --font-size-2xl: 1.875rem;  /* 30px */
-  --font-size-3xl: 2.25rem;   /* 36px */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1.0625rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 1.875rem;
+  --font-size-3xl: 2.25rem;
 
   /* Font Weights */
   --font-weight-normal: 400;
@@ -52,6 +52,18 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
   --font-weight-extrabold: 800;
+
+  /* Animações - Curvas de easing suaves */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Durações */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --duration-slower: 600ms;
 }
 
 body {
@@ -71,6 +83,59 @@ body {
 
   .text-shadow {
     text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Animações de fade-in */
+  .animate-fade-in {
+    animation: fadeIn var(--duration-normal) var(--ease-smooth) forwards;
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp var(--duration-slow) var(--ease-out-expo) forwards;
+  }
+
+  .animate-fade-in-down {
+    animation: fadeInDown var(--duration-slow) var(--ease-out-expo) forwards;
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft var(--duration-slow) var(--ease-out-expo) forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight var(--duration-slow) var(--ease-out-expo) forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn var(--duration-normal) var(--ease-bounce) forwards;
+  }
+
+  .animate-pulse-soft {
+    animation: pulseSoft 2s var(--ease-in-out) infinite;
+  }
+
+  /* Delays de animação escalonados */
+  .animation-delay-100 { animation-delay: 100ms; }
+  .animation-delay-200 { animation-delay: 200ms; }
+  .animation-delay-300 { animation-delay: 300ms; }
+  .animation-delay-400 { animation-delay: 400ms; }
+  .animation-delay-500 { animation-delay: 500ms; }
+
+  /* Hover suave padrão */
+  .hover-lift {
+    @apply transition-all duration-300;
+  }
+  .hover-lift:hover {
+    @apply -translate-y-1;
+    box-shadow: 0 10px 40px -10px rgba(34, 197, 94, 0.15);
+  }
+
+  /* Hover com glow */
+  .hover-glow {
+    @apply transition-all duration-300;
+  }
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
   }
 }
 
@@ -164,4 +229,129 @@ body {
   .container-lg {
     @apply max-w-6xl mx-auto px-4;
   }
+
+  /* Card interativo com efeitos suaves */
+  .card-interactive {
+    @apply rounded-xl overflow-hidden transition-all duration-300;
+  }
+  .card-interactive:hover {
+    @apply -translate-y-1;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Link com sublinhado animado */
+  .link-underline {
+    @apply relative;
+  }
+  .link-underline::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-brand-green;
+    transition: width var(--duration-normal) var(--ease-out-expo);
+  }
+  .link-underline:hover::after {
+    @apply w-full;
+  }
+
+  /* Barra de progresso animada */
+  .progress-animated {
+    @apply relative overflow-hidden;
+  }
+  .progress-animated::after {
+    content: '';
+    @apply absolute inset-0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  /* Skeleton loading */
+  .skeleton {
+    @apply bg-zinc-800 rounded animate-pulse;
+  }
+
+  .skeleton-text {
+    @apply h-4 bg-zinc-800 rounded animate-pulse;
+  }
+
+  .skeleton-avatar {
+    @apply w-12 h-12 bg-zinc-800 rounded-full animate-pulse;
+  }
+
+  .skeleton-card {
+    @apply bg-zinc-900 rounded-xl p-4 animate-pulse;
+  }
+}
+
+/* Keyframes para animações */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes progressGrow {
+  from { width: 0; }
 }

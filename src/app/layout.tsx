@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { GoogleAnalytics } from "@/components/google-analytics";
 import { GoogleAdSense } from "@/components/google-adsense";
 import { safeDbOperation } from "@/lib/db-fallback";
+import { AuthProvider } from "@/components/providers/auth-provider";
 
 // Definimos o layout como dinâmico para que seja executado em runtime
 export const dynamic = 'force-dynamic';
@@ -128,9 +129,11 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <GoogleAnalytics gaId={gaId} />
-        <GoogleAdSense adClient={adsenseId} />
-        {children}
+        <AuthProvider>
+          <GoogleAnalytics gaId={gaId} />
+          <GoogleAdSense adClient={adsenseId} />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
