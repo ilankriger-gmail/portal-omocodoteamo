@@ -88,6 +88,20 @@ body {
     @apply bg-zinc-900/80 backdrop-blur-lg border border-white/20;
   }
 
+  /* Instagram-style grid enhancements */
+  .instagram-grid-item {
+    @apply relative overflow-hidden transition-opacity duration-200 cursor-pointer;
+  }
+
+  .instagram-grid-item:hover {
+    @apply opacity-90;
+  }
+
+  /* Smooth transitions between grid and carousel views */
+  .grid-carousel-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
   /* Tipografia */
   .heading-xl {
     @apply text-foreground text-4xl font-extrabold leading-tight;

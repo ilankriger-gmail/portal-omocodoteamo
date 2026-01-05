@@ -6,6 +6,7 @@ import { NovaAtualizacaoForm } from "./nova-form";
 import { DeleteAtualizacaoButton } from "./delete-button";
 import { StatsForm } from "./stats-form";
 import { ImageCarousel } from "@/components/ui/image-carousel";
+import { SocialMediaViewer } from "@/components/ui/social-media-viewer";
 
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
@@ -155,10 +156,10 @@ export default async function AtualizacoesPage({
 
                     <p className="whitespace-pre-wrap">{att.conteudo}</p>
 
-                    {/* Exibição de carrossel para o tipo GALERIA */}
+                    {/* Exibição de grid/carrossel para o tipo GALERIA */}
                     {att.tipo === "GALERIA" && att.imagens && att.imagens.length > 0 && (
                       <div className="mt-3 max-w-md">
-                        <ImageCarousel
+                        <SocialMediaViewer
                           images={att.imagens.map(img => ({
                             id: img.id,
                             url: img.url,

@@ -14,6 +14,7 @@ import {
   Images,
 } from "lucide-react";
 import { ImageCarousel } from "@/components/ui/image-carousel";
+import { SocialMediaViewer } from "@/components/ui/social-media-viewer";
 
 import { CopyPixButton } from "./copy-pix";
 
@@ -267,10 +268,10 @@ export default async function VaquinhaPage({
                       {att.conteudo}
                     </p>
 
-                    {/* Exibição de carrossel para o tipo GALERIA */}
+                    {/* Exibição de grid/carrossel para o tipo GALERIA */}
                     {att.tipo === "GALERIA" && att.imagens && att.imagens.length > 0 && (
                       <div className="mt-3 rounded-xl overflow-hidden relative">
-                        <ImageCarousel
+                        <SocialMediaViewer
                           images={att.imagens.map(img => ({
                             id: img.id,
                             url: img.url,
