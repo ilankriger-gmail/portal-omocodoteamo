@@ -12,6 +12,7 @@ import {
   MessageSquare,
   Heart,
   Images,
+  Instagram,
 } from "lucide-react";
 import { ImageCarousel } from "@/components/ui/image-carousel";
 import { SocialMediaViewer } from "@/components/ui/social-media-viewer";
@@ -29,6 +30,19 @@ function getYouTubeEmbedUrl(url: string): string | null {
     const match = url.match(pattern);
     if (match?.[1]) {
       return `https://www.youtube.com/embed/${match[1]}`;
+    }
+  }
+  return null;
+}
+
+function getInstagramEmbedUrl(url: string): string | null {
+  const patterns = [
+    /instagram\.com\/(p|reel|reels)\/([a-zA-Z0-9_-]+)/,
+  ];
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match?.[2]) {
+      return `https://www.instagram.com/p/${match[2]}/embed`;
     }
   }
   return null;
@@ -80,6 +94,7 @@ export default async function VaquinhaPage({
     VIDEO: Video,
     COMPROVANTE: FileCheck,
     GALERIA: Images,
+    INSTAGRAM: Instagram,
   };
 
   return (
@@ -258,6 +273,8 @@ export default async function VaquinhaPage({
                             ? "bg-red-500/10 text-red-400"
                             : att.tipo === "FOTO"
                             ? "bg-blue-500/10 text-blue-400"
+                            : att.tipo === "INSTAGRAM"
+                            ? "bg-pink-500/10 text-pink-400"
                             : "bg-zinc-800 text-zinc-400"
                         }`}
                       >
@@ -306,7 +323,34 @@ export default async function VaquinhaPage({
                       </div>
                     )}
 
-                    {att.videoUrl && (
+                    {/* Embed do Instagram */}
+                    {att.tipo === "INSTAGRAM" && att.videoUrl && (
+                      <div className="mt-3">
+                        {getInstagramEmbedUrl(att.videoUrl) ? (
+                          <div className="w-full">
+                            <iframe
+                              src={getInstagramEmbedUrl(att.videoUrl)}
+                              title="Post do Instagram"
+                              className="w-full rounded-lg border-0"
+                              style={{ minHeight: "500px" }}
+                              allowFullScreen
+                            />
+                          </div>
+                        ) : (
+                          <a
+                            href={att.videoUrl}
+                            target="_blank"
+                            className="inline-flex items-center gap-2 text-pink-400 text-sm hover:underline"
+                          >
+                            <Instagram size={14} />
+                            Ver no Instagram
+                          </a>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Embed do YouTube */}
+                    {att.tipo === "VIDEO" && att.videoUrl && (
                       <div className="mt-3 space-y-2">
                         {getYouTubeEmbedUrl(att.videoUrl) ? (
                           <div className="aspect-video w-full">

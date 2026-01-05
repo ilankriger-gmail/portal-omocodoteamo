@@ -186,6 +186,7 @@ enum TipoAtualizacao {
   VIDEO
   COMPROVANTE
   GALERIA
+  INSTAGRAM
 }
 
 enum InscricaoStatus {

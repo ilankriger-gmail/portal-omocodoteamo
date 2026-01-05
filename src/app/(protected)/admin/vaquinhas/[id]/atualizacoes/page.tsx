@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Image, Video, FileCheck, MessageSquare, Images } from "lucide-react";
+import { ArrowLeft, Image, Video, FileCheck, MessageSquare, Images, Instagram } from "lucide-react";
 import { NovaAtualizacaoForm } from "./nova-form";
 import { DeleteAtualizacaoButton } from "./delete-button";
 import { StatsForm } from "./stats-form";
@@ -10,6 +10,7 @@ import { SocialMediaViewer } from "@/components/ui/social-media-viewer";
 
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
+
 // Extrai o ID do vídeo do YouTube de várias URLs possíveis
 function getYoutubeEmbedUrl(url: string): string | null {
   const patterns = [
@@ -21,6 +22,22 @@ function getYoutubeEmbedUrl(url: string): string | null {
     const match = url.match(pattern);
     if (match && match[1]) {
       return `https://www.youtube.com/embed/${match[1]}`;
+    }
+  }
+  return null;
+}
+
+// Extrai a URL de embed do Instagram de posts e reels
+function getInstagramEmbedUrl(url: string): string | null {
+  const patterns = [
+    /instagram\.com\/(p|reel|reels)\/([a-zA-Z0-9_-]+)/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[2]) {
+      // Retorna URL de embed do Instagram
+      return `https://www.instagram.com/p/${match[2]}/embed`;
     }
   }
   return null;
@@ -57,6 +74,7 @@ export default async function AtualizacoesPage({
     VIDEO: Video,
     COMPROVANTE: FileCheck,
     GALERIA: Images,
+    INSTAGRAM: Instagram,
   };
 
   const tipoLabel = {
@@ -65,6 +83,7 @@ export default async function AtualizacoesPage({
     VIDEO: "Vídeo",
     COMPROVANTE: "Comprovante",
     GALERIA: "Galeria",
+    INSTAGRAM: "Instagram",
   };
 
   return (
@@ -128,6 +147,8 @@ export default async function AtualizacoesPage({
                               ? "bg-blue-900 text-blue-400"
                               : att.tipo === "GALERIA"
                               ? "bg-purple-900 text-purple-400"
+                              : att.tipo === "INSTAGRAM"
+                              ? "bg-pink-900 text-pink-400"
                               : "bg-zinc-800 text-zinc-400"
                           }`}
                         >
@@ -179,7 +200,44 @@ export default async function AtualizacoesPage({
                       />
                     )}
 
-                    {att.videoUrl && (
+                    {/* Embed do Instagram */}
+                    {att.tipo === "INSTAGRAM" && att.videoUrl && (
+                      <div className="mt-3 space-y-2">
+                        {getInstagramEmbedUrl(att.videoUrl) ? (
+                          <div className="max-w-md">
+                            <iframe
+                              src={getInstagramEmbedUrl(att.videoUrl)}
+                              title="Post do Instagram"
+                              className="w-full rounded-lg border-0"
+                              style={{ minHeight: "500px" }}
+                              allowFullScreen
+                            />
+                          </div>
+                        ) : (
+                          <a
+                            href={att.videoUrl}
+                            target="_blank"
+                            className="inline-flex items-center gap-2 text-pink-400 hover:underline"
+                          >
+                            <Instagram size={16} />
+                            Ver no Instagram
+                          </a>
+                        )}
+                        <div className="text-xs text-zinc-500">
+                          <a
+                            href={att.videoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline"
+                          >
+                            Link original: {att.videoUrl}
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Embed do YouTube */}
+                    {att.tipo === "VIDEO" && att.videoUrl && (
                       <div className="mt-3 space-y-2">
                         {getYoutubeEmbedUrl(att.videoUrl) ? (
                           <div className="aspect-video max-w-md">

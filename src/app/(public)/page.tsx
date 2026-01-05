@@ -259,7 +259,7 @@ export default async function HomePage() {
       {/* MANCHETE PRINCIPAL - PRIMEIRA PÁGINA ESTILO JORNAL */}
       {vaquinhaDestaque && (
         <div className="mb-10 -mx-4 sm:mx-0 animate-fade-in-up animation-delay-100">
-          <div className="bg-zinc-950 relative overflow-hidden group">
+          <Link href={`/vaquinhas/${vaquinhaDestaque.slug}`} className="block bg-zinc-950 relative overflow-hidden group cursor-pointer">
             {/* Imagem Expandida de Manchete - Ocupando Toda Largura */}
             {isValidImageUrl(vaquinhaDestaque.imagemUrl) ? (
               <div className="relative w-full overflow-hidden">
@@ -353,14 +353,13 @@ export default async function HomePage() {
                 </div>
               </div>
 
-              <Link
-                href={`/vaquinhas/${vaquinhaDestaque.slug}`}
-                className="block w-full py-3.5 bg-black border-2 border-green-600 hover:bg-green-600 text-white text-sm font-bold uppercase text-center tracking-wide transition-all duration-300 hover:shadow-lg hover:shadow-green-600/20"
+              <div
+                className="block w-full py-3.5 bg-black border-2 border-green-600 group-hover:bg-green-600 text-white text-sm font-bold uppercase text-center tracking-wide transition-all duration-300 group-hover:shadow-lg group-hover:shadow-green-600/20"
               >
                 Leia mais e ajude
-              </Link>
+              </div>
             </div>
-          </div>
+          </Link>
         </div>
       )}
 

@@ -13,6 +13,7 @@ const tipos = [
   { value: "TEXTO", label: "Texto" },
   { value: "FOTO", label: "Foto" },
   { value: "VIDEO", label: "Vídeo (YouTube)" },
+  { value: "INSTAGRAM", label: "Instagram (Post/Reel)" },
   { value: "COMPROVANTE", label: "Comprovante" },
   { value: "GALERIA", label: "Galeria de Fotos" },
 ];
@@ -79,6 +80,13 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
       // Validação para VIDEO
       if (form.tipo === "VIDEO" && !form.videoUrl) {
         setSubmitError("Adicione o link do vídeo do YouTube");
+        setLoading(false);
+        return;
+      }
+
+      // Validação para INSTAGRAM
+      if (form.tipo === "INSTAGRAM" && !form.videoUrl) {
+        setSubmitError("Adicione o link do post ou reel do Instagram");
         setLoading(false);
         return;
       }
@@ -177,6 +185,7 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
   const showGalleryUpload = form.tipo === "GALERIA";
   const showSingleImageUpload = form.tipo === "FOTO" || form.tipo === "COMPROVANTE";
   const showVideoInput = form.tipo === "VIDEO";
+  const showInstagramInput = form.tipo === "INSTAGRAM";
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-4">
@@ -242,6 +251,17 @@ export function NovaAtualizacaoForm({ vaquinhaId }: { vaquinhaId: string }) {
           value={form.videoUrl}
           onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
           placeholder="https://youtube.com/watch?v=..."
+        />
+      )}
+
+      {showInstagramInput && (
+        <Input
+          id="instagramUrl"
+          label="Link do Instagram"
+          type="url"
+          value={form.videoUrl}
+          onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
+          placeholder="https://instagram.com/p/... ou https://instagram.com/reel/..."
         />
       )}
 
