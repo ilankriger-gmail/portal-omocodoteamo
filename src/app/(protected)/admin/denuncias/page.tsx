@@ -15,6 +15,8 @@ const plataformaIcons: Record<string, string> = {
   youtube: "https://cdn-icons-png.flaticon.com/512/1384/1384060.png",
   twitter: "https://cdn-icons-png.flaticon.com/512/733/733579.png",
   whatsapp: "https://cdn-icons-png.flaticon.com/512/733/733585.png",
+  telegram: "https://cdn-icons-png.flaticon.com/512/2111/2111646.png",
+  kwai: "https://cdn-icons-png.flaticon.com/512/6422/6422202.png",
 };
 
 const plataformaLabels: Record<string, string> = {
@@ -24,7 +26,30 @@ const plataformaLabels: Record<string, string> = {
   youtube: "YouTube",
   twitter: "X/Twitter",
   whatsapp: "WhatsApp",
+  telegram: "Telegram",
+  kwai: "Kwai",
   outro: "Outro",
+};
+
+// Gera link para o perfil na plataforma
+const getProfileUrl = (plataforma: string, perfil: string): string | null => {
+  const cleanPerfil = perfil.replace(/^@/, "").trim();
+  switch (plataforma.toLowerCase()) {
+    case "instagram":
+      return `https://instagram.com/${cleanPerfil}`;
+    case "tiktok":
+      return `https://tiktok.com/@${cleanPerfil}`;
+    case "facebook":
+      return `https://facebook.com/${cleanPerfil}`;
+    case "youtube":
+      return `https://youtube.com/@${cleanPerfil}`;
+    case "twitter":
+      return `https://x.com/${cleanPerfil}`;
+    case "kwai":
+      return `https://kwai.com/@${cleanPerfil}`;
+    default:
+      return null;
+  }
 };
 
 export default async function DenunciasPage({
@@ -197,36 +222,73 @@ export default async function DenunciasPage({
         </div>
       ) : (
         <div className="space-y-4">
-          {denuncias.map((d) => (
+          {denuncias.map((d) => {
+            const profileUrl = getProfileUrl(d.plataforma, d.perfilFalso);
+            return (
             <div key={d.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
               {/* Header */}
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex items-start justify-between mb-5">
                 <div className="flex items-start gap-4">
-                  {/* Ícone da plataforma */}
-                  <div className="w-12 h-12 rounded-xl bg-zinc-800 flex items-center justify-center flex-shrink-0">
-                    {plataformaIcons[d.plataforma.toLowerCase()] ? (
-                      <Image
-                        src={plataformaIcons[d.plataforma.toLowerCase()]}
-                        alt={d.plataforma}
-                        width={28}
-                        height={28}
-                        className="rounded"
-                      />
-                    ) : (
-                      <ShieldAlert size={24} className="text-zinc-500" />
-                    )}
-                  </div>
+                  {/* Ícone da plataforma - clicável */}
+                  {profileUrl ? (
+                    <a
+                      href={profileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-14 h-14 rounded-xl bg-zinc-800 flex items-center justify-center flex-shrink-0 hover:bg-zinc-700 transition-colors"
+                      title={`Abrir perfil no ${plataformaLabels[d.plataforma.toLowerCase()] || d.plataforma}`}
+                    >
+                      {plataformaIcons[d.plataforma.toLowerCase()] ? (
+                        <Image
+                          src={plataformaIcons[d.plataforma.toLowerCase()]}
+                          alt={d.plataforma}
+                          width={32}
+                          height={32}
+                          className="rounded"
+                        />
+                      ) : (
+                        <ShieldAlert size={28} className="text-zinc-500" />
+                      )}
+                    </a>
+                  ) : (
+                    <div className="w-14 h-14 rounded-xl bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                      {plataformaIcons[d.plataforma.toLowerCase()] ? (
+                        <Image
+                          src={plataformaIcons[d.plataforma.toLowerCase()]}
+                          alt={d.plataforma}
+                          width={32}
+                          height={32}
+                          className="rounded"
+                        />
+                      ) : (
+                        <ShieldAlert size={28} className="text-zinc-500" />
+                      )}
+                    </div>
+                  )}
 
                   <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-lg font-semibold text-white">@{d.perfilFalso}</h3>
-                      <span className="px-2 py-0.5 bg-zinc-800 text-zinc-400 text-xs rounded-full">
+                    <div className="flex items-center gap-3 mb-2">
+                      {/* @ clicável */}
+                      {profileUrl ? (
+                        <a
+                          href={profileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xl font-bold text-red-400 hover:text-red-300 hover:underline transition-colors flex items-center gap-2"
+                        >
+                          @{d.perfilFalso}
+                          <ExternalLink size={16} />
+                        </a>
+                      ) : (
+                        <h3 className="text-xl font-bold text-white">@{d.perfilFalso}</h3>
+                      )}
+                      <span className="px-3 py-1 bg-zinc-800 text-zinc-400 text-sm rounded-full">
                         {plataformaLabels[d.plataforma.toLowerCase()] || d.plataforma}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs text-zinc-500">
-                      <Calendar size={12} />
+                    <div className="flex items-center gap-2 text-base text-zinc-500">
+                      <Calendar size={16} />
                       Denunciado em{" "}
                       {new Date(d.createdAt).toLocaleDateString("pt-BR", {
                         day: "2-digit",
@@ -246,21 +308,34 @@ export default async function DenunciasPage({
               </div>
 
               {/* Descrição */}
-              <div className="bg-zinc-800 p-4 rounded-lg mb-4">
-                <div className="flex items-center gap-2 text-sm text-zinc-400 mb-2">
-                  <MessageSquare size={14} />
+              <div className="bg-zinc-800 p-5 rounded-lg mb-5">
+                <div className="flex items-center gap-2 text-base text-zinc-400 mb-3">
+                  <MessageSquare size={18} />
                   <span className="font-medium">Descrição da denúncia</span>
                 </div>
-                <p className="whitespace-pre-wrap text-white text-sm">{d.descricao}</p>
+                <p className="whitespace-pre-wrap text-white text-lg leading-relaxed">{d.descricao}</p>
               </div>
 
-              {/* Contato e Imagem */}
-              <div className="flex flex-wrap gap-4">
+              {/* Ações rápidas */}
+              <div className="flex flex-wrap gap-3">
+                {/* Link direto para o perfil */}
+                {profileUrl && (
+                  <a
+                    href={profileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-red-900/30 text-red-400 rounded-lg text-base font-medium hover:bg-red-900/50 transition-colors"
+                  >
+                    <ExternalLink size={18} />
+                    Abrir perfil no {plataformaLabels[d.plataforma.toLowerCase()] || d.plataforma}
+                  </a>
+                )}
+
                 {d.contato && (
-                  <div className="flex items-center gap-2 px-3 py-2 bg-zinc-800 rounded-lg text-sm">
-                    <User size={14} className="text-zinc-500" />
+                  <div className="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 rounded-lg text-base">
+                    <User size={18} className="text-zinc-500" />
                     <span className="text-zinc-400">Contato:</span>
-                    <span className="text-white">{d.contato}</span>
+                    <span className="text-white font-medium">{d.contato}</span>
                   </div>
                 )}
 
@@ -269,15 +344,15 @@ export default async function DenunciasPage({
                     href={d.imagemUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3 py-2 bg-purple-900/30 text-purple-400 rounded-lg text-sm hover:bg-purple-900/50 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-purple-900/30 text-purple-400 rounded-lg text-base font-medium hover:bg-purple-900/50 transition-colors"
                   >
-                    <ExternalLink size={14} />
+                    <ExternalLink size={18} />
                     Ver evidência/screenshot
                   </a>
                 )}
               </div>
             </div>
-          ))}
+          )})}
         </div>
       )}
     </div>

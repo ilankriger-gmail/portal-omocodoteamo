@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { StatusSelect } from "./status-select";
+import { LocationFilter } from "./location-filter";
 import { User, MapPin, Mail, Phone, Calendar, Heart, DollarSign, Link2, Users, Download, Cake, ChevronLeft, ChevronRight } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
@@ -260,49 +261,13 @@ export default async function InscricoesPage({
           </div>
         </div>
 
-        {/* Filtros por Estado e Cidade */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-base text-zinc-400 mb-2 font-medium">Estado</label>
-            <div className="flex gap-2 flex-wrap max-h-28 overflow-y-auto">
-              <Link
-                href={`/admin/inscricoes${buildQueryString({ estado: undefined, cidade: undefined, page: 1 })}`}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${!estado ? "bg-zinc-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
-              >
-                Todos
-              </Link>
-              {estados.map((e) => (
-                <Link
-                  key={e}
-                  href={`/admin/inscricoes${buildQueryString({ estado: e, cidade: undefined, page: 1 })}`}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium ${estado === e ? "bg-orange-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
-                >
-                  {e}
-                </Link>
-              ))}
-            </div>
-          </div>
-          <div>
-            <label className="block text-base text-zinc-400 mb-2 font-medium">Cidade {estado && `(${estado})`}</label>
-            <div className="flex gap-2 flex-wrap max-h-28 overflow-y-auto">
-              <Link
-                href={`/admin/inscricoes${buildQueryString({ cidade: undefined, page: 1 })}`}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${!cidade ? "bg-zinc-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
-              >
-                Todas
-              </Link>
-              {cidades.map((c) => (
-                <Link
-                  key={c}
-                  href={`/admin/inscricoes${buildQueryString({ cidade: c, page: 1 })}`}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium ${cidade === c ? "bg-purple-600 text-white" : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"}`}
-                >
-                  {c}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
+        {/* Filtros por Estado e Cidade - Dropdown */}
+        <LocationFilter
+          estados={estados}
+          cidades={cidades}
+          selectedEstado={estado}
+          selectedCidade={cidade}
+        />
 
         {/* Limpar filtros */}
         {(status || faixa || necessidade || estado || cidade || periodo) && (
@@ -422,22 +387,22 @@ export default async function InscricoesPage({
           {inscricoes.map((i) => (
             <div key={i.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
               {/* Header */}
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex items-start justify-between mb-5">
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <User size={20} className="text-zinc-500" />
-                    <h3 className="text-xl font-bold text-white">
+                  <div className="flex items-center gap-3 mb-3">
+                    <User size={24} className="text-zinc-500" />
+                    <h3 className="text-2xl font-bold text-white">
                       {i.nome || <span className="text-zinc-500 italic">Nome não informado</span>}
                     </h3>
                     {i.paraQuem === "outra_pessoa" && i.nomeBeneficiado && (
-                      <span className="px-3 py-1 bg-purple-900/50 text-purple-400 text-sm font-medium rounded-full">
+                      <span className="px-4 py-1.5 bg-purple-900/50 text-purple-400 text-base font-medium rounded-full">
                         Para: {i.nomeBeneficiado}
                       </span>
                     )}
                   </div>
-                  <div className="flex flex-wrap gap-x-5 gap-y-2 text-base text-zinc-400">
+                  <div className="flex flex-wrap gap-x-6 gap-y-3 text-lg text-zinc-400">
                     <span className="flex items-center gap-2">
-                      <MapPin size={16} />
+                      <MapPin size={18} />
                       {i.cidade && i.estado ? (
                         `${i.cidade}, ${i.estado}`
                       ) : (
@@ -449,12 +414,12 @@ export default async function InscricoesPage({
                         href={`mailto:${i.email}`}
                         className="flex items-center gap-2 hover:text-blue-400 transition-colors"
                       >
-                        <Mail size={16} />
+                        <Mail size={18} />
                         {i.email}
                       </a>
                     ) : (
                       <span className="flex items-center gap-2">
-                        <Mail size={16} />
+                        <Mail size={18} />
                         <span className="text-zinc-500 italic">Email não informado</span>
                       </span>
                     )}
@@ -463,19 +428,19 @@ export default async function InscricoesPage({
                         href={`tel:${i.telefone}`}
                         className="flex items-center gap-2 hover:text-green-400 transition-colors"
                       >
-                        <Phone size={16} />
+                        <Phone size={18} />
                         {i.telefone}
                       </a>
                     )}
                     {i.dataNascimento && (
                       <span className="flex items-center gap-2">
-                        <Cake size={16} />
+                        <Cake size={18} />
                         {new Date(i.dataNascimento).toLocaleDateString("pt-BR")}
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-2 mt-3 text-sm text-zinc-500">
-                    <Calendar size={14} />
+                  <div className="flex items-center gap-2 mt-4 text-base text-zinc-500">
+                    <Calendar size={16} />
                     Enviado em{" "}
                     {new Date(i.createdAt).toLocaleDateString("pt-BR", {
                       day: "2-digit",
@@ -490,22 +455,22 @@ export default async function InscricoesPage({
               </div>
 
               {/* Badges de informações */}
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex flex-wrap gap-3 mb-5">
                 {i.faixaValor && (
-                  <span className="flex items-center gap-2 px-3 py-1.5 bg-green-900/30 text-green-400 text-sm font-medium rounded-lg">
-                    <DollarSign size={14} />
+                  <span className="flex items-center gap-2 px-4 py-2 bg-green-900/30 text-green-400 text-base font-medium rounded-lg">
+                    <DollarSign size={18} />
                     {faixaValorLabels[i.faixaValor] || i.faixaValor}
                   </span>
                 )}
                 {i.necessidade && i.necessidade.length > 0 && (
-                  <span className="flex items-center gap-2 px-3 py-1.5 bg-blue-900/30 text-blue-400 text-sm font-medium rounded-lg">
-                    <Heart size={14} />
+                  <span className="flex items-center gap-2 px-4 py-2 bg-blue-900/30 text-blue-400 text-base font-medium rounded-lg">
+                    <Heart size={18} />
                     {i.necessidade.map(n => necessidadeLabels[n] || n).join(", ")}
                   </span>
                 )}
                 {i.dataRealizacao && (
-                  <span className="flex items-center gap-2 px-3 py-1.5 bg-orange-900/30 text-orange-400 text-sm font-medium rounded-lg">
-                    <Calendar size={14} />
+                  <span className="flex items-center gap-2 px-4 py-2 bg-orange-900/30 text-orange-400 text-base font-medium rounded-lg">
+                    <Calendar size={18} />
                     Realizar até: {new Date(i.dataRealizacao).toLocaleDateString("pt-BR")}
                   </span>
                 )}
@@ -514,31 +479,31 @@ export default async function InscricoesPage({
                     href={i.linkMidiaSocial}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3 py-1.5 bg-purple-900/30 text-purple-400 text-sm font-medium rounded-lg hover:bg-purple-900/50"
+                    className="flex items-center gap-2 px-4 py-2 bg-purple-900/30 text-purple-400 text-base font-medium rounded-lg hover:bg-purple-900/50"
                   >
-                    <Link2 size={14} />
+                    <Link2 size={18} />
                     Link de Mídia
                   </a>
                 )}
                 {i.paraQuem === "outra_pessoa" && (
-                  <span className="flex items-center gap-2 px-3 py-1.5 bg-pink-900/30 text-pink-400 text-sm font-medium rounded-lg">
-                    <Users size={14} />
+                  <span className="flex items-center gap-2 px-4 py-2 bg-pink-900/30 text-pink-400 text-base font-medium rounded-lg">
+                    <Users size={18} />
                     Para outra pessoa
                   </span>
                 )}
               </div>
 
               {/* Conteúdo */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-zinc-800 p-5 rounded-lg">
-                  <h4 className="font-semibold text-base text-zinc-400 mb-3">História / O Sonho</h4>
-                  <p className="whitespace-pre-wrap text-white text-base leading-relaxed">{i.historia || <span className="text-zinc-500 italic">Não informado</span>}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="bg-zinc-800 p-6 rounded-lg">
+                  <h4 className="font-semibold text-lg text-zinc-400 mb-3">História / O Sonho</h4>
+                  <p className="whitespace-pre-wrap text-white text-lg leading-relaxed">{i.historia || <span className="text-zinc-500 italic">Não informado</span>}</p>
                 </div>
-                <div className="bg-zinc-800 p-5 rounded-lg">
-                  <h4 className="font-semibold text-base text-zinc-400 mb-3">
+                <div className="bg-zinc-800 p-6 rounded-lg">
+                  <h4 className="font-semibold text-lg text-zinc-400 mb-3">
                     Situação Atual / Por que precisa de ajuda
                   </h4>
-                  <p className="whitespace-pre-wrap text-white text-base leading-relaxed">{i.situacao || <span className="text-zinc-500 italic">Não informado</span>}</p>
+                  <p className="whitespace-pre-wrap text-white text-lg leading-relaxed">{i.situacao || <span className="text-zinc-500 italic">Não informado</span>}</p>
                 </div>
               </div>
             </div>
