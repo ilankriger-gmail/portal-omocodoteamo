@@ -173,6 +173,32 @@ export default async function VaquinhaPage({
           />
         </div>
         <p className="text-zinc-500 text-xs text-right">{progress.toFixed(0)}%</p>
+
+        {/* Estatísticas de engajamento */}
+        <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-zinc-800">
+          <div className="flex items-center gap-2">
+            <span className="bg-red-500/20 text-red-400 p-1.5 rounded-lg">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3.3.67-4.47 2.7C10.85 3.67 9.3 3 7.5 3A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+              </svg>
+            </span>
+            <div>
+              <p className="text-white font-semibold text-sm">{vaquinha.coracoes || 0}</p>
+              <p className="text-zinc-500 text-xs">corações</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="bg-green-500/20 text-green-400 p-1.5 rounded-lg">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+            </span>
+            <div>
+              <p className="text-white font-semibold text-sm">{vaquinha.doacoes || 0}</p>
+              <p className="text-zinc-500 text-xs">doações</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* PIX */}
@@ -212,24 +238,6 @@ export default async function VaquinhaPage({
               <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                 Atualizações ({vaquinha.atualizacoes.length})
               </p>
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <span className="bg-blue-500/20 text-blue-400 p-1 rounded-md">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3.3.67-4.47 2.7C10.85 3.67 9.3 3 7.5 3A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-                    </svg>
-                  </span>
-                  <span className="text-zinc-300">{vaquinha.coracoes || 0}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="bg-green-500/20 text-green-400 p-1 rounded-md">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                    </svg>
-                  </span>
-                  <span className="text-zinc-300">{vaquinha.doacoes || 0} doações</span>
-                </div>
-              </div>
             </div>
 
             <div className="space-y-4">
@@ -285,13 +293,13 @@ export default async function VaquinhaPage({
                     {/* Manter suporte para imagem única do tipo FOTO ou COMPROVANTE */}
                     {(att.tipo === "FOTO" || att.tipo === "COMPROVANTE") && isValidImageUrl(att.imagemUrl) && (
                       <div className="mt-3 rounded-xl overflow-hidden relative">
-                        <div className="relative w-full aspect-video">
+                        <div className="relative w-full aspect-[4/5]">
                           <NextImage
                             src={att.imagemUrl}
                             alt="Atualização"
                             fill
                             sizes="(max-width: 640px) 100vw, 600px"
-                            className="object-contain"
+                            className="object-cover"
                             loading="lazy"
                           />
                         </div>

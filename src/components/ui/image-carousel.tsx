@@ -113,13 +113,13 @@ export function ImageCarousel({
   if (images.length === 1) {
     return (
       <div className={`relative w-full rounded-xl overflow-hidden ${className}`}>
-        <div className="relative aspect-video">
+        <div className="relative aspect-[4/5]">
           <Image
             src={images[0].url}
             alt={images[0].legenda || "Imagem da atualização"}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 60vw"
-            className="object-contain bg-zinc-900/50"
+            className="object-cover"
             priority
           />
 
@@ -147,14 +147,14 @@ export function ImageCarousel({
           {images.map((image, index) => (
             <div
               key={image.id || index}
-              className="relative min-w-full aspect-video"
+              className="relative min-w-full aspect-[4/5]"
             >
               <Image
                 src={image.url}
                 alt={image.legenda || `Imagem ${index + 1}`}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 60vw"
-                className="object-contain bg-zinc-900/50"
+                className="object-cover"
                 priority={index === 0}
                 loading={index === 0 ? "eager" : "lazy"}
               />

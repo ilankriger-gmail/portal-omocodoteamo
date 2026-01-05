@@ -178,6 +178,14 @@ export default async function QuemSomosPage() {
       {/* Divider */}
       <div className="border-t border-zinc-800 my-6" />
 
+      {/* Alerta - Antes dos perfis */}
+      <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-4 mb-6 animate-fade-in-up">
+        <p className="text-zinc-300 text-sm leading-relaxed">
+          <span className="text-yellow-500 font-semibold">⚠️ Atenção:</span> Estes são os <strong className="text-white">ÚNICOS</strong> perfis oficiais.
+          Qualquer outro perfil pedindo dinheiro é <strong className="text-red-400">GOLPE</strong>!
+        </p>
+      </div>
+
       {/* Perfis Oficiais */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-4">
@@ -357,14 +365,6 @@ export default async function QuemSomosPage() {
             <span className="text-zinc-400 text-sm font-medium">0,7%</span>
           </div>
         </div>
-      </div>
-
-      {/* Alerta */}
-      <div className="bg-zinc-900/50 rounded-2xl p-4 mb-6">
-        <p className="text-zinc-400 text-xs leading-relaxed">
-          <span className="text-yellow-500 font-semibold">⚠️ Atenção:</span> Estes são os ÚNICOS perfis oficiais.
-          Qualquer outro perfil pedindo dinheiro é GOLPE!
-        </p>
       </div>
 
       {/* Botão Denunciar */}

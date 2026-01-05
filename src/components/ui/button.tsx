@@ -12,19 +12,19 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className = "", variant = "primary", size = "md", loading, icon, children, disabled, ...props }, ref) => {
     const baseStyles =
-      "inline-flex items-center justify-center font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black disabled:opacity-50 disabled:cursor-not-allowed border-2";
+      "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black disabled:opacity-50 disabled:cursor-not-allowed border-2 active:scale-[0.98]";
 
     const variants = {
       // Verde (botões de envio/ação principais)
-      primary: "bg-brand-green text-white border-brand-green hover:bg-green-600 hover:border-green-600 focus:ring-green-600",
+      primary: "bg-brand-green text-white border-brand-green hover:bg-green-600 hover:border-green-600 hover:shadow-lg hover:shadow-green-600/20 focus:ring-green-600",
       // Preto com borda cinza (mais claro para melhor contraste)
-      secondary: "bg-black text-white border-zinc-600 hover:bg-zinc-800 hover:border-zinc-500 focus:ring-zinc-500",
+      secondary: "bg-black text-white border-zinc-600 hover:bg-zinc-800 hover:border-zinc-500 hover:shadow-md focus:ring-zinc-500",
       // Preto com borda roxa
-      accent: "bg-black text-white border-purple-600 hover:bg-purple-600/10 hover:border-purple-500 focus:ring-purple-500",
+      accent: "bg-black text-white border-purple-600 hover:bg-purple-600/10 hover:border-purple-500 hover:shadow-lg hover:shadow-purple-600/20 focus:ring-purple-500",
       // Vermelho para ações perigosas
-      danger: "bg-red-600 text-white border-red-600 hover:bg-red-700 hover:border-red-700 focus:ring-red-500",
+      danger: "bg-red-600 text-white border-red-600 hover:bg-red-700 hover:border-red-700 hover:shadow-lg hover:shadow-red-600/20 focus:ring-red-500",
       // Verde mais vibrante para sucesso
-      success: "bg-green-600 text-white border-green-600 hover:bg-green-700 hover:border-green-700 focus:ring-green-500",
+      success: "bg-green-600 text-white border-green-600 hover:bg-green-700 hover:border-green-700 hover:shadow-lg hover:shadow-green-600/20 focus:ring-green-500",
       // Transparente
       ghost: "bg-transparent text-white border-transparent hover:border-zinc-600 hover:bg-zinc-900 focus:ring-zinc-500",
     };
@@ -52,13 +52,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             />
           </svg>
         )}
-        {icon && !loading && <span className="mr-2">{icon}</span>}
+        {icon && !loading && <span className="mr-2 transition-transform duration-300">{icon}</span>}
         <span className="font-semibold">{children}</span>
       </button>
     );
   }
 );
-
-Button.displayName = "Button";
 
 Button.displayName = "Button";

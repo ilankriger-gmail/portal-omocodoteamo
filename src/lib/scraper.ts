@@ -7,6 +7,8 @@ interface ScrapedData {
   chavePix: string | null;
   meta: number | null;
   valorAtual: number | null;
+  doacoes: number | null;
+  coracoes: number | null;
 }
 
 export async function scrapeVakinha(url: string): Promise<ScrapedData> {
@@ -119,6 +121,61 @@ export async function scrapeVakinha(url: string): Promise<ScrapedData> {
       }
     }
 
+    // Extrair número de doações/apoiadores
+    let doacoes: number | null = null;
+    const doacoesPatterns = [
+      /(\d+)\s*(?:apoiador(?:es)?|doa[çc][ãa]o|doa[çc][õo]es|pessoas?\s+(?:j[áa]\s+)?(?:apoiaram|doaram|contribu[íi]ram))/i,
+      /(?:apoiador(?:es)?|doa[çc][ãa]o|doa[çc][õo]es)[^0-9]*(\d+)/i,
+      /(\d+)\s*(?:pessoas?\s+)?(?:j[áa]\s+)?(?:apoiaram|doaram|contribu[íi]ram)/i,
+    ];
+
+    for (const pattern of doacoesPatterns) {
+      const doacoesMatch = textoCompleto.match(pattern);
+      if (doacoesMatch?.[1]) {
+        const num = parseInt(doacoesMatch[1], 10);
+        if (num > 0 && num < 1000000) {
+          doacoes = num;
+          break;
+        }
+      }
+    }
+
+    // Extrair número de corações/curtidas
+    let coracoes: number | null = null;
+    const coracoesPatterns = [
+      /(\d+)\s*(?:cora[çc][ãa]o|cora[çc][õo]es|curtida?s?|like?s?|♥|❤)/i,
+      /(?:cora[çc][ãa]o|cora[çc][õo]es|curtida?s?|like?s?|♥|❤)[^0-9]*(\d+)/i,
+    ];
+
+    for (const pattern of coracoesPatterns) {
+      const coracoesMatch = textoCompleto.match(pattern);
+      if (coracoesMatch?.[1]) {
+        const num = parseInt(coracoesMatch[1], 10);
+        if (num > 0 && num < 10000000) {
+          coracoes = num;
+          break;
+        }
+      }
+    }
+
+    // Tentar seletores específicos do vakinha.com.br para doações e corações
+    const apoiadoresText = $(".supporters-count, .apoiadores, [data-supporters]").first().text();
+    const coracoesText = $(".hearts-count, .coracoes, [data-hearts], .likes-count").first().text();
+
+    if (apoiadoresText) {
+      const apoMatch = apoiadoresText.match(/(\d+)/);
+      if (apoMatch) {
+        doacoes = parseInt(apoMatch[1], 10);
+      }
+    }
+
+    if (coracoesText) {
+      const corMatch = coracoesText.match(/(\d+)/);
+      if (corMatch) {
+        coracoes = parseInt(corMatch[1], 10);
+      }
+    }
+
     // Extrair chave PIX
     let chavePix: string | null = null;
     const pixPatterns = [
@@ -155,6 +212,8 @@ export async function scrapeVakinha(url: string): Promise<ScrapedData> {
       chavePix,
       meta,
       valorAtual,
+      doacoes,
+      coracoes,
     };
   } catch (error) {
     console.error("Erro ao fazer scraping:", error);

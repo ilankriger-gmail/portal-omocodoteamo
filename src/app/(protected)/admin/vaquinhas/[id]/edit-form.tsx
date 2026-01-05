@@ -22,6 +22,8 @@ type Vaquinha = {
   videoUrl: string | null;
   meta: number;
   valorAtual: number;
+  doacoes: number;
+  coracoes: number;
   status: "ATIVA" | "ENCERRADA";
 };
 
@@ -34,10 +36,12 @@ export function EditVaquinhaForm({ vaquinha }: { vaquinha: Vaquinha }) {
     descricao: vaquinha.descricao,
     linkOriginal: vaquinha.linkOriginal,
     chavePix: vaquinha.chavePix,
-    imagemUrl: vaquinha.imagemUrl,  // Already typed as string | null in the Vaquinha type
-    videoUrl: vaquinha.videoUrl,    // Already typed as string | null in the Vaquinha type
+    imagemUrl: vaquinha.imagemUrl,
+    videoUrl: vaquinha.videoUrl,
     meta: vaquinha.meta.toString(),
     valorAtual: vaquinha.valorAtual.toString(),
+    doacoes: vaquinha.doacoes.toString(),
+    coracoes: vaquinha.coracoes.toString(),
     status: vaquinha.status,
   });
 
@@ -57,8 +61,10 @@ export function EditVaquinhaForm({ vaquinha }: { vaquinha: Vaquinha }) {
           meta: data.meta?.toString() || prev.meta,
           valorAtual: data.valorAtual?.toString() || prev.valorAtual,
           chavePix: data.chavePix || prev.chavePix,
+          doacoes: data.doacoes?.toString() || prev.doacoes,
+          coracoes: data.coracoes?.toString() || prev.coracoes,
         }));
-        alert(`Sincronizado!\nMeta: R$ ${data.meta || "N/A"}\nArrecadado: R$ ${data.valorAtual || "N/A"}\nPIX: ${data.chavePix || "N/A"}`);
+        alert(`Sincronizado!\nMeta: R$ ${data.meta || "N/A"}\nArrecadado: R$ ${data.valorAtual || "N/A"}\nPIX: ${data.chavePix || "N/A"}\nDoações: ${data.doacoes || "N/A"}\nCorações: ${data.coracoes || "N/A"}`);
       } else {
         alert("Não foi possível sincronizar os dados");
       }
@@ -80,6 +86,8 @@ export function EditVaquinhaForm({ vaquinha }: { vaquinha: Vaquinha }) {
       videoUrl: form.videoUrl?.trim() || null,
       meta: parseFloat(form.meta) || 0,
       valorAtual: parseFloat(form.valorAtual) || 0,
+      doacoes: parseInt(form.doacoes) || 0,
+      coracoes: parseInt(form.coracoes) || 0,
     };
 
     try {
@@ -223,6 +231,26 @@ export function EditVaquinhaForm({ vaquinha }: { vaquinha: Vaquinha }) {
               </Button>
             </div>
           </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            id="doacoes"
+            label="Número de Doações"
+            type="number"
+            min="0"
+            value={form.doacoes}
+            onChange={(e) => setForm({ ...form, doacoes: e.target.value })}
+          />
+
+          <Input
+            id="coracoes"
+            label="Número de Corações"
+            type="number"
+            min="0"
+            value={form.coracoes}
+            onChange={(e) => setForm({ ...form, coracoes: e.target.value })}
+          />
         </div>
 
         <div>

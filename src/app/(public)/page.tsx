@@ -452,7 +452,7 @@ export default async function HomePage() {
 
       {/* VAQUINHAS APOIADAS - DESTAQUE EDITORIAL */}
       {vaquinhasApoiadas.length > 0 && (
-        <div className="mb-8">
+        <div className="mb-8 animate-fade-in-up animation-delay-400">
           <div className="bg-zinc-900/30 border-l-4 border-zinc-600 mb-4">
             <div className="flex items-center py-2 px-3">
               <HandHeart className="w-4 h-4 text-zinc-400 mr-2" />
@@ -463,20 +463,21 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {vaquinhasApoiadas.map((v) => (
+            {vaquinhasApoiadas.map((v, index) => (
               <a
                 key={v.id}
                 href={v.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-zinc-900/30 hover:bg-zinc-800/50 transition-colors p-3 border-b border-zinc-700/20"
+                className="bg-zinc-900/30 hover:bg-zinc-800/50 transition-all duration-300 p-3 border-b border-zinc-700/20 rounded-lg hover:-translate-y-0.5 hover:shadow-md group"
+                style={{ animationDelay: `${index * 50}ms` }}
               >
-                <h4 className="text-white text-sm font-bold mb-2 line-clamp-1">{v.nome}</h4>
+                <h4 className="text-white text-sm font-bold mb-2 line-clamp-1 group-hover:text-green-400 transition-colors duration-300">{v.nome}</h4>
                 {v.descricao && (
                   <p className="text-zinc-400 text-xs line-clamp-2 mb-1">{v.descricao}</p>
                 )}
-                <div className="flex items-center gap-1 text-[10px] text-zinc-400 mt-1">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <div className="flex items-center gap-1 text-[10px] text-zinc-400 mt-1 group-hover:text-zinc-300 transition-colors duration-300">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
                   </svg>
                   Saiba mais
@@ -485,13 +486,13 @@ export default async function HomePage() {
             ))}
           </div>
 
-          <div className="text-center mt-3">
+          <div className="text-center mt-4">
             <Link
               href="/vaquinhas-apoiadas"
-              className="text-xs text-zinc-400 hover:text-zinc-300 inline-flex items-center gap-1"
+              className="text-xs text-zinc-400 hover:text-white inline-flex items-center gap-1 transition-all duration-300 group"
             >
               Ver todas as campanhas externas
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="transition-transform duration-300 group-hover:translate-x-1">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </Link>
@@ -500,10 +501,10 @@ export default async function HomePage() {
       )}
 
       {/* ENVIE SEU SONHO - SEÇÃO EM BRANCO */}
-      <div className="mb-8 bg-gradient-to-r from-zinc-900 to-zinc-900/50 p-4 rounded-lg border border-zinc-800/50">
+      <div className="mb-8 bg-gradient-to-r from-zinc-900 to-zinc-900/50 p-4 rounded-xl border border-zinc-800/50 animate-fade-in-up animation-delay-500 transition-all duration-300 hover:border-zinc-700/50 hover:shadow-lg hover:shadow-zinc-900/50 group">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 flex items-center justify-center bg-zinc-800 rounded-full">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-400">
+          <div className="w-10 h-10 flex items-center justify-center bg-zinc-800 rounded-full transition-all duration-300 group-hover:bg-zinc-700 group-hover:scale-110">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-400 transition-colors duration-300 group-hover:text-green-400">
               <path d="M12 21a9 9 0 0 1-9-9 9 9 0 0 1 9-9 9 9 0 0 1 9 9 9 9 0 0 1-9 9z"/>
               <path d="M12 7v6l3 3"/>
             </svg>
@@ -516,7 +517,7 @@ export default async function HomePage() {
 
         <Link
           href="/participar"
-          className="block w-full text-center py-3 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-lg transition-colors"
+          className="block w-full text-center py-3 bg-zinc-800 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-all duration-300 hover:shadow-md hover:shadow-green-600/20"
         >
           Formulário de Cadastro
         </Link>
@@ -528,37 +529,37 @@ export default async function HomePage() {
       {/* Quick Links - Grid minimalista */}
       <div className="grid grid-cols-4 gap-4 mb-6">
         <Link href="/vaquinhas" className="flex flex-col items-center gap-2 group">
-          <div className="w-14 h-14 rounded-full bg-zinc-900 flex items-center justify-center group-hover:bg-zinc-800 transition-colors">
-            <TrendingUp className="w-6 h-6 text-zinc-400" />
+          <div className="w-14 h-14 rounded-full bg-zinc-900 flex items-center justify-center transition-all duration-300 group-hover:bg-zinc-800 group-hover:scale-110 group-hover:shadow-lg">
+            <TrendingUp className="w-6 h-6 text-zinc-400 transition-colors duration-300 group-hover:text-green-400" />
           </div>
-          <span className="text-zinc-400 text-xs text-center">Vaquinhas</span>
+          <span className="text-zinc-400 text-xs text-center transition-colors duration-300 group-hover:text-white">Vaquinhas</span>
         </Link>
 
         <Link href="/vaquinhas-apoiadas" className="flex flex-col items-center gap-2 group">
-          <div className="w-14 h-14 rounded-full bg-zinc-900 flex items-center justify-center group-hover:bg-zinc-800 transition-colors">
-            <HandHeart className="w-6 h-6 text-zinc-400" />
+          <div className="w-14 h-14 rounded-full bg-zinc-900 flex items-center justify-center transition-all duration-300 group-hover:bg-zinc-800 group-hover:scale-110 group-hover:shadow-lg">
+            <HandHeart className="w-6 h-6 text-zinc-400 transition-colors duration-300 group-hover:text-green-400" />
           </div>
-          <span className="text-zinc-400 text-xs text-center">Apoiadas</span>
+          <span className="text-zinc-400 text-xs text-center transition-colors duration-300 group-hover:text-white">Apoiadas</span>
         </Link>
 
         <Link href="/quem-somos" className="flex flex-col items-center gap-2 group">
-          <div className="w-14 h-14 rounded-full bg-zinc-900 flex items-center justify-center group-hover:bg-zinc-800 transition-colors">
-            <Users className="w-6 h-6 text-zinc-400" />
+          <div className="w-14 h-14 rounded-full bg-zinc-900 flex items-center justify-center transition-all duration-300 group-hover:bg-zinc-800 group-hover:scale-110 group-hover:shadow-lg">
+            <Users className="w-6 h-6 text-zinc-400 transition-colors duration-300 group-hover:text-green-400" />
           </div>
-          <span className="text-zinc-400 text-xs text-center">Perfis</span>
+          <span className="text-zinc-400 text-xs text-center transition-colors duration-300 group-hover:text-white">Perfis</span>
         </Link>
 
         <Link href="/denunciar" className="flex flex-col items-center gap-2 group">
-          <div className="w-14 h-14 rounded-full bg-zinc-900 flex items-center justify-center group-hover:bg-zinc-800 transition-colors">
-            <ShieldAlert className="w-6 h-6 text-zinc-400" />
+          <div className="w-14 h-14 rounded-full bg-zinc-900 flex items-center justify-center transition-all duration-300 group-hover:bg-zinc-800 group-hover:scale-110 group-hover:shadow-lg">
+            <ShieldAlert className="w-6 h-6 text-zinc-400 transition-colors duration-300 group-hover:text-red-400" />
           </div>
-          <span className="text-zinc-400 text-xs text-center">Denunciar</span>
+          <span className="text-zinc-400 text-xs text-center transition-colors duration-300 group-hover:text-white">Denunciar</span>
         </Link>
       </div>
 
       {/* Footer info */}
       <div className="text-center py-4">
-        <p className="text-zinc-600 text-xs">
+        <p className="text-zinc-600 text-xs transition-colors duration-300 hover:text-zinc-500">
           Todas as doações são documentadas com total transparência
         </p>
       </div>

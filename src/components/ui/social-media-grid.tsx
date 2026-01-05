@@ -33,11 +33,11 @@ export function SocialMediaGrid({
   const getItemClassName = (total: number, index: number): string => {
     // For 3 images, make the first one span full width of first row
     if (total === 3 && index === 0) {
-      return "col-span-2 aspect-square instagram-grid-item";
+      return "col-span-2 aspect-[4/5] instagram-grid-item";
     }
 
-    // Default square layout
-    return "aspect-square instagram-grid-item";
+    // Default 4:5 portrait layout (Instagram style)
+    return "aspect-[4/5] instagram-grid-item";
   };
 
   return (

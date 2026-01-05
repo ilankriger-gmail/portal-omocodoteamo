@@ -54,6 +54,8 @@ export async function PUT(
         videoUrl: body.videoUrl || null,
         meta: body.meta,
         valorAtual: body.valorAtual,
+        doacoes: body.doacoes ?? undefined,
+        coracoes: body.coracoes ?? undefined,
         status: body.status,
       },
     });
