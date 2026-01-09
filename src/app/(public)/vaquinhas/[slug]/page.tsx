@@ -103,7 +103,8 @@ export default async function VaquinhaPage({
       {/* Back */}
       <Link
         href="/vaquinhas"
-        className="inline-flex items-center gap-2 text-zinc-300 hover:text-white text-sm mb-6"
+        className="inline-flex items-center gap-2 text-sm mb-6"
+        style={{ color: 'var(--muted)' }}
       >
         <ArrowLeft size={18} />
         Voltar
@@ -111,7 +112,7 @@ export default async function VaquinhaPage({
 
       {/* Vídeo principal */}
       {embedUrl && (
-        <div className="rounded-2xl overflow-hidden mb-4 bg-black">
+        <div className="rounded-2xl overflow-hidden mb-4" style={{ backgroundColor: 'var(--background)' }}>
           <div className="aspect-[9/16] max-h-[450px] mx-auto">
             <iframe
               src={embedUrl}
@@ -142,18 +143,19 @@ export default async function VaquinhaPage({
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
         <div className="p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600">
-          <div className="p-[2px] rounded-full bg-black">
-            <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
+          <div className="p-[2px] rounded-full" style={{ backgroundColor: 'var(--background)' }}>
+            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--surface)' }}>
               <Heart className="w-5 h-5 text-green-500" />
             </div>
           </div>
         </div>
         <div className="flex-1">
-          <h1 className="text-white font-semibold text-base">{vaquinha.titulo}</h1>
+          <h1 className="font-semibold text-base" style={{ color: 'var(--foreground)' }}>{vaquinha.titulo}</h1>
           <span
             className={`text-sm ${
-              vaquinha.status === "ATIVA" ? "text-green-400" : "text-zinc-400"
+              vaquinha.status === "ATIVA" ? "text-green-400" : ""
             }`}
+            style={vaquinha.status !== "ATIVA" ? { color: 'var(--muted)' } : {}}
           >
             {vaquinha.status === "ATIVA" ? "Campanha Ativa" : "Encerrada"}
           </span>
@@ -161,37 +163,37 @@ export default async function VaquinhaPage({
       </div>
 
       {/* Description */}
-      <p className="text-zinc-200 text-base leading-relaxed mb-6 whitespace-pre-wrap">
+      <p className="text-base leading-relaxed mb-6 whitespace-pre-wrap" style={{ color: 'var(--muted)' }}>
         {vaquinha.descricao}
       </p>
 
       {/* Progress Card */}
-      <div className="bg-zinc-900/50 rounded-2xl p-4 mb-6">
+      <div className="rounded-2xl p-4 mb-6" style={{ backgroundColor: 'var(--card-bg)' }}>
         <div className="flex items-center justify-between text-sm mb-3">
           <div>
-            <p className="text-zinc-300 text-sm">Arrecadado</p>
+            <p className="text-sm" style={{ color: 'var(--muted)' }}>Arrecadado</p>
             <p className="text-green-400 font-semibold text-lg">
               R$ {vaquinha.valorAtual.toLocaleString("pt-BR")}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-zinc-300 text-sm">Meta</p>
-            <p className="text-white font-semibold text-lg">
+            <p className="text-sm" style={{ color: 'var(--muted)' }}>Meta</p>
+            <p className="font-semibold text-lg" style={{ color: 'var(--foreground)' }}>
               R$ {vaquinha.meta.toLocaleString("pt-BR")}
             </p>
           </div>
         </div>
 
-        <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden mb-2">
+        <div className="h-1.5 rounded-full overflow-hidden mb-2" style={{ backgroundColor: 'var(--surface)' }}>
           <div
             className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <p className="text-zinc-300 text-sm text-right">{progress.toFixed(0)}%</p>
+        <p className="text-sm text-right" style={{ color: 'var(--muted)' }}>{progress.toFixed(0)}%</p>
 
         {/* Estatísticas de engajamento */}
-        <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-zinc-800">
+        <div className="flex items-center justify-center gap-6 mt-4 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
           <div className="flex items-center gap-2">
             <span className="bg-red-500/20 text-red-400 p-1.5 rounded-lg">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -199,8 +201,8 @@ export default async function VaquinhaPage({
               </svg>
             </span>
             <div>
-              <p className="text-white font-semibold text-base">{vaquinha.coracoes || 0}</p>
-              <p className="text-zinc-300 text-sm">corações</p>
+              <p className="font-semibold text-base" style={{ color: 'var(--foreground)' }}>{vaquinha.coracoes || 0}</p>
+              <p className="text-sm" style={{ color: 'var(--muted)' }}>corações</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -210,8 +212,8 @@ export default async function VaquinhaPage({
               </svg>
             </span>
             <div>
-              <p className="text-white font-semibold text-base">{vaquinha.doacoes || 0}</p>
-              <p className="text-zinc-300 text-sm">doações</p>
+              <p className="font-semibold text-base" style={{ color: 'var(--foreground)' }}>{vaquinha.doacoes || 0}</p>
+              <p className="text-sm" style={{ color: 'var(--muted)' }}>doações</p>
             </div>
           </div>
         </div>
@@ -220,11 +222,11 @@ export default async function VaquinhaPage({
       {/* PIX */}
       {vaquinha.status === "ATIVA" && (
         <div className="mb-6">
-          <p className="text-sm font-semibold text-zinc-300 uppercase tracking-wider mb-3">
+          <p className="text-sm font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--muted)' }}>
             Chave PIX
           </p>
-          <div className="bg-zinc-900/50 rounded-xl p-4 mb-3">
-            <p className="text-zinc-200 text-base font-mono break-all">
+          <div className="rounded-xl p-4 mb-3" style={{ backgroundColor: 'var(--card-bg)' }}>
+            <p className="text-base font-mono break-all" style={{ color: 'var(--muted)' }}>
               {vaquinha.chavePix}
             </p>
           </div>
@@ -237,7 +239,8 @@ export default async function VaquinhaPage({
         href={vaquinha.linkOriginal}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center justify-center gap-2 w-full py-3 bg-transparent border border-zinc-800 hover:bg-zinc-900 text-zinc-300 rounded-xl text-sm transition-colors mb-6"
+        className="flex items-center justify-center gap-2 w-full py-3 bg-transparent rounded-xl text-sm transition-colors mb-6"
+        style={{ border: '1px solid var(--border)', color: 'var(--muted)' }}
       >
         <ExternalLink size={16} />
         Ver na Vakinha.com.br
@@ -246,12 +249,12 @@ export default async function VaquinhaPage({
       {/* Divider */}
       {vaquinha.atualizacoes.length > 0 && (
         <>
-          <div className="border-t border-zinc-800 my-6" />
+          <div className="my-6" style={{ borderTop: '1px solid var(--border)' }} />
 
           {/* Timeline */}
           <div>
             <div className="flex flex-wrap justify-between items-center mb-4">
-              <p className="text-sm font-semibold text-zinc-300 uppercase tracking-wider">
+              <p className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
                 Atualizações ({vaquinha.atualizacoes.length})
               </p>
             </div>
@@ -263,7 +266,8 @@ export default async function VaquinhaPage({
                 return (
                   <div
                     key={att.id}
-                    className="bg-zinc-900/50 rounded-2xl p-4"
+                    className="rounded-2xl p-4"
+                    style={{ backgroundColor: 'var(--card-bg)' }}
                   >
                     <div className="flex items-center gap-2 mb-3">
                       <span
@@ -276,12 +280,13 @@ export default async function VaquinhaPage({
                             ? "bg-blue-500/10 text-blue-400"
                             : att.tipo === "INSTAGRAM"
                             ? "bg-pink-500/10 text-pink-400"
-                            : "bg-zinc-800 text-zinc-400"
+                            : ""
                         }`}
+                        style={!["COMPROVANTE", "VIDEO", "FOTO", "INSTAGRAM"].includes(att.tipo) ? { backgroundColor: 'var(--surface)', color: 'var(--muted)' } : {}}
                       >
                         <Icon size={14} />
                       </span>
-                      <span className="text-zinc-300 text-sm">
+                      <span className="text-sm" style={{ color: 'var(--muted)' }}>
                         {new Date(att.createdAt).toLocaleDateString("pt-BR", {
                           day: "2-digit",
                           month: "short",
@@ -290,7 +295,7 @@ export default async function VaquinhaPage({
                       </span>
                     </div>
 
-                    <p className="text-zinc-200 text-base whitespace-pre-wrap leading-relaxed">
+                    <p className="text-base whitespace-pre-wrap leading-relaxed" style={{ color: 'var(--muted)' }}>
                       {att.conteudo}
                     </p>
 

@@ -39,13 +39,13 @@ const plataformaConfig: Record<string, {
   color: string;
 }> = {
   instagram: { icon: FaInstagram, color: "text-pink-500" },
-  threads: { icon: FaThreads, color: "text-white" },
-  tiktok: { icon: FaTiktok, color: "text-white" },
+  threads: { icon: FaThreads, color: "var(--foreground)" },
+  tiktok: { icon: FaTiktok, color: "var(--foreground)" },
   youtube: { icon: FaYoutube, color: "text-red-500" },
   facebook: { icon: FaFacebook, color: "text-blue-500" },
   kwai: { icon: KwaiIcon, color: "text-orange-500" },
   whatsapp: { icon: FaWhatsapp, color: "text-green-500" },
-  x: { icon: FaXTwitter, color: "text-white" },
+  x: { icon: FaXTwitter, color: "var(--foreground)" },
 };
 
 function formatSeguidores(num: number | null): string {
@@ -90,7 +90,7 @@ export default async function QuemSomosPage() {
         {/* Avatar com borda gradiente */}
         <div className="flex-shrink-0">
           <div className="p-[3px] rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600">
-            <div className="p-[3px] rounded-full bg-black">
+            <div className="p-[3px] rounded-full" style={{ backgroundColor: 'var(--background)' }}>
               <Image
                 src={config?.avatarUrl || "/uploads/nextleveldj-avatar.jpg"}
                 alt="Ilan"
@@ -105,10 +105,10 @@ export default async function QuemSomosPage() {
 
         {/* Info */}
         <div className="flex-1 pt-1">
-          <h1 className="text-xl font-semibold text-white mb-1">O Moço do Te Amo</h1>
+          <h1 className="text-xl font-semibold mb-1" style={{ color: 'var(--foreground)' }}>O Moço do Te Amo</h1>
 
           {parceiro && (
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-zinc-300 text-sm mb-3">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm mb-3" style={{ color: 'var(--muted)' }}>
               <span className="flex items-center gap-1">
                 <MapPin size={14} />
                 {parceiro.localizacao}
@@ -123,22 +123,22 @@ export default async function QuemSomosPage() {
           {/* Stats row */}
           <div className="flex gap-5">
             <div>
-              <span className="block text-lg font-semibold text-white">
+              <span className="block text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
                 {parceiro?.vaquinhasCriadas || 116}
               </span>
-              <span className="text-zinc-300 text-sm">vaquinhas</span>
+              <span className="text-sm" style={{ color: 'var(--muted)' }}>vaquinhas</span>
             </div>
             <div>
-              <span className="block text-lg font-semibold text-white">
+              <span className="block text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
                 {parceiro ? formatCurrency(parceiro.valorArrecadadoNum) : "R$ 1M+"}
               </span>
-              <span className="text-zinc-300 text-sm">arrecadados</span>
+              <span className="text-sm" style={{ color: 'var(--muted)' }}>arrecadados</span>
             </div>
             <div>
-              <span className="block text-lg font-semibold text-white">
+              <span className="block text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
                 {parceiro ? formatSeguidores(parceiro.pessoasImpactadas) : "34K"}
               </span>
-              <span className="text-zinc-300 text-sm">pessoas</span>
+              <span className="text-sm" style={{ color: 'var(--muted)' }}>pessoas</span>
             </div>
           </div>
         </div>
@@ -147,7 +147,7 @@ export default async function QuemSomosPage() {
       {/* Bio */}
       {config?.biografia && (
         <div className="mb-6">
-          <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">
+          <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: 'var(--foreground)' }}>
             {config.biografia}
           </p>
         </div>
@@ -157,7 +157,7 @@ export default async function QuemSomosPage() {
       {parceiro?.causas && (
         <div className="flex flex-wrap gap-2 mb-6">
           {parceiro.causas.map((causa: string, i: number) => (
-            <span key={i} className="px-3 py-1.5 bg-zinc-900 rounded-full text-zinc-300 text-sm">
+            <span key={i} className="px-3 py-1.5 rounded-full text-sm" style={{ backgroundColor: 'var(--card-bg)', color: 'var(--muted)' }}>
               {causa}
             </span>
           ))}
@@ -169,19 +169,20 @@ export default async function QuemSomosPage() {
         href="https://www.vakinha.com.br/parceiros/ilan-kriger"
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center justify-center gap-2 w-full py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-lg mb-6 transition-colors"
+        className="flex items-center justify-center gap-2 w-full py-2.5 text-sm font-medium rounded-lg mb-6 transition-colors"
+        style={{ backgroundColor: 'var(--surface)', color: 'var(--foreground)' }}
       >
         <TrendingUp size={16} />
         Ver perfil completo na Vakinha
       </a>
 
       {/* Divider */}
-      <div className="border-t border-zinc-800 my-6" />
+      <div className="my-6" style={{ borderTop: '1px solid var(--border)' }} />
 
       {/* Alerta - Antes dos perfis */}
       <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-4 mb-6 animate-fade-in-up">
-        <p className="text-zinc-300 text-sm leading-relaxed">
-          <span className="text-yellow-500 font-semibold">⚠️ Atenção:</span> Estes são os <strong className="text-white">ÚNICOS</strong> perfis oficiais.
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
+          <span className="text-yellow-500 font-semibold">⚠️ Atenção:</span> Estes são os <strong style={{ color: 'var(--foreground)' }}>ÚNICOS</strong> perfis oficiais.
           Qualquer outro perfil pedindo dinheiro é <strong className="text-red-400">GOLPE</strong>!
         </p>
       </div>
@@ -189,14 +190,14 @@ export default async function QuemSomosPage() {
       {/* Perfis Oficiais */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-4">
-          <span className="text-sm font-semibold text-zinc-300 uppercase tracking-wider">
+          <span className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
             Perfis Oficiais
           </span>
-          <span className="text-sm text-zinc-400">• únicos verificados</span>
+          <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>• únicos verificados</span>
         </div>
 
         {perfis.length === 0 ? (
-          <p className="text-zinc-500 text-sm">Nenhum perfil cadastrado</p>
+          <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Nenhum perfil cadastrado</p>
         ) : (
           <div className="space-y-4">
             {perfis.map((perfil) => {
@@ -212,11 +213,11 @@ export default async function QuemSomosPage() {
               );
 
               return (
-                <div key={perfil.id} className="bg-zinc-900/50 rounded-2xl p-4">
+                <div key={perfil.id} className="rounded-2xl p-4" style={{ backgroundColor: 'var(--card-bg)' }}>
                   {/* Perfil Header */}
                   <div className="flex items-center gap-3 mb-4">
                     <div className="p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600">
-                      <div className="p-[2px] rounded-full bg-zinc-900">
+                      <div className="p-[2px] rounded-full" style={{ backgroundColor: 'var(--card-bg)' }}>
                         {perfil.avatarUrl ? (
                           <Image
                             src={perfil.avatarUrl}
@@ -227,16 +228,16 @@ export default async function QuemSomosPage() {
                             loading="lazy"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
-                            <Users className="w-5 h-5 text-zinc-600" />
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--surface)' }}>
+                            <Users className="w-5 h-5" style={{ color: 'var(--muted-foreground)' }} />
                           </div>
                         )}
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-white text-sm">{perfil.nome}</h3>
+                      <h3 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>{perfil.nome}</h3>
                       {totalSeguidores > 0 && (
-                        <p className="text-zinc-300 text-sm">
+                        <p className="text-sm" style={{ color: 'var(--muted)' }}>
                           {formatSeguidores(totalSeguidores)} seguidores
                         </p>
                       )}
@@ -260,14 +261,15 @@ export default async function QuemSomosPage() {
                               href={rede.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-2 px-3 py-2 bg-zinc-800/80 hover:bg-zinc-700/80 rounded-xl transition-colors"
+                              className="flex items-center gap-2 px-3 py-2 rounded-xl transition-colors"
+                              style={{ backgroundColor: 'var(--surface)' }}
                             >
                               <Icon className={`w-5 h-5 ${cfg.color}`} />
-                              <span className="text-white text-sm font-medium">
+                              <span className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
                                 {rede.plataforma === 'whatsapp' ? 'WhatsApp' : rede.usuario}
                               </span>
                               {rede.seguidores && (
-                                <span className="text-zinc-300 text-sm">
+                                <span className="text-sm" style={{ color: 'var(--muted)' }}>
                                   {formatSeguidores(rede.seguidores)}
                                 </span>
                               )}
@@ -295,14 +297,15 @@ export default async function QuemSomosPage() {
                               href={rede.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-2 px-3 py-2 bg-zinc-800/50 hover:bg-zinc-700/50 rounded-xl transition-colors opacity-80"
+                              className="flex items-center gap-2 px-3 py-2 rounded-xl transition-colors opacity-80"
+                              style={{ backgroundColor: 'var(--surface-hover)' }}
                             >
                               <Icon className={`w-5 h-5 ${cfg.color}`} />
-                              <span className="text-white text-sm font-medium">
+                              <span className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>
                                 {rede.plataforma === 'whatsapp' ? 'WhatsApp' : rede.usuario}
                               </span>
                               {rede.seguidores && (
-                                <span className="text-zinc-300 text-sm">
+                                <span className="text-sm" style={{ color: 'var(--muted)' }}>
                                   {formatSeguidores(rede.seguidores)}
                                 </span>
                               )}
@@ -320,7 +323,7 @@ export default async function QuemSomosPage() {
       </div>
 
       {/* Divider */}
-      <div className="border-t border-zinc-800 my-6" />
+      <div className="my-6" style={{ borderTop: '1px solid var(--border)' }} />
 
       {/* De onde vem o dinheiro */}
       <div className="mb-6">
@@ -329,14 +332,14 @@ export default async function QuemSomosPage() {
             <DollarSign className="w-5 h-5 text-green-500" />
           </div>
           <div>
-            <h2 className="text-white font-semibold text-sm">De Onde Vem o Dinheiro</h2>
-            <p className="text-zinc-300 text-sm">Transparência total sobre as fontes</p>
+            <h2 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>De Onde Vem o Dinheiro</h2>
+            <p className="text-sm" style={{ color: 'var(--muted)' }}>Transparência total sobre as fontes</p>
           </div>
         </div>
 
         {/* Barra de percentuais */}
         <div className="mb-4">
-          <div className="h-3 bg-zinc-800 rounded-full overflow-hidden flex">
+          <div className="h-3 rounded-full overflow-hidden flex" style={{ backgroundColor: 'var(--surface)' }}>
             <div className="bg-blue-500" style={{ width: "87.2%" }} title="Publicidade: 87.2%" />
             <div className="bg-yellow-500" style={{ width: "12.1%" }} title="AdSense: 12.1%" />
             <div className="bg-green-500" style={{ width: "0.7%" }} title="Doação direta: 0.7%" />
@@ -345,28 +348,28 @@ export default async function QuemSomosPage() {
 
         {/* Legenda */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-xl">
+          <div className="flex items-center justify-between p-3 rounded-xl" style={{ backgroundColor: 'var(--surface-hover)' }}>
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-blue-500" />
-              <span className="text-white text-sm">Publicidade</span>
+              <span className="text-sm" style={{ color: 'var(--foreground)' }}>Publicidade</span>
             </div>
-            <span className="text-zinc-200 text-sm font-medium">87,2%</span>
+            <span className="text-sm font-medium" style={{ color: 'var(--muted)' }}>87,2%</span>
           </div>
 
-          <div className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-xl">
+          <div className="flex items-center justify-between p-3 rounded-xl" style={{ backgroundColor: 'var(--surface-hover)' }}>
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-yellow-500" />
-              <span className="text-white text-sm">AdSense</span>
+              <span className="text-sm" style={{ color: 'var(--foreground)' }}>AdSense</span>
             </div>
-            <span className="text-zinc-200 text-sm font-medium">12,1%</span>
+            <span className="text-sm font-medium" style={{ color: 'var(--muted)' }}>12,1%</span>
           </div>
 
-          <div className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-xl">
+          <div className="flex items-center justify-between p-3 rounded-xl" style={{ backgroundColor: 'var(--surface-hover)' }}>
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="text-white text-sm">Doação direta</span>
+              <span className="text-sm" style={{ color: 'var(--foreground)' }}>Doação direta</span>
             </div>
-            <span className="text-zinc-200 text-sm font-medium">0,7%</span>
+            <span className="text-sm font-medium" style={{ color: 'var(--muted)' }}>0,7%</span>
           </div>
         </div>
       </div>
@@ -374,7 +377,8 @@ export default async function QuemSomosPage() {
       {/* Botão Denunciar */}
       <Link
         href="/denunciar"
-        className="flex items-center justify-center gap-2 w-full py-3 bg-transparent border border-zinc-800 hover:bg-zinc-900 text-white rounded-xl text-sm font-medium transition-colors"
+        className="flex items-center justify-center gap-2 w-full py-3 bg-transparent rounded-xl text-sm font-medium transition-colors"
+        style={{ border: '1px solid var(--border)', color: 'var(--foreground)' }}
       >
         <ShieldAlert className="w-4 h-4" />
         Denunciar perfil falso

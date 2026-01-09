@@ -200,8 +200,8 @@ export function InscricaoForm() {
     return (
       <div className="text-center py-8">
         <CheckCircle size={48} className="text-green-500 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-white mb-2">Inscrição enviada!</h3>
-        <p className="text-zinc-400 text-sm mb-4">
+        <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--foreground)' }}>Inscrição enviada!</h3>
+        <p className="text-sm mb-4" style={{ color: 'var(--muted)' }}>
           Sua história foi recebida. Entraremos em contato caso você seja selecionado.
         </p>
         <button
@@ -248,7 +248,7 @@ export function InscricaoForm() {
     return (
       <div className="mb-6">
         {/* Progress Bar */}
-        <div className="w-full h-1.5 bg-zinc-800 rounded-full mb-4">
+        <div className="w-full h-1.5 rounded-full mb-4" style={{ backgroundColor: 'var(--surface)' }}>
           <div
             className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${(currentStep / totalSteps) * 100}%` }}
@@ -265,12 +265,13 @@ export function InscricaoForm() {
                     ? 'bg-green-500 text-white'
                     : i + 1 < currentStep
                     ? 'bg-green-900 text-green-200'
-                    : 'bg-zinc-700 text-zinc-400'
+                    : ''
                 }`}
+                style={i + 1 > currentStep ? { backgroundColor: 'var(--surface)', color: 'var(--muted)' } : {}}
               >
                 {i + 1 < currentStep ? <CheckIcon size={14} /> : icons[i]}
               </div>
-              <span className="text-xs text-zinc-400 mt-1">{labels[i]}</span>
+              <span className="text-xs mt-1" style={{ color: 'var(--muted)' }}>{labels[i]}</span>
             </div>
           ))}
         </div>
@@ -286,40 +287,43 @@ export function InscricaoForm() {
             {/* Nome e Email */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-zinc-400 text-xs mb-1.5">Nome completo *</label>
+                <label className="block text-xs mb-1.5" style={{ color: 'var(--muted)' }}>Nome completo *</label>
                 <input
                   type="text"
                   value={form.nome}
                   onChange={(e) => setForm({ ...form, nome: e.target.value })}
                   placeholder="Seu nome"
-                  className="w-full px-4 py-3 bg-zinc-800/80 border border-zinc-700/50 rounded-xl text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
+                  className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--foreground)' }}
                 />
               </div>
 
               <div>
-                <label className="block text-zinc-400 text-xs mb-1.5">Email *</label>
+                <label className="block text-xs mb-1.5" style={{ color: 'var(--muted)' }}>Email *</label>
                 <input
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="seu@email.com"
-                  className="w-full px-4 py-3 bg-zinc-800/80 border border-zinc-700/50 rounded-xl text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
+                  className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--foreground)' }}
                 />
               </div>
             </div>
 
             {/* Para quem é o sonho */}
             <div>
-              <label className="block text-zinc-400 text-xs mb-2">Esse sonho é para você ou para outra pessoa? *</label>
+              <label className="block text-xs mb-2" style={{ color: 'var(--muted)' }}>Esse sonho é para você ou para outra pessoa? *</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setForm({ ...form, paraQuem: "proprio", nomeBeneficiado: "" })}
                   className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                     form.paraQuem === "proprio"
-                      ? "bg-purple-500/30 border-2 border-purple-500 text-white"
-                      : "bg-zinc-800/80 border border-zinc-700/50 text-zinc-400 hover:bg-zinc-700/50"
+                      ? "bg-purple-500/30 border-2 border-purple-500"
+                      : ""
                   }`}
+                  style={form.paraQuem !== "proprio" ? { backgroundColor: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--muted)' } : { color: 'var(--foreground)' }}
                 >
                   Para mim
                 </button>
@@ -328,9 +332,10 @@ export function InscricaoForm() {
                   onClick={() => setForm({ ...form, paraQuem: "outra_pessoa" })}
                   className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                     form.paraQuem === "outra_pessoa"
-                      ? "bg-purple-500/30 border-2 border-purple-500 text-white"
-                      : "bg-zinc-800/80 border border-zinc-700/50 text-zinc-400 hover:bg-zinc-700/50"
+                      ? "bg-purple-500/30 border-2 border-purple-500"
+                      : ""
                   }`}
+                  style={form.paraQuem !== "outra_pessoa" ? { backgroundColor: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--muted)' } : { color: 'var(--foreground)' }}
                 >
                   Para outra pessoa
                 </button>
@@ -340,13 +345,14 @@ export function InscricaoForm() {
             {/* Nome do beneficiado (se for para outra pessoa) */}
             {form.paraQuem === "outra_pessoa" && (
               <div>
-                <label className="block text-zinc-400 text-xs mb-1.5">Nome da pessoa a ser beneficiada *</label>
+                <label className="block text-xs mb-1.5" style={{ color: 'var(--muted)' }}>Nome da pessoa a ser beneficiada *</label>
                 <input
                   type="text"
                   value={form.nomeBeneficiado}
                   onChange={(e) => setForm({ ...form, nomeBeneficiado: e.target.value })}
                   placeholder="Nome completo da pessoa"
-                  className="w-full px-4 py-3 bg-zinc-800/80 border border-zinc-700/50 rounded-xl text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
+                  className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--foreground)' }}
                 />
               </div>
             )}
@@ -354,23 +360,25 @@ export function InscricaoForm() {
             {/* Telefone e Data de Nascimento */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-zinc-400 text-xs mb-1.5">Telefone *</label>
+                <label className="block text-xs mb-1.5" style={{ color: 'var(--muted)' }}>Telefone *</label>
                 <input
                   type="tel"
                   value={form.telefone}
                   onChange={(e) => setForm({ ...form, telefone: e.target.value })}
                   placeholder="(11) 99999-9999"
-                  className="w-full px-4 py-3 bg-zinc-800/80 border border-zinc-700/50 rounded-xl text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
+                  className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--foreground)' }}
                 />
               </div>
 
               <div>
-                <label className="block text-zinc-400 text-xs mb-1.5">Data de Nascimento</label>
+                <label className="block text-xs mb-1.5" style={{ color: 'var(--muted)' }}>Data de Nascimento</label>
                 <input
                   type="date"
                   value={form.dataNascimento}
                   onChange={(e) => setForm({ ...form, dataNascimento: e.target.value })}
-                  className="w-full px-4 py-3 bg-zinc-800/80 border border-zinc-700/50 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
+                  className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                  style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--foreground)' }}
                 />
               </div>
             </div>
@@ -383,17 +391,18 @@ export function InscricaoForm() {
             {/* Estado e Cidade */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-zinc-400 text-xs mb-1.5">Estado *</label>
+                <label className="block text-xs mb-1.5" style={{ color: 'var(--muted)' }}>Estado *</label>
                 <select
                   value={form.estado}
                   onChange={(e) => setForm({ ...form, estado: e.target.value })}
-                  className="w-full px-4 py-3 bg-zinc-800/80 border border-zinc-700/50 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 appearance-none cursor-pointer"
+                  className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 appearance-none cursor-pointer"
+                  style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--foreground)' }}
                 >
-                  <option value="" className="bg-zinc-900">
+                  <option value="" style={{ backgroundColor: 'var(--surface)' }}>
                     Selecione o estado
                   </option>
                   {ESTADOS_BRASIL.map((estado) => (
-                    <option key={estado.sigla} value={estado.sigla} className="bg-zinc-900">
+                    <option key={estado.sigla} value={estado.sigla} style={{ backgroundColor: 'var(--surface)' }}>
                       {estado.nome} ({estado.sigla})
                     </option>
                   ))}
@@ -401,14 +410,15 @@ export function InscricaoForm() {
               </div>
 
               <div>
-                <label className="block text-zinc-400 text-xs mb-1.5">Cidade *</label>
+                <label className="block text-xs mb-1.5" style={{ color: 'var(--muted)' }}>Cidade *</label>
                 <select
                   value={form.cidade}
                   onChange={(e) => setForm({ ...form, cidade: e.target.value })}
                   disabled={!form.estado || loadingCidades}
-                  className="w-full px-4 py-3 bg-zinc-800/80 border border-zinc-700/50 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--foreground)' }}
                 >
-                  <option value="" className="bg-zinc-900">
+                  <option value="" style={{ backgroundColor: 'var(--surface)' }}>
                     {loadingCidades
                       ? "Carregando cidades..."
                       : !form.estado
@@ -416,7 +426,7 @@ export function InscricaoForm() {
                       : "Selecione a cidade"}
                   </option>
                   {cidades.map((cidade) => (
-                    <option key={cidade.id} value={cidade.nome} className="bg-zinc-900">
+                    <option key={cidade.id} value={cidade.nome} style={{ backgroundColor: 'var(--surface)' }}>
                       {cidade.nome}
                     </option>
                   ))}
@@ -426,7 +436,7 @@ export function InscricaoForm() {
 
             {/* Data para realização do sonho */}
             <div>
-              <label className="block text-zinc-400 text-xs mb-1.5">
+              <label className="block text-xs mb-1.5" style={{ color: 'var(--muted)' }}>
                 Data desejada para realização do sonho
               </label>
               <input
@@ -434,9 +444,10 @@ export function InscricaoForm() {
                 value={form.dataRealizacao}
                 onChange={(e) => setForm({ ...form, dataRealizacao: e.target.value })}
                 min={new Date().toISOString().split("T")[0]}
-                className="w-full px-4 py-3 bg-zinc-800/80 border border-zinc-700/50 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
+                className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--foreground)' }}
               />
-              <p className="text-zinc-500 text-[10px] mt-1">
+              <p className="text-[10px] mt-1" style={{ color: 'var(--muted-foreground)' }}>
                 Se houver uma data especial (aniversário, formatura, etc.)
               </p>
             </div>
@@ -448,7 +459,7 @@ export function InscricaoForm() {
           <div className="space-y-4">
             {/* O que você precisa */}
             <div>
-              <label className="block text-zinc-400 text-xs mb-2">O que você precisa? *</label>
+              <label className="block text-xs mb-2" style={{ color: 'var(--muted)' }}>O que você precisa? *</label>
               <div className="grid grid-cols-2 gap-2">
                 {tiposNecessidade.map((tipo) => {
                   const isSelected = form.necessidade === tipo.id;
@@ -461,9 +472,10 @@ export function InscricaoForm() {
                       }}
                       className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                         isSelected
-                          ? "bg-purple-500/30 border-2 border-purple-500 text-white"
-                          : "bg-zinc-800/80 border border-zinc-700/50 text-zinc-400 hover:bg-zinc-700/50"
+                          ? "bg-purple-500/30 border-2 border-purple-500"
+                          : ""
                       }`}
+                      style={!isSelected ? { backgroundColor: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--muted)' } : { color: 'var(--foreground)' }}
                     >
                       <span>{tipo.emoji}</span>
                       <span>{tipo.label}</span>
@@ -476,7 +488,7 @@ export function InscricaoForm() {
             {/* Faixa de valor (se precisar de dinheiro) */}
             {form.necessidade === "dinheiro" && (
               <div>
-                <label className="block text-zinc-400 text-xs mb-2">De quanto você precisa? *</label>
+                <label className="block text-xs mb-2" style={{ color: 'var(--muted)' }}>De quanto você precisa? *</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {faixasValor.map((faixa) => {
                     const isSelected = form.faixaValor === faixa.id;
@@ -487,9 +499,10 @@ export function InscricaoForm() {
                         onClick={() => setForm({ ...form, faixaValor: faixa.id })}
                         className={`px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                           isSelected
-                            ? "bg-green-500/30 border-2 border-green-500 text-white"
-                            : "bg-zinc-800/80 border border-zinc-700/50 text-zinc-400 hover:bg-zinc-700/50"
+                            ? "bg-green-500/30 border-2 border-green-500"
+                            : ""
                         }`}
+                        style={!isSelected ? { backgroundColor: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--muted)' } : { color: 'var(--foreground)' }}
                       >
                         {faixa.label}
                       </button>
@@ -501,7 +514,7 @@ export function InscricaoForm() {
 
             {/* Link de mídia social ou vaquinha */}
             <div>
-              <label className="block text-zinc-400 text-xs mb-1.5">
+              <label className="block text-xs mb-1.5" style={{ color: 'var(--muted)' }}>
                 Link de mídia social ou vaquinha existente
               </label>
               <input
@@ -509,9 +522,10 @@ export function InscricaoForm() {
                 value={form.linkMidiaSocial}
                 onChange={(e) => setForm({ ...form, linkMidiaSocial: e.target.value })}
                 placeholder="https://instagram.com/... ou https://vakinha.com.br/..."
-                className="w-full px-4 py-3 bg-zinc-800/80 border border-zinc-700/50 rounded-xl text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
+                className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--foreground)' }}
               />
-              <p className="text-zinc-500 text-[10px] mt-1">
+              <p className="text-[10px] mt-1" style={{ color: 'var(--muted-foreground)' }}>
                 Opcional - Se você já tem uma vaquinha ou quer compartilhar seu perfil
               </p>
             </div>
@@ -523,25 +537,27 @@ export function InscricaoForm() {
           <div className="space-y-4">
             {/* História */}
             <div>
-              <label className="block text-zinc-400 text-xs mb-1.5">Conte sua história *</label>
+              <label className="block text-xs mb-1.5" style={{ color: 'var(--muted)' }}>Conte sua história *</label>
               <textarea
                 value={form.historia}
                 onChange={(e) => setForm({ ...form, historia: e.target.value })}
                 placeholder="Fale um pouco sobre você, sua família, seu trabalho..."
                 rows={4}
-                className="w-full px-4 py-3 bg-zinc-800/80 border border-zinc-700/50 rounded-xl text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 resize-none"
+                className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"
+                style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--foreground)' }}
               />
             </div>
 
             {/* Situação */}
             <div>
-              <label className="block text-zinc-400 text-xs mb-1.5">Por que você precisa de ajuda? *</label>
+              <label className="block text-xs mb-1.5" style={{ color: 'var(--muted)' }}>Por que você precisa de ajuda? *</label>
               <textarea
                 value={form.situacao}
                 onChange={(e) => setForm({ ...form, situacao: e.target.value })}
                 placeholder="Descreva sua situação atual e como uma doação poderia te ajudar..."
                 rows={4}
-                className="w-full px-4 py-3 bg-zinc-800/80 border border-zinc-700/50 rounded-xl text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 resize-none"
+                className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 resize-none"
+                style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--foreground)' }}
               />
             </div>
           </div>
@@ -573,7 +589,8 @@ export function InscricaoForm() {
           <button
             type="button"
             onClick={prevStep}
-            className="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-xl transition-all flex items-center justify-center gap-2"
+            className="flex-1 py-3 text-sm font-medium rounded-xl transition-all flex items-center justify-center gap-2"
+            style={{ backgroundColor: 'var(--surface)', color: 'var(--foreground)' }}
           >
             <ArrowLeft size={18} />
             Voltar

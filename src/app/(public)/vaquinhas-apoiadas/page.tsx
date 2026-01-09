@@ -11,11 +11,11 @@ export default function VaquinhasApoiadasPage() {
     <div className="max-w-6xl mx-auto px-4 py-6">
       {/* Header */}
       <div className="text-center mb-6">
-        <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center mx-auto mb-3">
-          <HandHeart className="w-6 h-6 text-zinc-400" />
+        <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: 'var(--surface)' }}>
+          <HandHeart className="w-6 h-6" style={{ color: 'var(--muted)' }} />
         </div>
-        <h1 className="text-2xl font-bold text-white mb-1">Vaquinhas que Apoio</h1>
-        <p className="text-zinc-400 text-sm max-w-md mx-auto">
+        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--foreground)' }}>Vaquinhas que Apoio</h1>
+        <p className="text-sm max-w-md mx-auto" style={{ color: 'var(--muted)' }}>
           Campanhas da Oficina de Sonhos em parceria com a Vakinha, ou de pessoas
           que apareceram nos nossos vídeos e já tinham sua própria vaquinha.
         </p>
@@ -25,8 +25,8 @@ export default function VaquinhasApoiadasPage() {
       <VaquinhasList />
 
       {/* Info */}
-      <div className="mt-6 bg-zinc-900/50 rounded-xl p-4">
-        <p className="text-zinc-400 text-sm text-center">
+      <div className="mt-6 rounded-xl p-4" style={{ backgroundColor: 'var(--card-bg)' }}>
+        <p className="text-sm text-center" style={{ color: 'var(--muted)' }}>
           Conhece uma causa que merece apoio? Entre em contato conosco nas redes sociais.
         </p>
       </div>

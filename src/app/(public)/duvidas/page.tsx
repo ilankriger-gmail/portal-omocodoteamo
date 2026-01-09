@@ -71,8 +71,8 @@ export default async function DuvidasPage() {
         <div className="w-14 h-14 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-3">
           <HelpCircle className="w-6 h-6 text-blue-500" />
         </div>
-        <h1 className="text-lg font-semibold text-white mb-1">Principais Dúvidas</h1>
-        <p className="text-zinc-400 text-xs leading-relaxed max-w-sm mx-auto">
+        <h1 className="text-lg font-semibold mb-1" style={{ color: 'var(--foreground)' }}>Principais Dúvidas</h1>
+        <p className="text-xs leading-relaxed max-w-sm mx-auto" style={{ color: 'var(--muted)' }}>
           Respostas para as perguntas mais frequentes sobre o portal e como ajudamos as pessoas.
         </p>
       </div>
@@ -81,8 +81,8 @@ export default async function DuvidasPage() {
       <FAQAccordion faqs={faqs} />
 
       {/* Info adicional */}
-      <div className="mt-6 bg-zinc-900/50 rounded-xl p-4 text-center">
-        <p className="text-zinc-400 text-xs leading-relaxed">
+      <div className="mt-6 rounded-xl p-4 text-center" style={{ backgroundColor: 'var(--card-bg)' }}>
+        <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
           Não encontrou o que procurava? Entre em contato conosco pelas redes sociais!
         </p>
       </div>

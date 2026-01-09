@@ -33,13 +33,13 @@ const plataformaConfig: Record<string, {
   color: string;
 }> = {
   instagram: { icon: FaInstagram, color: "text-pink-500" },
-  threads: { icon: FaThreads, color: "text-white" },
-  tiktok: { icon: FaTiktok, color: "text-white" },
+  threads: { icon: FaThreads, color: "var(--foreground)" },
+  tiktok: { icon: FaTiktok, color: "var(--foreground)" },
   youtube: { icon: FaYoutube, color: "text-red-500" },
   facebook: { icon: FaFacebook, color: "text-blue-500" },
   kwai: { icon: KwaiIcon, color: "text-orange-500" },
   whatsapp: { icon: FaWhatsapp, color: "text-green-500" },
-  x: { icon: FaXTwitter, color: "text-white" },
+  x: { icon: FaXTwitter, color: "var(--foreground)" },
 };
 
 function formatSeguidores(num: number | null): string {
@@ -70,8 +70,8 @@ export default async function DenunciarPage() {
         <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
           <ShieldAlert className="w-8 h-8 text-red-500" />
         </div>
-        <h1 className="text-xl font-semibold text-white mb-2">Denuncie Perfis Falsos</h1>
-        <p className="text-zinc-400 text-sm">
+        <h1 className="text-xl font-semibold mb-2" style={{ color: 'var(--foreground)' }}>Denuncie Perfis Falsos</h1>
+        <p className="text-sm" style={{ color: 'var(--muted)' }}>
           Nos ajude a combater golpistas
         </p>
       </div>
@@ -81,14 +81,14 @@ export default async function DenunciarPage() {
         <p className="text-red-400 text-sm font-semibold mb-2">
           NUNCA solicito pagamento ou depósito.
         </p>
-        <p className="text-zinc-400 text-xs leading-relaxed">
+        <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
           Se alguém pediu dinheiro para &quot;destravar&quot; um prêmio, você está sendo vítima de um golpe.
           Verifique sempre os perfis oficiais abaixo.
         </p>
       </div>
 
       {/* Como os Golpistas Operam */}
-      <div className="bg-zinc-900/50 rounded-2xl p-4 mb-6">
+      <div className="rounded-2xl p-4 mb-6" style={{ backgroundColor: 'var(--card-bg)' }}>
         <span className="text-xs font-semibold text-yellow-500 uppercase tracking-wider mb-3 block">
           Como os Golpistas Operam
         </span>
@@ -99,8 +99,8 @@ export default async function DenunciarPage() {
               1
             </div>
             <div>
-              <p className="text-white text-sm font-medium">Criam perfis falsos</p>
-              <p className="text-zinc-500 text-xs">Usam meus vídeos, fotos e até o mesmo nome para parecerem reais</p>
+              <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Criam perfis falsos</p>
+              <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Usam meus vídeos, fotos e até o mesmo nome para parecerem reais</p>
             </div>
           </div>
 
@@ -109,8 +109,8 @@ export default async function DenunciarPage() {
               2
             </div>
             <div>
-              <p className="text-white text-sm font-medium">Usam @ parecidos</p>
-              <p className="text-zinc-500 text-xs">Trocam letras, adicionam números ou underlines para imitar os perfis oficiais</p>
+              <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Usam @ parecidos</p>
+              <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Trocam letras, adicionam números ou underlines para imitar os perfis oficiais</p>
             </div>
           </div>
 
@@ -119,8 +119,8 @@ export default async function DenunciarPage() {
               3
             </div>
             <div>
-              <p className="text-white text-sm font-medium">Conseguem alguns seguidores</p>
-              <p className="text-zinc-500 text-xs">Para parecer legítimo, compram ou atraem seguidores falsos</p>
+              <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Conseguem alguns seguidores</p>
+              <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Para parecer legítimo, compram ou atraem seguidores falsos</p>
             </div>
           </div>
 
@@ -129,8 +129,8 @@ export default async function DenunciarPage() {
               4
             </div>
             <div>
-              <p className="text-white text-sm font-medium">Adicionam vítimas e oferecem &quot;prêmios&quot;</p>
-              <p className="text-zinc-500 text-xs">Dizem que você ganhou algo, mas precisa fazer um depósito para &quot;destravar&quot;</p>
+              <p className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>Adicionam vítimas e oferecem &quot;prêmios&quot;</p>
+              <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Dizem que você ganhou algo, mas precisa fazer um depósito para &quot;destravar&quot;</p>
             </div>
           </div>
 
@@ -140,7 +140,7 @@ export default async function DenunciarPage() {
             </div>
             <div>
               <p className="text-red-400 text-sm font-medium">Isso é GOLPE!</p>
-              <p className="text-zinc-500 text-xs">Nunca peço depósito antecipado. Todas as ações são divulgadas nos perfis oficiais.</p>
+              <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Nunca peço depósito antecipado. Todas as ações são divulgadas nos perfis oficiais.</p>
             </div>
           </div>
         </div>
@@ -158,14 +158,14 @@ export default async function DenunciarPage() {
       {/* Perfis Oficiais - Widget igual ao Quem Somos */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-4">
-          <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+          <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>
             Perfis Oficiais
           </span>
-          <span className="text-xs text-zinc-600">• únicos verificados</span>
+          <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>• únicos verificados</span>
         </div>
 
         {perfis.length === 0 ? (
-          <p className="text-zinc-500 text-sm">Nenhum perfil cadastrado</p>
+          <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Nenhum perfil cadastrado</p>
         ) : (
           <div className="space-y-4">
             {perfis.map((perfil) => {
@@ -181,11 +181,11 @@ export default async function DenunciarPage() {
               );
 
               return (
-                <div key={perfil.id} className="bg-zinc-900/50 rounded-2xl p-4">
+                <div key={perfil.id} className="rounded-2xl p-4" style={{ backgroundColor: 'var(--card-bg)' }}>
                   {/* Perfil Header */}
                   <div className="flex items-center gap-3 mb-4">
                     <div className="p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600">
-                      <div className="p-[2px] rounded-full bg-zinc-900">
+                      <div className="p-[2px] rounded-full" style={{ backgroundColor: 'var(--card-bg)' }}>
                         {perfil.avatarUrl ? (
                           <Image
                             src={perfil.avatarUrl}
@@ -196,16 +196,16 @@ export default async function DenunciarPage() {
                             loading="lazy"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
-                            <Users className="w-5 h-5 text-zinc-600" />
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--surface)' }}>
+                            <Users className="w-5 h-5" style={{ color: 'var(--muted-foreground)' }} />
                           </div>
                         )}
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-white text-sm">{perfil.nome}</h3>
+                      <h3 className="font-semibold text-sm" style={{ color: 'var(--foreground)' }}>{perfil.nome}</h3>
                       {totalSeguidores > 0 && (
-                        <p className="text-zinc-500 text-xs">
+                        <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
                           {formatSeguidores(totalSeguidores)} seguidores
                         </p>
                       )}
@@ -229,12 +229,13 @@ export default async function DenunciarPage() {
                               href={rede.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-2 px-3 py-2 bg-zinc-800/80 hover:bg-zinc-700/80 rounded-xl transition-colors"
+                              className="flex items-center gap-2 px-3 py-2 rounded-xl transition-colors"
+                              style={{ backgroundColor: 'var(--surface)' }}
                             >
                               <Icon className={`w-4 h-4 ${cfg.color}`} />
-                              <span className="text-white text-xs font-medium">{rede.usuario}</span>
+                              <span className="text-xs font-medium" style={{ color: 'var(--foreground)' }}>{rede.usuario}</span>
                               {rede.seguidores && (
-                                <span className="text-zinc-500 text-xs">
+                                <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
                                   {formatSeguidores(rede.seguidores)}
                                 </span>
                               )}
@@ -262,12 +263,13 @@ export default async function DenunciarPage() {
                               href={rede.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-2 px-3 py-2 bg-zinc-800/50 hover:bg-zinc-700/50 rounded-xl transition-colors opacity-80"
+                              className="flex items-center gap-2 px-3 py-2 rounded-xl transition-colors opacity-80"
+                              style={{ backgroundColor: 'var(--surface-hover)' }}
                             >
                               <Icon className={`w-4 h-4 ${cfg.color}`} />
-                              <span className="text-white text-xs font-medium">{rede.usuario}</span>
+                              <span className="text-xs font-medium" style={{ color: 'var(--foreground)' }}>{rede.usuario}</span>
                               {rede.seguidores && (
-                                <span className="text-zinc-500 text-xs">
+                                <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
                                   {formatSeguidores(rede.seguidores)}
                                 </span>
                               )}
@@ -285,7 +287,7 @@ export default async function DenunciarPage() {
       </div>
 
       {/* Divider */}
-      <div className="border-t border-zinc-800 my-6" />
+      <div className="my-6" style={{ borderTop: '1px solid var(--border)' }} />
 
       {/* Formulário */}
       <div id="denunciar">

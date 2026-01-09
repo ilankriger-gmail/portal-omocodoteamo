@@ -42,21 +42,21 @@ export function FAQAccordion({ faqs }: FAQAccordionProps) {
         const embedUrl = faq.videoUrl ? getYoutubeEmbedUrl(faq.videoUrl) : null;
 
         return (
-          <div key={faq.id} className="bg-zinc-900/50 rounded-xl overflow-hidden">
+          <div key={faq.id} className="rounded-xl overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }}>
             <button
               onClick={() => setOpenIndex(openIndex === index ? null : index)}
               className="w-full flex items-center justify-between p-4 text-left"
             >
-              <span className="text-white text-sm font-medium pr-4">{faq.pergunta}</span>
+              <span className="text-sm font-medium pr-4" style={{ color: 'var(--foreground)' }}>{faq.pergunta}</span>
               {openIndex === index ? (
                 <ChevronUp size={20} className="text-red-500 flex-shrink-0" />
               ) : (
-                <ChevronDown size={20} className="text-zinc-500 flex-shrink-0" />
+                <ChevronDown size={20} className="flex-shrink-0" style={{ color: 'var(--muted-foreground)' }} />
               )}
             </button>
             {openIndex === index && (
               <div className="px-4 pb-4 space-y-3">
-                <div className="text-zinc-400 text-sm leading-relaxed">
+                <div className="text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
                   {faq.resposta
                     .split('\n')
                     .filter(line => line.trim() !== '')  // Remove linhas vazias
