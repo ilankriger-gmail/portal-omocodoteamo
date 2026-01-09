@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  /* Base - tema escuro sempre */
+  /* Base - tema escuro (padrão) */
   --background: #09090b;
   --foreground: #FFFFFF;
   --foreground-secondary: #E5E5E5;
@@ -28,6 +28,12 @@
   --surface-card: #1F1F23;
   --border: #3f3f46;
   --border-light: #4B5563;
+
+  /* Sidebar e navegação */
+  --sidebar-bg: rgba(0, 0, 0, 0.95);
+  --nav-bg: rgba(0, 0, 0, 0.95);
+  --nav-item-active-bg: #18181b;
+  --nav-item-hover-bg: rgba(24, 24, 27, 0.5);
 
   /* Espaçamento */
   --space-xs: 0.5rem;
@@ -64,6 +70,27 @@
   --duration-normal: 250ms;
   --duration-slow: 400ms;
   --duration-slower: 600ms;
+}
+
+/* Tema Claro */
+[data-theme="light"] {
+  --background: #ffffff;
+  --foreground: #18181b;
+  --foreground-secondary: #3f3f46;
+  --foreground-tertiary: #71717a;
+
+  /* Superfícies */
+  --surface: #f4f4f5;
+  --surface-hover: #e4e4e7;
+  --surface-card: #ffffff;
+  --border: #e4e4e7;
+  --border-light: #d4d4d8;
+
+  /* Sidebar e navegação */
+  --sidebar-bg: rgba(255, 255, 255, 0.98);
+  --nav-bg: rgba(255, 255, 255, 0.98);
+  --nav-item-active-bg: #f4f4f5;
+  --nav-item-hover-bg: rgba(244, 244, 245, 0.8);
 }
 
 body {

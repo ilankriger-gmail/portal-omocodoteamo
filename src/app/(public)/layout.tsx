@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Home, User, Heart, HandHeart, Send, ShieldAlert, HelpCircle, ChevronLeft, MoreHorizontal, X } from "lucide-react";
 import { useState } from "react";
 import { Footer } from "@/components/footer";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const menuItems = [
   { href: "/", icon: Home, label: "Início" },
@@ -44,10 +45,10 @@ export default function PublicLayout({
   const isMoreItemActive = mobileMoreItems.some(item => pathname === item.href);
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Desktop Sidebar */}
       <aside
-        className={`hidden md:flex flex-col fixed left-0 top-0 h-full border-r border-zinc-900/80 bg-black/95 backdrop-blur-sm z-50 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'w-[72px]' : 'w-[220px] xl:w-[245px]'}`}
+        className={`hidden md:flex flex-col fixed left-0 top-0 h-full border-r border-[var(--border)] bg-[var(--sidebar-bg)] backdrop-blur-sm z-50 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${collapsed ? 'w-[72px]' : 'w-[220px] xl:w-[245px]'}`}
       >
         {/* Logo */}
         <div className="p-4 pt-6 pb-4">
@@ -58,7 +59,7 @@ export default function PublicLayout({
                   <span className="text-white font-bold text-sm">M</span>
                 </div>
               ) : (
-                <h1 className="text-white font-semibold text-lg px-3 transition-opacity duration-300">O Moço do Te Amo</h1>
+                <h1 className="text-[var(--foreground)] font-semibold text-lg px-3 transition-opacity duration-300">O Moço do Te Amo</h1>
               )}
             </div>
           </Link>
@@ -74,8 +75,8 @@ export default function PublicLayout({
                 href={item.href}
                 className={`flex items-center gap-4 px-3 py-3 rounded-lg mb-1 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group relative overflow-hidden ${
                   isActive
-                    ? "bg-zinc-900 text-white"
-                    : "text-zinc-400 hover:bg-zinc-900/50 hover:text-white"
+                    ? "bg-[var(--nav-item-active-bg)] text-[var(--foreground)]"
+                    : "text-[var(--foreground-tertiary)] hover:bg-[var(--nav-item-hover-bg)] hover:text-[var(--foreground)]"
                 }`}
                 style={{ animationDelay: `${index * 50}ms` }}
               >
@@ -86,7 +87,7 @@ export default function PublicLayout({
 
                 <item.icon
                   size={24}
-                  className={`transition-all duration-300 ${isActive ? "text-white" : "text-zinc-400 group-hover:text-white"} ${collapsed ? '' : 'group-hover:scale-110'}`}
+                  className={`transition-all duration-300 ${isActive ? "text-[var(--foreground)]" : "text-[var(--foreground-tertiary)] group-hover:text-[var(--foreground)]"} ${collapsed ? '' : 'group-hover:scale-110'}`}
                 />
 
                 <span
@@ -97,7 +98,7 @@ export default function PublicLayout({
 
                 {/* Tooltip para modo colapsado */}
                 {collapsed && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-zinc-800 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                  <div className="absolute left-full ml-2 px-2 py-1 bg-[var(--surface)] text-[var(--foreground)] text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 border border-[var(--border)]">
                     {item.label}
                   </div>
                 )}
@@ -106,11 +107,12 @@ export default function PublicLayout({
           })}
         </nav>
 
-        {/* Collapse Button */}
-        <div className="p-3 border-t border-zinc-900/50">
+        {/* Theme Toggle e Collapse Button */}
+        <div className="p-3 border-t border-[var(--border)]">
+          <ThemeToggle collapsed={collapsed} />
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="flex items-center justify-center gap-4 px-3 py-3 rounded-lg text-zinc-400 hover:bg-zinc-900/50 hover:text-white transition-all duration-300 w-full group"
+            className="flex items-center justify-center gap-4 px-3 py-3 rounded-lg text-[var(--foreground-tertiary)] hover:bg-[var(--nav-item-hover-bg)] hover:text-[var(--foreground)] transition-all duration-300 w-full group mt-1"
             aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
           >
             <div className="transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]" style={{ transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)' }}>
@@ -132,7 +134,7 @@ export default function PublicLayout({
       </main>
 
       {/* Mobile Bottom Navigation - Redesigned */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-md border-t border-zinc-800/50 z-50 safe-area-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[var(--nav-bg)] backdrop-blur-md border-t border-[var(--border)] z-50 safe-area-bottom">
         <div className="flex items-center justify-around h-16 px-2">
           {mobileMenuItems.map((item) => {
             const isActive = pathname === item.href;
@@ -142,8 +144,8 @@ export default function PublicLayout({
                 href={item.href}
                 className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all duration-300 min-w-[56px] ${
                   isActive
-                    ? "text-white"
-                    : "text-zinc-500 active:scale-95"
+                    ? "text-[var(--foreground)]"
+                    : "text-[var(--foreground-tertiary)] active:scale-95"
                 }`}
               >
                 <div className={`p-1.5 rounded-lg transition-all duration-300 ${isActive ? 'bg-green-600/20' : ''}`}>
@@ -153,7 +155,7 @@ export default function PublicLayout({
                     strokeWidth={isActive ? 2.5 : 2}
                   />
                 </div>
-                <span className={`text-sm mt-0.5 transition-all duration-300 ${isActive ? 'text-green-500 font-medium' : 'text-zinc-400'}`}>
+                <span className={`text-sm mt-0.5 transition-all duration-300 ${isActive ? 'text-green-500 font-medium' : 'text-[var(--foreground-tertiary)]'}`}>
                   {item.label}
                 </span>
               </Link>
@@ -165,8 +167,8 @@ export default function PublicLayout({
             onClick={() => setMoreMenuOpen(!moreMenuOpen)}
             className={`flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all duration-300 min-w-[56px] ${
               isMoreItemActive || moreMenuOpen
-                ? "text-white"
-                : "text-zinc-500 active:scale-95"
+                ? "text-[var(--foreground)]"
+                : "text-[var(--foreground-tertiary)] active:scale-95"
             }`}
           >
             <div className={`p-1.5 rounded-lg transition-all duration-300 ${isMoreItemActive ? 'bg-green-600/20' : ''}`}>
@@ -184,7 +186,7 @@ export default function PublicLayout({
                 />
               )}
             </div>
-            <span className={`text-sm mt-0.5 transition-all duration-300 ${isMoreItemActive ? 'text-green-500 font-medium' : 'text-zinc-400'}`}>
+            <span className={`text-sm mt-0.5 transition-all duration-300 ${isMoreItemActive ? 'text-green-500 font-medium' : 'text-[var(--foreground-tertiary)]'}`}>
               Mais
             </span>
           </button>
@@ -200,7 +202,7 @@ export default function PublicLayout({
             />
 
             {/* Menu */}
-            <div className="absolute bottom-full left-0 right-0 bg-zinc-900 border-t border-zinc-800 rounded-t-2xl p-4 mb-0 animate-slide-up">
+            <div className="absolute bottom-full left-0 right-0 bg-[var(--surface)] border-t border-[var(--border)] rounded-t-2xl p-4 mb-0 animate-slide-up">
               <div className="flex flex-col gap-1">
                 {mobileMoreItems.map((item) => {
                   const isActive = pathname === item.href;
@@ -211,13 +213,13 @@ export default function PublicLayout({
                       onClick={() => setMoreMenuOpen(false)}
                       className={`flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-300 ${
                         isActive
-                          ? "bg-green-600/20 text-white"
-                          : "text-zinc-300 hover:bg-zinc-800 active:bg-zinc-800"
+                          ? "bg-green-600/20 text-[var(--foreground)]"
+                          : "text-[var(--foreground-secondary)] hover:bg-[var(--surface-hover)] active:bg-[var(--surface-hover)]"
                       }`}
                     >
                       <item.icon
                         size={24}
-                        className={isActive ? "text-green-500" : "text-zinc-400"}
+                        className={isActive ? "text-green-500" : "text-[var(--foreground-tertiary)]"}
                       />
                       <span className={`text-lg ${isActive ? "font-semibold text-green-500" : ""}`}>
                         {item.label}

@@ -6,6 +6,7 @@ import { GoogleAnalytics } from "@/components/google-analytics";
 import { GoogleAdSense } from "@/components/google-adsense";
 import { safeDbOperation } from "@/lib/db-fallback";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 
 // Definimos o layout como dinâmico para que seja executado em runtime
 export const dynamic = 'force-dynamic';
@@ -130,9 +131,11 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <GoogleAnalytics gaId={gaId} />
-          <GoogleAdSense adClient={adsenseId} />
-          {children}
+          <ThemeProvider>
+            <GoogleAnalytics gaId={gaId} />
+            <GoogleAdSense adClient={adsenseId} />
+            {children}
+          </ThemeProvider>
         </AuthProvider>
       </body>
     </html>

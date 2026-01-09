@@ -21,6 +21,7 @@ import {
   Menu,
   ShieldAlert,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const menuItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -64,13 +65,13 @@ export function Sidebar() {
   }, []);
 
   return (
-    <aside className={`bg-zinc-900 text-white min-h-screen flex flex-col border-r border-zinc-800 transition-all duration-200 ease-in-out ${
+    <aside className={`bg-[var(--surface)] text-[var(--foreground)] min-h-screen flex flex-col border-r border-[var(--border)] transition-all duration-200 ease-in-out ${
       collapsed ? 'w-20 p-2' : 'w-64 p-4'
     } hidden md:flex`}>
       {/* Toggle Button */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="self-end p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors"
+        className="self-end p-2 rounded-full bg-[var(--surface-hover)] hover:bg-[var(--border)] transition-colors"
         aria-label={collapsed ? "Expandir menu" : "Colapsar menu"}
       >
         {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
@@ -101,7 +102,7 @@ export function Sidebar() {
               className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                 isActive
                   ? "bg-red-600 text-white"
-                  : "text-gray-300 hover:bg-zinc-800"
+                  : "text-[var(--foreground-secondary)] hover:bg-[var(--surface-hover)]"
               } ${collapsed ? 'justify-center' : ''}`}
               title={collapsed ? item.label : ""}
             >
@@ -112,9 +113,9 @@ export function Sidebar() {
         })}
 
         {subMenuItems.length > 0 && (
-          <div className="pt-4 mt-4 border-t border-zinc-700">
+          <div className="pt-4 mt-4 border-t border-[var(--border)]">
             {!collapsed && (
-              <p className="px-3 py-2 text-xs text-zinc-500 uppercase">Configurações</p>
+              <p className="px-3 py-2 text-xs text-[var(--foreground-tertiary)] uppercase">Configurações</p>
             )}
             {subMenuItems.map((item) => {
               const Icon = item.icon;
@@ -127,7 +128,7 @@ export function Sidebar() {
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm ${
                     isActive
                       ? "bg-red-600 text-white"
-                      : "text-zinc-400 hover:bg-zinc-800"
+                      : "text-[var(--foreground-tertiary)] hover:bg-[var(--surface-hover)]"
                   } ${collapsed ? 'justify-center' : ''}`}
                   title={collapsed ? item.label : ""}
                 >
@@ -141,11 +142,12 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="pt-4 border-t border-zinc-700">
+      <div className="pt-4 border-t border-[var(--border)]">
+        <ThemeToggle collapsed={collapsed} />
         <Link
           href="/"
           target="_blank"
-          className={`flex items-center gap-3 px-3 py-2 text-zinc-400 hover:text-white transition-colors ${
+          className={`flex items-center gap-3 px-3 py-2 text-[var(--foreground-tertiary)] hover:text-[var(--foreground)] transition-colors ${
             collapsed ? 'justify-center' : ''
           }`}
           title={collapsed ? "Ver site" : ""}
@@ -155,7 +157,7 @@ export function Sidebar() {
         </Link>
         <button
           onClick={() => signOut({ callbackUrl: "/admin/login" })}
-          className={`w-full flex items-center gap-3 px-3 py-2 text-zinc-400 hover:text-red-400 transition-colors ${
+          className={`w-full flex items-center gap-3 px-3 py-2 text-[var(--foreground-tertiary)] hover:text-red-400 transition-colors ${
             collapsed ? 'justify-center' : ''
           }`}
           title={collapsed ? "Sair" : ""}
