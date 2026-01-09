@@ -227,6 +227,11 @@ export default function PublicLayout({
                     </Link>
                   );
                 })}
+
+                {/* Theme Toggle */}
+                <div className="border-t border-[var(--border)] pt-3 mt-3">
+                  <ThemeToggle collapsed={false} />
+                </div>
               </div>
             </div>
           </>
