@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { StatusSelect } from "./status-select";
 import { LocationFilter } from "./location-filter";
-import { User, MapPin, Mail, Phone, Calendar, Heart, DollarSign, Link2, Users, Download, Cake, ChevronLeft, ChevronRight } from "lucide-react";
+import { User, MapPin, Mail, Phone, Calendar, Heart, DollarSign, Link2, Users, Download, Cake, ChevronLeft, ChevronRight, ArrowUpDown, FileText, X } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
@@ -29,6 +29,13 @@ const periodoLabels: Record<string, string> = {
   "30dias": "Últimos 30 dias",
   mes: "Este mês",
   mes_passado: "Mês passado",
+};
+
+const ordenarLabels: Record<string, string> = {
+  data_desc: "Mais recentes",
+  data_asc: "Mais antigos",
+  caracteres_desc: "Mais texto",
+  caracteres_asc: "Menos texto",
 };
 
 function getDateRange(periodo: string): { gte: Date; lte?: Date } | null {
@@ -68,11 +75,12 @@ export default async function InscricoesPage({
     estado?: string;
     cidade?: string;
     periodo?: string;
+    ordenar?: string;
     page?: string;
     perPage?: string;
   }>;
 }) {
-  const { status, faixa, necessidade, estado, cidade, periodo, page: pageParam, perPage: perPageParam } = await searchParams;
+  const { status, faixa, necessidade, estado, cidade, periodo, ordenar, page: pageParam, perPage: perPageParam } = await searchParams;
 
   // Paginação
   const page = Math.max(1, Number(pageParam) || 1);
@@ -103,13 +111,20 @@ export default async function InscricoesPage({
     }
   }
 
-  // Buscar inscrições com paginação
-  const [inscricoes, totalFiltered, allInscricoes] = await Promise.all([
+  // Função para calcular caracteres de uma inscrição
+  const calcularCaracteres = (i: { historia: string | null; situacao: string | null }) => {
+    return (i.historia?.length || 0) + (i.situacao?.length || 0);
+  };
+
+  // Buscar inscrições - para ordenação por caracteres, precisamos buscar tudo e ordenar em memória
+  const isOrdenacaoCaracteres = ordenar === "caracteres_desc" || ordenar === "caracteres_asc";
+
+  const [inscricoesRaw, totalFiltered, allInscricoes] = await Promise.all([
     prisma.inscricao.findMany({
       where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: perPage,
+      orderBy: isOrdenacaoCaracteres ? undefined : { createdAt: ordenar === "data_asc" ? "asc" : "desc" },
+      skip: isOrdenacaoCaracteres ? undefined : skip,
+      take: isOrdenacaoCaracteres ? undefined : perPage,
     }),
     prisma.inscricao.count({
       where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
@@ -119,6 +134,17 @@ export default async function InscricoesPage({
       orderBy: { createdAt: "desc" },
     }),
   ]);
+
+  // Aplicar ordenação por caracteres e paginação se necessário
+  let inscricoes = inscricoesRaw;
+  if (isOrdenacaoCaracteres) {
+    inscricoes = [...inscricoesRaw].sort((a, b) => {
+      const caracA = calcularCaracteres(a);
+      const caracB = calcularCaracteres(b);
+      return ordenar === "caracteres_desc" ? caracB - caracA : caracA - caracB;
+    });
+    inscricoes = inscricoes.slice(skip, skip + perPage);
+  }
 
   const totalPages = Math.ceil(totalFiltered / perPage);
 
@@ -139,7 +165,7 @@ export default async function InscricoesPage({
   // Construir query string para manter filtros
   const buildQueryString = (newParams: Record<string, string | number | undefined>) => {
     const params = new URLSearchParams();
-    const allParams = { status, faixa, necessidade, estado, cidade, periodo, page: String(page), perPage: String(perPage), ...newParams };
+    const allParams = { status, faixa, necessidade, estado, cidade, periodo, ordenar, page: String(page), perPage: String(perPage), ...newParams };
     Object.entries(allParams).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== "") {
         params.set(key, String(value));
@@ -261,6 +287,30 @@ export default async function InscricoesPage({
           </div>
         </div>
 
+        {/* Ordenar por */}
+        <div>
+          <label className="block text-base text-zinc-400 mb-2 font-medium flex items-center gap-2">
+            <ArrowUpDown size={16} />
+            Ordenar por
+          </label>
+          <div className="flex gap-2 flex-wrap">
+            {Object.entries(ordenarLabels).map(([key, label]) => (
+              <Link
+                key={key}
+                href={`/admin/inscricoes${buildQueryString({ ordenar: key, page: 1 })}`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 ${
+                  ordenar === key || (!ordenar && key === "data_desc")
+                    ? "bg-indigo-600 text-white"
+                    : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                }`}
+              >
+                {key.includes("caracteres") && <FileText size={14} />}
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
         {/* Filtros por Estado e Cidade - Dropdown */}
         <LocationFilter
           estados={estados}
@@ -270,12 +320,13 @@ export default async function InscricoesPage({
         />
 
         {/* Limpar filtros */}
-        {(status || faixa || necessidade || estado || cidade || periodo) && (
+        {(status || faixa || necessidade || estado || cidade || periodo || (ordenar && ordenar !== "data_desc")) && (
           <div className="pt-3 border-t border-zinc-800">
             <Link
               href="/admin/inscricoes"
-              className="text-sm text-red-400 hover:text-red-300 font-medium"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
             >
+              <X size={16} />
               Limpar todos os filtros
             </Link>
           </div>
@@ -283,7 +334,7 @@ export default async function InscricoesPage({
       </div>
 
       {/* Filtros ativos */}
-      {(status || faixa || necessidade || estado || cidade || periodo) && (
+      {(status || faixa || necessidade || estado || cidade || periodo || (ordenar && ordenar !== "data_desc")) && (
         <div className="flex flex-wrap gap-2 mb-4">
           <span className="text-sm text-zinc-500">Filtros ativos:</span>
           {status && (
@@ -304,6 +355,11 @@ export default async function InscricoesPage({
           {periodo && (
             <span className="px-3 py-1 bg-cyan-900/30 text-cyan-400 text-sm rounded-full">
               Período: {periodoLabels[periodo]}
+            </span>
+          )}
+          {ordenar && ordenar !== "data_desc" && (
+            <span className="px-3 py-1 bg-indigo-900/30 text-indigo-400 text-sm rounded-full">
+              Ordenar: {ordenarLabels[ordenar]}
             </span>
           )}
           {estado && (
@@ -491,6 +547,11 @@ export default async function InscricoesPage({
                     Para outra pessoa
                   </span>
                 )}
+                {/* Contador de caracteres */}
+                <span className="flex items-center gap-2 px-4 py-2 bg-indigo-900/30 text-indigo-400 text-base font-medium rounded-lg">
+                  <FileText size={18} />
+                  {((i.historia?.length || 0) + (i.situacao?.length || 0)).toLocaleString("pt-BR")} caracteres
+                </span>
               </div>
 
               {/* Conteúdo */}
