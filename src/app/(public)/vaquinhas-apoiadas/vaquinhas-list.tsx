@@ -89,9 +89,12 @@ export function VaquinhasList() {
       const res = await fetch(url);
       const data: ApiResponse = await res.json();
 
-      // Embaralhar a lista
-      const shuffled = shuffleArray(data.vaquinhas || []);
-      setVaquinhas(shuffled);
+      // Embaralhar a lista (ativas primeiro, depois encerradas)
+      const all = data.vaquinhas || [];
+      const ativas = shuffleArray(all.filter(v => v.status === "ATIVA"));
+      const encerradas = shuffleArray(all.filter(v => v.status === "ENCERRADA"));
+      const outras = shuffleArray(all.filter(v => !v.status));
+      setVaquinhas([...ativas, ...encerradas, ...outras]);
       setLastFetch(data.lastFetch);
       setNextFetch(data.nextFetch);
       setPage(1); // Reset para página 1 ao atualizar

@@ -48,9 +48,11 @@ export function VaquinhasClientList({ vaquinhas: initialVaquinhas }: Props) {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [page, setPage] = useState(1);
 
-  // Embaralhar ao montar
+  // Embaralhar ao montar (ativas primeiro, depois encerradas)
   useEffect(() => {
-    setVaquinhas(shuffleArray(initialVaquinhas));
+    const ativas = shuffleArray(initialVaquinhas.filter(v => v.status === "ATIVA"));
+    const encerradas = shuffleArray(initialVaquinhas.filter(v => v.status === "ENCERRADA"));
+    setVaquinhas([...ativas, ...encerradas]);
   }, [initialVaquinhas]);
 
   // Contadores
