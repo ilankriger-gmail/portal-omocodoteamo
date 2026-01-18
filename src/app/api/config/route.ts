@@ -11,8 +11,23 @@ export const fetchCache = 'force-no-store';
 export const revalidate = 0;
 
 export async function GET() {
-  const config = await prisma.config.findFirst();
-  return NextResponse.json(config);
+  try {
+    const config = await prisma.config.findFirst();
+    // Garantir valores padrão para campos novos
+    if (config) {
+      return NextResponse.json({
+        ...config,
+        bannerPrincipalAtivo: config.bannerPrincipalAtivo ?? true,
+        bannerPrincipalTexto: config.bannerPrincipalTexto ?? "CONFIANÇA VEM DA VERDADE",
+        bannerPrincipalGradientStart: config.bannerPrincipalGradientStart ?? "#000000",
+        bannerPrincipalGradientEnd: config.bannerPrincipalGradientEnd ?? "#1a1a2e",
+      });
+    }
+    return NextResponse.json(null);
+  } catch (error) {
+    console.error("Erro ao buscar config:", error);
+    return NextResponse.json(null);
+  }
 }
 
 export async function PUT(req: Request) {
@@ -25,44 +40,51 @@ export async function PUT(req: Request) {
   try {
     const body = await req.json();
 
-    const config = await prisma.config.upsert({
-      where: { id: "config-principal" },
-      update: {
-        biografia: body.biografia,
-        avatarUrl: body.avatarUrl || null,
-        bannerTexto: body.bannerTexto || null,
-        bannerLink: body.bannerLink || null,
-        bannerImageUrl: body.bannerImageUrl || null,
-        bannerAtivo: body.bannerAtivo ?? false,
-        vaquinhaFixadaId: body.vaquinhaFixadaId || null,
-        googleAnalyticsId: body.googleAnalyticsId || null,
-        googleAdSenseId: body.googleAdSenseId || null,
-        adsAtivado: body.adsAtivado ?? false,
-        // Banner Principal
-        bannerPrincipalAtivo: body.bannerPrincipalAtivo ?? true,
-        bannerPrincipalTexto: body.bannerPrincipalTexto || null,
-        bannerPrincipalGradientStart: body.bannerPrincipalGradientStart || "#000000",
-        bannerPrincipalGradientEnd: body.bannerPrincipalGradientEnd || "#1a1a2e",
-      },
-      create: {
-        id: "config-principal",
-        biografia: body.biografia,
-        avatarUrl: body.avatarUrl || null,
-        bannerTexto: body.bannerTexto || null,
-        bannerLink: body.bannerLink || null,
-        bannerImageUrl: body.bannerImageUrl || null,
-        bannerAtivo: body.bannerAtivo ?? false,
-        vaquinhaFixadaId: body.vaquinhaFixadaId || null,
-        googleAnalyticsId: body.googleAnalyticsId || null,
-        googleAdSenseId: body.googleAdSenseId || null,
-        adsAtivado: body.adsAtivado ?? false,
-        // Banner Principal
-        bannerPrincipalAtivo: body.bannerPrincipalAtivo ?? true,
-        bannerPrincipalTexto: body.bannerPrincipalTexto || "CONFIANÇA VEM DA VERDADE",
-        bannerPrincipalGradientStart: body.bannerPrincipalGradientStart || "#000000",
-        bannerPrincipalGradientEnd: body.bannerPrincipalGradientEnd || "#1a1a2e",
-      },
-    });
+    // Dados base (campos que sempre existem)
+    const baseData = {
+      biografia: body.biografia,
+      avatarUrl: body.avatarUrl || null,
+      bannerTexto: body.bannerTexto || null,
+      bannerLink: body.bannerLink || null,
+      bannerImageUrl: body.bannerImageUrl || null,
+      bannerAtivo: body.bannerAtivo ?? false,
+      vaquinhaFixadaId: body.vaquinhaFixadaId || null,
+      googleAnalyticsId: body.googleAnalyticsId || null,
+      googleAdSenseId: body.googleAdSenseId || null,
+      adsAtivado: body.adsAtivado ?? false,
+    };
+
+    // Dados do banner principal (campos novos)
+    const bannerPrincipalData = {
+      bannerPrincipalAtivo: body.bannerPrincipalAtivo ?? true,
+      bannerPrincipalTexto: body.bannerPrincipalTexto || null,
+      bannerPrincipalGradientStart: body.bannerPrincipalGradientStart || "#000000",
+      bannerPrincipalGradientEnd: body.bannerPrincipalGradientEnd || "#1a1a2e",
+    };
+
+    let config;
+
+    // Tentar salvar com todos os campos (incluindo novos)
+    try {
+      config = await prisma.config.upsert({
+        where: { id: "config-principal" },
+        update: { ...baseData, ...bannerPrincipalData },
+        create: {
+          id: "config-principal",
+          ...baseData,
+          ...bannerPrincipalData,
+          bannerPrincipalTexto: body.bannerPrincipalTexto || "CONFIANÇA VEM DA VERDADE",
+        },
+      });
+    } catch (innerError) {
+      // Se falhar (campos novos não existem), salvar só os antigos
+      console.warn("Campos novos não existem, salvando apenas campos base:", innerError);
+      config = await prisma.config.upsert({
+        where: { id: "config-principal" },
+        update: baseData,
+        create: { id: "config-principal", ...baseData },
+      });
+    }
 
     return NextResponse.json(config);
   } catch (error) {

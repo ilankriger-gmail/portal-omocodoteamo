@@ -25,18 +25,7 @@ async function getData() {
   try {
     const [config, vaquinhas, vaquinhasApoiadas] = await Promise.all([
       prisma.config.findFirst({
-        select: {
-          bannerAtivo: true,
-          bannerTexto: true,
-          bannerImageUrl: true,
-          bannerLink: true,
-          avatarUrl: true,
-          vaquinhaFixadaId: true,
-          // Banner Principal com Degradê
-          bannerPrincipalAtivo: true,
-          bannerPrincipalTexto: true,
-          bannerPrincipalGradientStart: true,
-          bannerPrincipalGradientEnd: true,
+        include: {
           vaquinhaFixada: {
             select: {
               id: true,
