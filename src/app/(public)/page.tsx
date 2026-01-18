@@ -118,7 +118,6 @@ export default async function HomePage() {
             style={{
               background: `linear-gradient(135deg, ${config.bannerPrincipalGradientStart || '#000000'}, ${config.bannerPrincipalGradientEnd || '#1a1a2e'})`,
               minHeight: '200px',
-              border: '3px solid #000000',
             }}
           >
             <div className="absolute inset-0 flex items-center justify-center p-6">
