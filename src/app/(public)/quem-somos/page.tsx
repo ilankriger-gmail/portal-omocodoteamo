@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getParceiroData } from "@/lib/parceiro";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -62,7 +63,7 @@ function formatCurrency(num: number): string {
 }
 
 async function getData() {
-  const [config, perfis, parceiroRes] = await Promise.all([
+  const [config, perfis, parceiro] = await Promise.all([
     prisma.config.findFirst(),
     prisma.perfilSocial.findMany({
       orderBy: { ordem: "asc" },
@@ -72,12 +73,10 @@ async function getData() {
         }
       }
     }),
-    fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/api/parceiro`, {
-      next: { revalidate: 86400 }
-    }).then(r => r.json()).catch(() => null)
+    getParceiroData().catch(() => null)
   ]);
 
-  return { config, perfis, parceiro: parceiroRes };
+  return { config, perfis, parceiro };
 }
 
 export default async function QuemSomosPage() {
