@@ -12,6 +12,10 @@ async function getConfig() {
         id: "config-principal",
         biografia: "",
         bannerAtivo: false,
+        bannerPrincipalAtivo: true,
+        bannerPrincipalTexto: "CONFIANÇA VEM DA VERDADE",
+        bannerPrincipalGradientStart: "#000000",
+        bannerPrincipalGradientEnd: "#1a1a2e",
       },
     });
   }

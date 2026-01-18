@@ -32,6 +32,11 @@ async function getData() {
           bannerLink: true,
           avatarUrl: true,
           vaquinhaFixadaId: true,
+          // Banner Principal com Degradê
+          bannerPrincipalAtivo: true,
+          bannerPrincipalTexto: true,
+          bannerPrincipalGradientStart: true,
+          bannerPrincipalGradientEnd: true,
           vaquinhaFixada: {
             select: {
               id: true,
@@ -116,7 +121,39 @@ export default async function HomePage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
-      {/* Banner Editável */}
+      {/* Banner Principal com Degradê */}
+      {config?.bannerPrincipalAtivo && config?.bannerPrincipalTexto && (
+        <div className="mb-6 -mx-4 sm:mx-0 animate-fade-in-down">
+          <div
+            className="relative overflow-hidden sm:rounded-2xl shadow-lg"
+            style={{
+              background: `linear-gradient(135deg, ${config.bannerPrincipalGradientStart || '#000000'}, ${config.bannerPrincipalGradientEnd || '#1a1a2e'})`,
+              minHeight: '200px',
+            }}
+          >
+            <div className="absolute inset-0 flex items-center justify-center p-6">
+              <h2
+                className="text-white font-black text-2xl sm:text-4xl md:text-5xl text-center uppercase tracking-wider"
+                style={{
+                  textShadow: '3px 3px 6px rgba(0,0,0,0.5)',
+                  fontFamily: 'system-ui, -apple-system, sans-serif',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                {config.bannerPrincipalTexto}
+              </h2>
+            </div>
+            {/* Ícone decorativo */}
+            <div className="absolute bottom-4 right-4 opacity-20">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Banner Secundário (Imagem) */}
       {config?.bannerAtivo && (config?.bannerTexto || config?.bannerImageUrl) && (
         config.bannerLink ? (
           <a

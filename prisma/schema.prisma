@@ -16,19 +16,24 @@ model User {
 }
 
 model Config {
-  id                String    @id @default(cuid())
-  biografia         String
-  avatarUrl         String?
-  updatedAt         DateTime  @updatedAt
-  bannerAtivo       Boolean   @default(false)
-  bannerLink        String?
-  bannerTexto       String?
-  vaquinhaFixadaId  String?
-  bannerImageUrl    String?
-  googleAnalyticsId String?
-  googleAdSenseId   String?
-  adsAtivado        Boolean   @default(false)
-  vaquinhaFixada    Vaquinha? @relation(fields: [vaquinhaFixadaId], references: [id])
+  id                          String    @id @default(cuid())
+  biografia                   String
+  avatarUrl                   String?
+  updatedAt                   DateTime  @updatedAt
+  bannerAtivo                 Boolean   @default(false)
+  bannerLink                  String?
+  bannerTexto                 String?
+  vaquinhaFixadaId            String?
+  bannerImageUrl              String?
+  googleAnalyticsId           String?
+  googleAdSenseId             String?
+  adsAtivado                  Boolean   @default(false)
+  // Banner Principal com Degradê
+  bannerPrincipalAtivo        Boolean   @default(true)
+  bannerPrincipalTexto        String?   @default("CONFIANÇA VEM DA VERDADE")
+  bannerPrincipalGradientStart String?  @default("#000000")
+  bannerPrincipalGradientEnd   String?  @default("#1a1a2e")
+  vaquinhaFixada              Vaquinha? @relation(fields: [vaquinhaFixadaId], references: [id])
 }
 
 model LinkSocial {

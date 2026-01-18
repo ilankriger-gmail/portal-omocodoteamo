@@ -24,6 +24,11 @@ type Config = {
   googleAnalyticsId: string | null;
   googleAdSenseId: string | null;
   adsAtivado: boolean;
+  // Banner Principal com Degradê
+  bannerPrincipalAtivo: boolean;
+  bannerPrincipalTexto: string | null;
+  bannerPrincipalGradientStart: string | null;
+  bannerPrincipalGradientEnd: string | null;
 };
 
 type Props = {
@@ -49,6 +54,11 @@ export function ConfigForm({ config, vaquinhas }: Props) {
     googleAnalyticsId: config.googleAnalyticsId || "",
     googleAdSenseId: config.googleAdSenseId || "",
     adsAtivado: config.adsAtivado || false,
+    // Banner Principal
+    bannerPrincipalAtivo: config.bannerPrincipalAtivo ?? true,
+    bannerPrincipalTexto: config.bannerPrincipalTexto || "CONFIANÇA VEM DA VERDADE",
+    bannerPrincipalGradientStart: config.bannerPrincipalGradientStart || "#000000",
+    bannerPrincipalGradientEnd: config.bannerPrincipalGradientEnd || "#1a1a2e",
   });
 
   const handleFileUpload = async (file: File, type: "avatar" | "banner") => {
@@ -173,9 +183,143 @@ export function ConfigForm({ config, vaquinhas }: Props) {
         </div>
       </div>
 
+      {/* Seção: Banner Principal com Degradê */}
+      <div className="border-t border-zinc-800 pt-6">
+        <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4">Banner Principal (Hero)</h3>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="bannerPrincipalAtivo"
+              checked={form.bannerPrincipalAtivo}
+              onChange={(e) => setForm({ ...form, bannerPrincipalAtivo: e.target.checked })}
+              className="w-5 h-5 rounded border-zinc-700 bg-zinc-800 text-green-600 focus:ring-green-500"
+            />
+            <label htmlFor="bannerPrincipalAtivo" className="text-white text-sm font-medium">
+              Ativar banner principal
+            </label>
+          </div>
+
+          {/* Preview do Banner */}
+          <div>
+            <label className="block text-zinc-400 text-sm mb-2">Preview do Banner</label>
+            <div
+              className="w-full rounded-xl overflow-hidden relative"
+              style={{
+                background: `linear-gradient(135deg, ${form.bannerPrincipalGradientStart}, ${form.bannerPrincipalGradientEnd})`,
+                minHeight: '180px',
+              }}
+            >
+              <div className="absolute inset-0 flex items-center justify-center p-6">
+                <h2
+                  className="text-white font-black text-2xl sm:text-3xl md:text-4xl text-center uppercase tracking-wider"
+                  style={{
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+                    fontFamily: 'system-ui, -apple-system, sans-serif',
+                  }}
+                >
+                  {form.bannerPrincipalTexto || "SEU TEXTO AQUI"}
+                </h2>
+              </div>
+              {/* Ícone decorativo */}
+              <div className="absolute bottom-4 right-4 opacity-30">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <Input
+            id="bannerPrincipalTexto"
+            label="Texto do Banner Principal"
+            type="text"
+            value={form.bannerPrincipalTexto}
+            onChange={(e) => setForm({ ...form, bannerPrincipalTexto: e.target.value })}
+            placeholder="CONFIANÇA VEM DA VERDADE"
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-zinc-400 text-sm mb-2">Cor Inicial do Degradê</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={form.bannerPrincipalGradientStart}
+                  onChange={(e) => setForm({ ...form, bannerPrincipalGradientStart: e.target.value })}
+                  className="w-12 h-12 rounded-lg border border-zinc-700 cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={form.bannerPrincipalGradientStart}
+                  onChange={(e) => setForm({ ...form, bannerPrincipalGradientStart: e.target.value })}
+                  className="flex-1 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm"
+                  placeholder="#000000"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-zinc-400 text-sm mb-2">Cor Final do Degradê</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={form.bannerPrincipalGradientEnd}
+                  onChange={(e) => setForm({ ...form, bannerPrincipalGradientEnd: e.target.value })}
+                  className="w-12 h-12 rounded-lg border border-zinc-700 cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={form.bannerPrincipalGradientEnd}
+                  onChange={(e) => setForm({ ...form, bannerPrincipalGradientEnd: e.target.value })}
+                  className="flex-1 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm"
+                  placeholder="#1a1a2e"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Presets de Cores */}
+          <div>
+            <label className="block text-zinc-400 text-sm mb-2">Presets de Cores</label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { name: 'Escuro', start: '#000000', end: '#1a1a2e' },
+                { name: 'Azul', start: '#0f0c29', end: '#302b63' },
+                { name: 'Verde', start: '#134e5e', end: '#71b280' },
+                { name: 'Roxo', start: '#4a00e0', end: '#8e2de2' },
+                { name: 'Vermelho', start: '#200122', end: '#6f0000' },
+                { name: 'Dourado', start: '#232526', end: '#d4af37' },
+                { name: 'Rosa', start: '#2d1f3d', end: '#e91e63' },
+                { name: 'Ciano', start: '#0f2027', end: '#00d9ff' },
+              ].map((preset) => (
+                <button
+                  key={preset.name}
+                  type="button"
+                  onClick={() => setForm({
+                    ...form,
+                    bannerPrincipalGradientStart: preset.start,
+                    bannerPrincipalGradientEnd: preset.end,
+                  })}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-white border border-zinc-700 hover:border-zinc-500 transition-all"
+                  style={{
+                    background: `linear-gradient(135deg, ${preset.start}, ${preset.end})`,
+                  }}
+                >
+                  {preset.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <p className="text-xs text-zinc-500">
+            Este banner aparece no topo da página inicial com o texto em destaque.
+          </p>
+        </div>
+      </div>
+
       {/* Seção: Banner */}
       <div className="border-t border-zinc-800 pt-6">
-        <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4">Banner da Home</h3>
+        <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4">Banner Secundário (Imagem)</h3>
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <input

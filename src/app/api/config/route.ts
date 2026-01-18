@@ -38,6 +38,11 @@ export async function PUT(req: Request) {
         googleAnalyticsId: body.googleAnalyticsId || null,
         googleAdSenseId: body.googleAdSenseId || null,
         adsAtivado: body.adsAtivado ?? false,
+        // Banner Principal
+        bannerPrincipalAtivo: body.bannerPrincipalAtivo ?? true,
+        bannerPrincipalTexto: body.bannerPrincipalTexto || null,
+        bannerPrincipalGradientStart: body.bannerPrincipalGradientStart || "#000000",
+        bannerPrincipalGradientEnd: body.bannerPrincipalGradientEnd || "#1a1a2e",
       },
       create: {
         id: "config-principal",
@@ -51,6 +56,11 @@ export async function PUT(req: Request) {
         googleAnalyticsId: body.googleAnalyticsId || null,
         googleAdSenseId: body.googleAdSenseId || null,
         adsAtivado: body.adsAtivado ?? false,
+        // Banner Principal
+        bannerPrincipalAtivo: body.bannerPrincipalAtivo ?? true,
+        bannerPrincipalTexto: body.bannerPrincipalTexto || "CONFIANÇA VEM DA VERDADE",
+        bannerPrincipalGradientStart: body.bannerPrincipalGradientStart || "#000000",
+        bannerPrincipalGradientEnd: body.bannerPrincipalGradientEnd || "#1a1a2e",
       },
     });
 
