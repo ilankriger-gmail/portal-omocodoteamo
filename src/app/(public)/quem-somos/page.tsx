@@ -63,20 +63,25 @@ function formatCurrency(num: number): string {
 }
 
 async function getData() {
-  const [config, perfis, parceiro] = await Promise.all([
-    prisma.config.findFirst(),
-    prisma.perfilSocial.findMany({
-      orderBy: { ordem: "asc" },
-      include: {
-        redesSociais: {
-          orderBy: { ordem: "asc" }
+  try {
+    const [config, perfis, parceiro] = await Promise.all([
+      prisma.config.findFirst().catch(() => null),
+      prisma.perfilSocial.findMany({
+        orderBy: { ordem: "asc" },
+        include: {
+          redesSociais: {
+            orderBy: { ordem: "asc" }
+          }
         }
-      }
-    }),
-    getParceiroData().catch(() => null)
-  ]);
+      }).catch(() => []),
+      getParceiroData().catch(() => null)
+    ]);
 
-  return { config, perfis, parceiro };
+    return { config, perfis, parceiro };
+  } catch (error) {
+    console.error("Erro ao carregar dados quem-somos:", error);
+    return { config: null, perfis: [], parceiro: null };
+  }
 }
 
 export default async function QuemSomosPage() {
