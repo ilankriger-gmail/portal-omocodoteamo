@@ -152,7 +152,7 @@ export function VaquinhasClientList({ vaquinhas: initialVaquinhas }: Props) {
           {/* Valores */}
           <div className="mb-2">
             <div className="flex items-baseline justify-between mb-1">
-              <span className={`font-bold text-lg ${isAtiva ? "text-green-600" : "text-[var(--foreground-secondary)]"}`}>
+              <span className={`font-bold text-sm sm:text-base ${isAtiva ? "text-green-600" : "text-[var(--foreground-secondary)]"}`}>
                 R$ {v.valorAtual.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
               </span>
               <span className="text-[var(--foreground-tertiary)] text-xs">
@@ -309,7 +309,7 @@ export function VaquinhasClientList({ vaquinhas: initialVaquinhas }: Props) {
                 <h2 className="text-base font-semibold text-[var(--foreground)]">Campanhas Ativas</h2>
                 <span className="text-sm text-[var(--foreground-tertiary)]">({paginatedVaquinhas.filter(v => v.status === "ATIVA").length})</span>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 max-w-md sm:max-w-none mx-auto">
                 {paginatedVaquinhas.filter(v => v.status === "ATIVA").map((v) => (
                   <VaquinhaCard key={v.id} v={v} />
                 ))}
@@ -325,7 +325,7 @@ export function VaquinhasClientList({ vaquinhas: initialVaquinhas }: Props) {
                 <h2 className="text-base font-semibold text-[var(--foreground)]">Campanhas Encerradas</h2>
                 <span className="text-sm text-[var(--foreground-tertiary)]">({paginatedVaquinhas.filter(v => v.status === "ENCERRADA").length})</span>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-md sm:max-w-none mx-auto">
                 {paginatedVaquinhas.filter(v => v.status === "ENCERRADA").map((v) => (
                   <VaquinhaCard key={v.id} v={v} isEncerrada />
                 ))}
@@ -335,7 +335,7 @@ export function VaquinhasClientList({ vaquinhas: initialVaquinhas }: Props) {
 
           {/* Lista quando há filtro ativo */}
           {statusFilter && (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-md sm:max-w-none mx-auto">
               {paginatedVaquinhas.map((v) => (
                 <VaquinhaCard key={v.id} v={v} isEncerrada={v.status === "ENCERRADA"} />
               ))}

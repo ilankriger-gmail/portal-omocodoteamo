@@ -203,7 +203,7 @@ export function VaquinhasList() {
                 <h2 className="text-base font-semibold text-[var(--foreground)]">Campanhas Ativas</h2>
                 <span className="text-sm text-[var(--foreground-tertiary)]">({paginatedVaquinhas.filter(v => v.status === "ATIVA").length})</span>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-md sm:max-w-none mx-auto mb-6">
                 {paginatedVaquinhas.filter(v => v.status === "ATIVA").map((v) => {
                   const embedUrl = v.videoUrl ? getYouTubeEmbedUrl(v.videoUrl) : null;
                   return (
@@ -241,7 +241,7 @@ export function VaquinhasList() {
                           {v.valorArrecadado && v.meta ? (
                             <>
                               <div className="flex items-baseline justify-between mb-1">
-                                <span className="text-green-600 font-bold text-lg">{v.valorArrecadado}</span>
+                                <span className="text-green-600 font-bold text-sm sm:text-base">{v.valorArrecadado}</span>
                                 <span className="text-[var(--foreground-tertiary)] text-xs">{v.meta}</span>
                               </div>
                               <div className="h-2 bg-[var(--surface-hover)] rounded-full overflow-hidden">
@@ -278,7 +278,7 @@ export function VaquinhasList() {
                 <h2 className="text-base font-semibold text-[var(--foreground)]">Campanhas Encerradas</h2>
                 <span className="text-sm text-[var(--foreground-tertiary)]">({paginatedVaquinhas.filter(v => v.status === "ENCERRADA").length})</span>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-md sm:max-w-none mx-auto">
                 {paginatedVaquinhas.filter(v => v.status === "ENCERRADA").map((v) => {
                   const embedUrl = v.videoUrl ? getYouTubeEmbedUrl(v.videoUrl) : null;
                   return (
@@ -316,7 +316,7 @@ export function VaquinhasList() {
                           {v.valorArrecadado && v.meta ? (
                             <>
                               <div className="flex items-baseline justify-between mb-1">
-                                <span className="text-[var(--foreground-secondary)] font-bold text-lg">{v.valorArrecadado}</span>
+                                <span className="text-[var(--foreground-secondary)] font-bold text-sm sm:text-base">{v.valorArrecadado}</span>
                                 <span className="text-[var(--foreground-tertiary)] text-xs">{v.meta}</span>
                               </div>
                               <div className="h-2 bg-[var(--surface-hover)] rounded-full overflow-hidden">
@@ -341,7 +341,7 @@ export function VaquinhasList() {
 
           {/* Sem status definido (fallback) */}
           {paginatedVaquinhas.filter(v => !v.status).length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-md sm:max-w-none mx-auto">
               {paginatedVaquinhas.filter(v => !v.status).map((v) => {
                 const embedUrl = v.videoUrl ? getYouTubeEmbedUrl(v.videoUrl) : null;
                 return (
@@ -378,7 +378,7 @@ export function VaquinhasList() {
                         {v.valorArrecadado && v.meta ? (
                           <>
                             <div className="flex items-baseline justify-between mb-1">
-                              <span className="text-green-600 font-bold text-lg">{v.valorArrecadado}</span>
+                              <span className="text-green-600 font-bold text-sm sm:text-base">{v.valorArrecadado}</span>
                               <span className="text-[var(--foreground-tertiary)] text-xs">{v.meta}</span>
                             </div>
                             <div className="h-2 bg-[var(--surface-hover)] rounded-full overflow-hidden">
