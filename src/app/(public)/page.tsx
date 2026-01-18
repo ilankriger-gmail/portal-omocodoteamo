@@ -369,7 +369,7 @@ export default async function HomePage() {
                   style={{ width: `${progress}%` }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-[var(--foreground)] text-xs font-bold bg-[var(--card-bg)]/80 px-2 py-0.5 rounded">
+                  <div className="text-white text-xs font-bold bg-black/60 px-2 py-0.5 rounded">
                     {Math.round(progress)}% CONCLUÍDO
                   </div>
                 </div>
