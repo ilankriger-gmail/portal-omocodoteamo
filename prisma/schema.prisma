@@ -12,7 +12,14 @@ model User {
   email     String   @unique
   password  String
   nome      String?
+  role      UserRole @default(ADMIN)
   createdAt DateTime @default(now())
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  VIEWER
 }
 
 model Config {

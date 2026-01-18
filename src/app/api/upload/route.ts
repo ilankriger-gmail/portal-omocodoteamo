@@ -3,11 +3,19 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { v2 as cloudinary } from 'cloudinary';
 
-// Carregar configuração do Cloudinary
+// Carregar configuração do Cloudinary (sem fallbacks - requer variáveis de ambiente)
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+const apiKey = process.env.CLOUDINARY_API_KEY;
+const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+if (!cloudName || !apiKey || !apiSecret) {
+  console.error("ERRO: Variáveis de ambiente do Cloudinary não configuradas");
+}
+
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dwnbmcg00',
-  api_key: process.env.CLOUDINARY_API_KEY || '172667994195663',
-  api_secret: process.env.CLOUDINARY_API_SECRET || 'aHMCEq33FURqb9I1Bz9nxYY14d4',
+  cloud_name: cloudName,
+  api_key: apiKey,
+  api_secret: apiSecret,
   secure: true,
 });
 

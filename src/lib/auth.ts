@@ -3,23 +3,69 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { prisma } from "./prisma";
 
+// Rate limiting simples em memória (para produção, usar Redis/Upstash)
+const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutos
+
+function checkRateLimit(email: string): { allowed: boolean; remainingTime?: number } {
+  const now = Date.now();
+  const attempts = loginAttempts.get(email);
+
+  if (!attempts) {
+    return { allowed: true };
+  }
+
+  // Reset se passou o tempo de lockout
+  if (now - attempts.lastAttempt > LOCKOUT_TIME) {
+    loginAttempts.delete(email);
+    return { allowed: true };
+  }
+
+  if (attempts.count >= MAX_ATTEMPTS) {
+    const remainingTime = Math.ceil((LOCKOUT_TIME - (now - attempts.lastAttempt)) / 1000 / 60);
+    return { allowed: false, remainingTime };
+  }
+
+  return { allowed: true };
+}
+
+function recordLoginAttempt(email: string, success: boolean) {
+  if (success) {
+    loginAttempts.delete(email);
+    return;
+  }
+
+  const attempts = loginAttempts.get(email) || { count: 0, lastAttempt: 0 };
+  loginAttempts.set(email, {
+    count: attempts.count + 1,
+    lastAttempt: Date.now(),
+  });
+}
+
+// Validar NEXTAUTH_SECRET em produção
+const secret = process.env.NEXTAUTH_SECRET;
+if (!secret && process.env.NODE_ENV === 'production') {
+  throw new Error("NEXTAUTH_SECRET deve ser definido em produção!");
+}
+
 export const authOptions: NextAuthOptions = {
-  // Configuração para manter o usuário conectado mesmo após fechar o navegador
+  // Configuração de cookies com segurança reforçada
   cookies: {
     sessionToken: {
-      name: `next-auth.session-token`,
+      name: `__Secure-next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'strict', // Proteção CSRF mais forte
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 30 * 24 * 60 * 60, // 30 dias em segundos
+        maxAge: 24 * 60 * 60, // 24 horas (reduzido de 30 dias)
       },
     },
   },
-  // Configurações de segurança para permitir sessões mais longas
+  // Configurações de segurança
   debug: process.env.NODE_ENV === 'development',
-  secret: process.env.NEXTAUTH_SECRET || "um-segredo-muito-seguro-para-o-portal",
+  secret: secret || "dev-only-secret-do-not-use-in-production",
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -32,34 +78,46 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Email e senha são obrigatórios");
         }
 
+        // Verificar rate limiting
+        const rateLimit = checkRateLimit(credentials.email);
+        if (!rateLimit.allowed) {
+          throw new Error(`Muitas tentativas. Tente novamente em ${rateLimit.remainingTime} minutos.`);
+        }
+
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 
         if (!user) {
-          throw new Error("Usuário não encontrado");
+          recordLoginAttempt(credentials.email, false);
+          throw new Error("Credenciais inválidas"); // Mensagem genérica por segurança
         }
 
         const isValid = await compare(credentials.password, user.password);
 
         if (!isValid) {
-          throw new Error("Senha incorreta");
+          recordLoginAttempt(credentials.email, false);
+          throw new Error("Credenciais inválidas"); // Mensagem genérica por segurança
         }
+
+        // Login bem-sucedido - limpar tentativas
+        recordLoginAttempt(credentials.email, true);
 
         return {
           id: user.id,
           email: user.email,
           name: user.nome,
+          role: (user as any).role || "ADMIN", // Incluir role
         };
       },
     }),
   ],
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 dias em segundos
+    maxAge: 24 * 60 * 60, // 24 horas (reduzido de 30 dias)
   },
   jwt: {
-    maxAge: 30 * 24 * 60 * 60, // 30 dias em segundos (deve corresponder ao maxAge da sessão)
+    maxAge: 24 * 60 * 60, // 24 horas
   },
   pages: {
     signIn: "/admin/login",
@@ -68,12 +126,14 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.role = (user as any).role || "ADMIN";
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        (session.user as any).role = token.role as string;
       }
       return session;
     },
