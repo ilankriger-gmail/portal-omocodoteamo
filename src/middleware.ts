@@ -25,7 +25,8 @@ export default withAuth(
                                 req.nextUrl.pathname.startsWith("/api/config") ||
                                 req.nextUrl.pathname.startsWith("/api/inscricoes") ||
                                 req.nextUrl.pathname.startsWith("/api/scraper") ||
-                                req.nextUrl.pathname.startsWith("/api/admin");
+                                req.nextUrl.pathname.startsWith("/api/admin") ||
+                                req.nextUrl.pathname.startsWith("/api/agregador");
 
         // Rota de login do admin não precisa de autenticação
         if (req.nextUrl.pathname === "/admin/login") {
@@ -60,5 +61,6 @@ export const config = {
     "/api/inscricoes/:path*",
     "/api/scraper/:path*",
     "/api/admin/:path*",
+    "/api/agregador/:path*",
   ],
 };
