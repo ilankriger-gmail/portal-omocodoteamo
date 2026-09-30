@@ -304,7 +304,9 @@ Camadas de resiliência, para aguentar picos:
 2. Cache de dados do Next (`unstable_cache`, tag `agregador`, invalidada ao publicar no admin)
 3. Última versão boa em memória + conteúdo reserva — a página nunca retorna erro
 
-Tabelas: `AgregadorPerfil`, `AgregadorLink`, `AgregadorRede`. Admin salva tudo de uma vez via `PUT /api/agregador`.
+Tabelas: `AgregadorPerfil`, `AgregadorLink`, `AgregadorRede` — criadas automaticamente no primeiro uso
+(`garantirTabelas` em `src/lib/agregador/inicial.ts`), sem precisar de `db push`. Enquanto nada é publicado,
+a página mostra uma sugestão montada com o perfil "O Moço do Te Amo" e suas redes. Admin salva tudo de uma vez via `PUT /api/agregador`.
 
 ## Deploy
 

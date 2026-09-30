@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { AGREGADOR_TAG } from "@/lib/agregador/dados";
 import { agregadorSchema, carregarAgregadorAdmin } from "@/lib/agregador/admin";
+import { garantirTabelas } from "@/lib/agregador/inicial";
 
 export const dynamic = 'force-dynamic';
 export const fetchCache = 'force-no-store';
@@ -40,6 +41,7 @@ export async function PUT(req: Request) {
   const { perfil, links, redes } = parsed.data;
 
   try {
+    await garantirTabelas();
     await prisma.$transaction(async (tx) => {
       const existente = await tx.agregadorPerfil.findFirst({ select: { id: true } });
       const dadosPerfil = {

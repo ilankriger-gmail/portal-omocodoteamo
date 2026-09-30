@@ -75,7 +75,8 @@ export function AgregadorEditor({ inicial }: { inicial: AgregadorAdmin }) {
   const [perfil, setPerfil] = useState(inicial.perfil);
   const [links, setLinks] = useState<LinkItem[]>(() => comChave(inicial.links));
   const [redes, setRedes] = useState<RedeItem[]>(() => comChave(inicial.redes));
-  const [alterado, setAlterado] = useState(false);
+  // Sem nada publicado ainda, o rascunho sugerido já conta como alteração
+  const [alterado, setAlterado] = useState(!inicial.publicado);
   const [salvando, setSalvando] = useState(false);
   const [enviandoFoto, setEnviandoFoto] = useState(false);
   const [mensagem, setMensagem] = useState<{ tipo: "ok" | "erro"; texto: string } | null>(null);
@@ -390,7 +391,12 @@ export function AgregadorEditor({ inicial }: { inicial: AgregadorAdmin }) {
             }`}
             role="status"
           >
-            {mensagem?.texto ?? (alterado ? "Alterações não publicadas" : "Tudo publicado")}
+            {mensagem?.texto ??
+              (!inicial.publicado && alterado
+                ? "Rascunho montado com os dados do portal — revise e publique"
+                : alterado
+                ? "Alterações não publicadas"
+                : "Tudo publicado")}
           </p>
           <button
             type="button"

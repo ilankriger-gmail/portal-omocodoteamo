@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { isPlataforma, type Plataforma } from "./icons";
+import { garantirTabelas, sugestaoInicial } from "./inicial";
 
 export const AGREGADOR_TAG = "agregador";
 
@@ -28,6 +29,7 @@ const RESERVA: AgregadorDados = {
 };
 
 async function buscarNoBanco(): Promise<AgregadorDados> {
+  await garantirTabelas();
   const [perfil, links, redes, config] = await Promise.all([
     prisma.agregadorPerfil.findFirst(),
     prisma.agregadorLink.findMany({
@@ -39,10 +41,23 @@ async function buscarNoBanco(): Promise<AgregadorDados> {
     prisma.config.findFirst({ select: { googleAnalyticsId: true } }),
   ]);
 
+  // Nada publicado ainda: mostra a sugestão montada com os dados do portal
+  if (!perfil) {
+    const sugestao = await sugestaoInicial();
+    return {
+      nome: sugestao.nome,
+      bio: sugestao.bio || null,
+      avatarUrl: sugestao.avatarUrl || null,
+      links: sugestao.links.map((l, i) => ({ id: `padrao-${i}`, titulo: l.titulo, url: l.url, destaque: l.destaque })),
+      redes: sugestao.redes,
+      gaId: config?.googleAnalyticsId || null,
+    };
+  }
+
   return {
-    nome: perfil?.nome || RESERVA.nome,
-    bio: perfil?.bio || null,
-    avatarUrl: perfil?.avatarUrl || null,
+    nome: perfil.nome || RESERVA.nome,
+    bio: perfil.bio || null,
+    avatarUrl: perfil.avatarUrl || null,
     links,
     redes: redes.flatMap((r) =>
       isPlataforma(r.plataforma) ? [{ plataforma: r.plataforma, url: r.url }] : []
