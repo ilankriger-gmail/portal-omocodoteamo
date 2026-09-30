@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Menu,
   ShieldAlert,
+  Link2,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -29,6 +30,7 @@ const menuItems = [
   { href: "/admin/apoiadas", label: "Apoiadas", icon: HeartHandshake },
   { href: "/admin/inscricoes", label: "Sonhos", icon: Sparkles },
   { href: "/admin/denuncias", label: "Denúncias", icon: ShieldAlert },
+  { href: "/admin/agregador", label: "Agregador de Links", icon: Link2 },
   { href: "/admin/redes", label: "Redes Sociais", icon: Share2 },
   { href: "/admin/faqs", label: "FAQs", icon: HelpCircle },
   { href: "/admin/quem-somos", label: "Quem Somos", icon: Users },

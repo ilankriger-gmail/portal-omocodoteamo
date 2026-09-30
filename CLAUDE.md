@@ -96,6 +96,7 @@ TipoAtualizacao: TEXTO | FOTO | VIDEO | COMPROVANTE | GALERIA | INSTAGRAM
 | `/participar` | Formulário de inscrição |
 | `/duvidas` | FAQ |
 | `/denunciar` | Denunciar perfis falsos |
+| `/links` | Agregador de links (também em `links.omocodoteamo.com.br`) |
 
 ### Admin (`/(protected)/admin`)
 
@@ -110,6 +111,7 @@ TipoAtualizacao: TEXTO | FOTO | VIDEO | COMPROVANTE | GALERIA | INSTAGRAM
 | `/admin/denuncias` | Ver denúncias |
 | `/admin/faqs` | Gerenciar FAQ |
 | `/admin/usuarios` | Gerenciar usuários admin |
+| `/admin/agregador` | Editar o agregador de links |
 
 ---
 
@@ -291,6 +293,20 @@ const seguidores = await buscarSeguidores("instagram", "usuario");
 ```
 
 ---
+
+## Agregador de Links
+
+Página em `src/app/links/route.ts`: HTML puro (sem React no cliente) gerado por `src/lib/agregador/render.ts`.
+Fica fora do layout raiz de propósito (o layout raiz consulta o banco a cada request).
+
+Camadas de resiliência, para aguentar picos:
+1. CDN da Vercel (`Vercel-CDN-Cache-Control`: 60s + stale-while-revalidate de 1 dia)
+2. Cache de dados do Next (`unstable_cache`, tag `agregador`, invalidada ao publicar no admin)
+3. Última versão boa em memória + conteúdo reserva — a página nunca retorna erro
+
+Tabelas: `AgregadorPerfil`, `AgregadorLink`, `AgregadorRede` — criadas automaticamente no primeiro uso
+(`garantirTabelas` em `src/lib/agregador/inicial.ts`), sem precisar de `db push`. Enquanto nada é publicado,
+a página mostra uma sugestão montada com o perfil "O Moço do Te Amo" e suas redes. Admin salva tudo de uma vez via `PUT /api/agregador`.
 
 ## Deploy
 

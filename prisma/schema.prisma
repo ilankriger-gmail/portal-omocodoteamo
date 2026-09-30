@@ -208,3 +208,36 @@ enum InscricaoStatus {
   APROVADA
   RECUSADA
 }
+
+// ===== Agregador de links (links.omocodoteamo.com.br) =====
+
+// Registro único com o cabeçalho da página
+model AgregadorPerfil {
+  id        String   @id @default(cuid())
+  nome      String
+  bio       String?
+  avatarUrl String?
+  updatedAt DateTime @updatedAt
+}
+
+// Botões do meio da página
+model AgregadorLink {
+  id        String   @id @default(cuid())
+  titulo    String
+  url       String
+  destaque  Boolean  @default(false)
+  ativo     Boolean  @default(true)
+  ordem     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ativo, ordem])
+}
+
+// Ícones das redes sociais no rodapé
+model AgregadorRede {
+  id         String @id @default(cuid())
+  plataforma String
+  url        String
+  ordem      Int    @default(0)
+}

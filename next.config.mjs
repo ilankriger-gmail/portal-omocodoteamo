@@ -41,6 +41,16 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
     minimumCacheTTL: 60,
   },
+  // Agregador de links: links.omocodoteamo.com.br abre a página /links
+  rewrites: async () => ({
+    beforeFiles: [
+      {
+        source: '/',
+        has: [{ type: 'host', value: 'links.omocodoteamo.com.br' }],
+        destination: '/links',
+      },
+    ],
+  }),
   poweredByHeader: false,
   compress: true,
   swcMinify: true,

@@ -8,12 +8,14 @@ import {
   Settings,
   Users,
   HelpCircle,
+  Link2,
 } from "lucide-react";
 
 // Simplified version of the menu for mobile
 const mobileMenuItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/vaquinhas", label: "Vaquinhas", icon: Heart },
+  { href: "/admin/agregador", label: "Links", icon: Link2 },
   { href: "/admin/usuarios", label: "Admins", icon: Users },
   { href: "/admin/faqs", label: "FAQs", icon: HelpCircle },
   { href: "/admin/config", label: "Config", icon: Settings },
@@ -23,7 +25,7 @@ export function MobileNav() {
   const pathname = usePathname();
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-zinc-900/90 backdrop-blur-md border-t border-zinc-800 h-16 grid grid-cols-5 items-center z-50">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-zinc-900/90 backdrop-blur-md border-t border-zinc-800 h-16 grid grid-cols-6 items-center z-50">
       {mobileMenuItems.map((item) => {
         const Icon = item.icon;
         const isActive = pathname === item.href;
