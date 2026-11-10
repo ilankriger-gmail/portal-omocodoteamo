@@ -97,6 +97,7 @@ TipoAtualizacao: TEXTO | FOTO | VIDEO | COMPROVANTE | GALERIA | INSTAGRAM
 | `/duvidas` | FAQ |
 | `/denunciar` | Denunciar perfis falsos |
 | `/links` | Agregador de links (também em `links.omocodoteamo.com.br`) |
+| `/jogos/orgaos` | Jogo de gravação "órgãos no lugar certo" (página avulsa, fora do menu) |
 
 ### Admin (`/(protected)/admin`)
 
@@ -307,6 +308,22 @@ Camadas de resiliência, para aguentar picos:
 Tabelas: `AgregadorPerfil`, `AgregadorLink`, `AgregadorRede` — criadas automaticamente no primeiro uso
 (`garantirTabelas` em `src/lib/agregador/inicial.ts`), sem precisar de `db push`. Enquanto nada é publicado,
 a página mostra uma sugestão montada com o perfil "O Moço do Te Amo" e suas redes. Admin salva tudo de uma vez via `PUT /api/agregador`.
+
+## Jogo dos Órgãos
+
+Jogo de gravação "Por R$ 500 você coloca os órgãos no lugar certo?", em `/jogos/orgaos`
+(`src/app/jogos/orgaos/route.ts`). Sempre na horizontal: em celular em pé o palco gira 90°.
+
+HTML puro, fora do layout raiz e gerado no build (`force-static`): estilo, script e desenhos vão embutidos,
+sem banco e sem requisição extra. Fica em `src/lib/jogos/orgaos`:
+
+- `arte.ts` — boneco e órgãos em SVG, os lugares (`LUGARES`) e os níveis (`NIVEIS`), tudo na régua do corpo (640 x 1000)
+- `css.ts` — estilo, em px de um "palco" de 1000 de altura que o script escala para caber na tela
+- `cliente.ts` — script do navegador guardado como texto (não usar crase nem `${` dentro dele)
+- `render.ts` — monta a página
+
+Os ajustes (prêmio, nível, tempo, som) ficam no `localStorage` do aparelho e também valem pelo endereço:
+`/jogos/orgaos?premio=750&nivel=dificil&tempo=60`. A página tem `noindex`.
 
 ## Deploy
 
