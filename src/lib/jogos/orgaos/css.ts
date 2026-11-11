@@ -43,7 +43,7 @@ h1,h2,p{margin:0}
 display:grid;place-items:center;font-style:normal;font-size:28px;transition:transform .15s,background-color .15s,opacity .15s;animation:pulsa 2.4s ease-in-out infinite}
 .lg.cheio i{opacity:0;transform:scale(.4);animation:none}
 .lg.alvo i{opacity:1;transform:scale(1.42);background:var(--alvo);border-style:solid;animation:none}
-.fim .lg{display:none}
+.fim .lg,.livre .lg{display:none}
 @keyframes pulsa{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
 
 .selo{position:absolute;left:0;top:0;width:0;height:0;z-index:600;pointer-events:none;transform:translate(var(--x),var(--y))}
@@ -158,6 +158,7 @@ transition:transform .08s,box-shadow .08s}
 .ini-boneco{position:absolute;left:50%;top:50%;width:640px;height:1000px;margin:-500px 0 0 -320px;transform:translateY(24px) scale(.82) rotate(4deg)}
 .ini-boneco .corpo{position:absolute;left:0;top:0}
 .ini-boneco .lg i{animation:none}
+.ini-duvida{position:absolute;left:0;top:300px;width:640px;text-align:center;font-size:380px;line-height:1;color:var(--tinta);opacity:.1}
 .solto{position:absolute;left:0;top:0;animation:flutua 3.2s ease-in-out infinite}
 .solto svg{overflow:visible}
 @keyframes flutua{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-16px) rotate(3deg)}}

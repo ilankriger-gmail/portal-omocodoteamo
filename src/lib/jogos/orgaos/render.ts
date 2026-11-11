@@ -1,4 +1,4 @@
-import { CORPO_ALTURA, CORPO_LARGURA, LUGARES, NIVEIS, ORGAOS, corpoSvg } from "./arte";
+import { BORDA, CABECA, CORPO_ALTURA, CORPO_LARGURA, LUGARES, NIVEIS, ORGAOS, corpoSvg } from "./arte";
 import { CLIENTE } from "./cliente";
 import { CSS } from "./css";
 
@@ -18,6 +18,8 @@ function montarPagina(): string {
     cw: CORPO_LARGURA,
     ch: CORPO_ALTURA,
     corpo: corpoSvg(),
+    cabeca: CABECA,
+    borda: BORDA,
     orgaos: ORGAOS,
     lugares: LUGARES,
     niveis: NIVEIS,
@@ -70,6 +72,8 @@ function montarPagina(): string {
 <div class="lin"><span class="rot">Prêmio</span><div class="passo"><button id="pr-menos" class="rd" type="button" aria-label="Diminuir prêmio">−</button><b id="pr-valor">R$ 500</b><button id="pr-mais" class="rd" type="button" aria-label="Aumentar prêmio">+</button></div></div>
 <div class="lin"><span class="rot">Nível</span><div class="chips" id="niveis"></div></div>
 <p class="obs" id="nivel-obs"></p>
+<div class="lin"><span class="rot">Dicas</span><div class="chips" id="dicas"></div></div>
+<p class="obs" id="dicas-obs"></p>
 <div class="lin"><span class="rot">Tempo</span><div class="chips" id="tempos"></div></div>
 <div class="lin"><span class="rot">Som</span><div class="chips" id="sons"></div></div>
 <button id="fechar-ajustes" class="bt bt-verde" type="button">Pronto</button>

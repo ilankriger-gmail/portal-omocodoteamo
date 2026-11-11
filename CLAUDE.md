@@ -317,13 +317,16 @@ Jogo de gravação "Por R$ 500 você coloca os órgãos no lugar certo?", em `/j
 HTML puro, fora do layout raiz e gerado no build (`force-static`): estilo, script e desenhos vão embutidos,
 sem banco e sem requisição extra. Fica em `src/lib/jogos/orgaos`:
 
-- `arte.ts` — boneco e órgãos em SVG, os lugares (`LUGARES`) e os níveis (`NIVEIS`), tudo na régua do corpo (640 x 1000)
+- `arte.ts` — boneco e órgãos em SVG, os lugares (`LUGARES`, com a `zona` aceita de cada órgão) e os níveis (`NIVEIS`), tudo na régua do corpo (640 x 1000)
 - `css.ts` — estilo, em px de um "palco" de 1000 de altura que o script escala para caber na tela
 - `cliente.ts` — script do navegador guardado como texto (não usar crase nem `${` dentro dele)
 - `render.ts` — monta a página
 
-Os ajustes (prêmio, nível, tempo, som) ficam no `localStorage` do aparelho e também valem pelo endereço:
-`/jogos/orgaos?premio=750&nivel=dificil&tempo=60`. A página tem `noindex`.
+Dois jeitos de jogar (ajuste "Dicas"): **sem dicas** (padrão) o corpo fica em branco, a peça fica onde foi solta e
+acerta quem deixar o centro dela dentro da `zona` do órgão; **com bolinhas** cada "?" marca um lugar e a peça gruda nele.
+
+Os ajustes (prêmio, nível, dicas, tempo, som) ficam no `localStorage` do aparelho e também valem pelo endereço:
+`/jogos/orgaos?premio=750&nivel=dificil&tempo=60&dicas=0`. A página tem `noindex`.
 
 ## Deploy
 

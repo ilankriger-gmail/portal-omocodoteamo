@@ -301,24 +301,37 @@ export const ORGAOS: Record<TipoOrgao, Orgao> = {
  * o lado direito DELE fica à esquerda de quem olha. Por isso o fígado está à
  * esquerda na tela e o coração, estômago e baço à direita.
  * `vira` espelha o desenho dos órgãos que existem em par.
+ *
+ * `zona` é a região [x0, y0, x1, y1] onde o centro da peça pode cair para valer
+ * como certo no jogo sem bolinhas. É folgada de propósito (quem sabe onde o
+ * órgão fica não perde por capricho), mas não perdoa lado trocado nem altura
+ * errada: coração no lado direito do peito, fígado do lado do estômago ou
+ * estômago no meio da barriga ficam de fora.
  */
-export type Lugar = { id: string; tipo: TipoOrgao; x: number; y: number; vira?: boolean };
+export type Lugar = {
+  id: string;
+  tipo: TipoOrgao;
+  x: number;
+  y: number;
+  zona: [number, number, number, number];
+  vira?: boolean;
+};
 
 export const LUGARES: Lugar[] = [
-  { id: "cerebro", tipo: "cerebro", x: 320, y: 84 },
-  { id: "pulmao-a", tipo: "pulmao", x: 196, y: 372 },
-  { id: "pulmao-b", tipo: "pulmao", x: 444, y: 372, vira: true },
-  { id: "coracao", tipo: "coracao", x: 338, y: 410 },
-  { id: "figado", tipo: "figado", x: 232, y: 550 },
-  { id: "estomago", tipo: "estomago", x: 392, y: 566 },
-  { id: "baco", tipo: "baco", x: 494, y: 562 },
-  { id: "vesicula", tipo: "vesicula", x: 246, y: 642 },
-  { id: "pancreas", tipo: "pancreas", x: 362, y: 668 },
-  { id: "rim-a", tipo: "rim", x: 154, y: 704 },
-  { id: "rim-b", tipo: "rim", x: 486, y: 704, vira: true },
-  { id: "intestino", tipo: "intestino", x: 320, y: 782 },
-  { id: "apendice", tipo: "apendice", x: 198, y: 852 },
-  { id: "bexiga", tipo: "bexiga", x: 320, y: 908 },
+  { id: "cerebro", tipo: "cerebro", x: 320, y: 84, zona: [248, 16, 392, 178] },
+  { id: "pulmao-a", tipo: "pulmao", x: 196, y: 372, zona: [105, 262, 300, 500] },
+  { id: "pulmao-b", tipo: "pulmao", x: 444, y: 372, zona: [340, 262, 535, 500], vira: true },
+  { id: "coracao", tipo: "coracao", x: 338, y: 410, zona: [268, 312, 462, 495] },
+  { id: "figado", tipo: "figado", x: 232, y: 550, zona: [110, 470, 305, 630] },
+  { id: "estomago", tipo: "estomago", x: 392, y: 566, zona: [290, 470, 490, 660] },
+  { id: "baco", tipo: "baco", x: 494, y: 562, zona: [425, 470, 552, 665] },
+  { id: "vesicula", tipo: "vesicula", x: 246, y: 642, zona: [150, 545, 335, 705] },
+  { id: "pancreas", tipo: "pancreas", x: 362, y: 668, zona: [250, 585, 455, 735] },
+  { id: "rim-a", tipo: "rim", x: 154, y: 704, zona: [95, 590, 255, 795] },
+  { id: "rim-b", tipo: "rim", x: 486, y: 704, zona: [385, 590, 545, 795], vira: true },
+  { id: "intestino", tipo: "intestino", x: 320, y: 782, zona: [225, 690, 415, 870] },
+  { id: "apendice", tipo: "apendice", x: 198, y: 852, zona: [105, 765, 290, 930] },
+  { id: "bexiga", tipo: "bexiga", x: 320, y: 908, zona: [250, 815, 390, 975] },
 ];
 
 /** Níveis: cada um acrescenta lugares ao anterior. */
@@ -351,6 +364,28 @@ export const NIVEIS: { id: string; nome: string; lugares: string[] }[] = [
 ];
 
 // ---------------------------------------------------------------- corpo
+
+/**
+ * Contorno simplificado do boneco, para o jogo saber se um ponto está dentro do
+ * corpo: a cabeça é uma elipse e, do pescoço para baixo, cada par é
+ * [altura, x da borda esquerda] (a borda direita é o espelho). Acompanha SILHUETA.
+ */
+export const CABECA = { cx: 320, cy: 104, rx: 86, ry: 100 };
+export const BORDA: [number, number][] = [
+  [196, 286],
+  [224, 286],
+  [257, 226],
+  [269, 150],
+  [293, 101],
+  [318, 88],
+  [345, 84],
+  [470, 92],
+  [567, 104],
+  [650, 112],
+  [731, 101],
+  [820, 88],
+  [992, 90],
+];
 
 const SILHUETA =
   "M286,196 L286,224 C286,242 262,251 226,257 L150,269 C108,277 84,301 84,345 L92,470 C98,540 110,600 112,650 " +

@@ -56,14 +56,15 @@ export const CLIENTE = String.raw`
   // ------------------------------------------------------------ ajustes salvos
   var PREMIOS = [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 800, 1000, 1500, 2000, 3000, 5000, 10000];
   var TEMPOS = [0, 30, 45, 60, 90, 120];
-  var cfg = { premio: 500, nivel: 'medio', tempo: 0, som: true };
+  // marcas = bolinhas "?" mostrando os lugares no corpo (deixa o jogo bem mais fácil)
+  var cfg = { premio: 500, nivel: 'medio', tempo: 0, som: true, marcas: false };
 
   (function () {
     try {
       var salvo = JSON.parse(localStorage.getItem('jogo-orgaos') || 'null');
       if (salvo) for (var c in cfg) if (typeof salvo[c] === typeof cfg[c]) cfg[c] = salvo[c];
     } catch (e) {}
-    // Também dá para ajustar pelo endereço: ?premio=750&nivel=dificil&tempo=60
+    // Também dá para ajustar pelo endereço: ?premio=750&nivel=dificil&tempo=60&dicas=1
     try {
       var q = new URLSearchParams(location.search);
       var p = parseInt(q.get('premio'), 10);
@@ -71,6 +72,7 @@ export const CLIENTE = String.raw`
       var t = parseInt(q.get('tempo'), 10);
       if (t >= 0 && t <= 600) cfg.tempo = t;
       if (q.get('nivel')) cfg.nivel = q.get('nivel');
+      if (q.get('dicas') === '1' || q.get('dicas') === '0') cfg.marcas = q.get('dicas') === '1';
     } catch (e) {}
     if (!J.niveis.some(function (n) { return n.id === cfg.nivel; })) cfg.nivel = 'medio';
     cfg.premio = limita(Math.round(cfg.premio) || 500, 1, 1000000);
@@ -225,6 +227,8 @@ export const CLIENTE = String.raw`
     return v;
   }
   function camada(p, z) { p.el.style.zIndex = z; }
+  // Uma peça está no corpo presa a uma bolinha (p.lugar) ou solta num ponto (p.livre).
+  function posta(p) { return !!(p.lugar || p.livre); }
   function virar(p, sim) {
     p.vira = !!sim;
     if (p.vira) p.pv.classList.add('vira'); else p.pv.classList.remove('vira');
@@ -232,19 +236,18 @@ export const CLIENTE = String.raw`
 
   // ------------------------------------------------------------ montar o tabuleiro
   function montar() {
-    pecas.forEach(function (p) { p.el.remove(); p.cel.remove(); });
-    lugares.forEach(function (l) { l.el.remove(); l.selo.remove(); });
+    pecas.forEach(function (p) { p.el.remove(); p.cel.remove(); p.selo.remove(); });
+    lugares.forEach(function (l) { l.el.remove(); });
     pecas = []; lugares = [];
+    if (cfg.marcas) palco.classList.remove('livre'); else palco.classList.add('livre');
 
     var ids = nivelAtual().lugares;
     var defs = J.lugares.filter(function (d) { return ids.indexOf(d.id) >= 0; });
 
     defs.forEach(function (d) {
       var el = cria('div', 'lg', '<i>?</i>');
-      var selo = cria('div', 'selo', '<i>' + IC_OK + IC_NO + '</i>');
       mesa.appendChild(el);
-      mesa.appendChild(selo);
-      lugares.push({ def: d, el: el, selo: selo, x: 0, y: 0, peca: null });
+      lugares.push({ def: d, el: el, x: 0, y: 0, peca: null });
     });
 
     var ordem = embaralha(defs.slice());
@@ -270,15 +273,18 @@ export const CLIENTE = String.raw`
       }
       var cel = cria('div', 'cel', '<div class="fan">' + o.svg + '</div><div class="nm"><span>' + o.nome + '</span></div><span class="mk">' + IC_OK + IC_NO + '</span>');
       cel.setAttribute('data-i', i);
+      var selo = cria('div', 'selo', '<i>' + IC_OK + IC_NO + '</i>');
       mesa.appendChild(cel);
       mesa.appendChild(el);
+      mesa.appendChild(selo);
       var pi = el.firstChild, pa = pi.firstChild;
       pecas.push({
         i: i, tipo: d.tipo, nome: o.nome, w: o.w, h: o.h,
-        el: el, pi: pi, pa: pa, pv: pa.firstChild,
+        el: el, pi: pi, pa: pa, pv: pa.firstChild, selo: selo,
         cel: cel, fan: cel.firstChild, nm: cel.children[1],
         lado: i < metade ? 0 : 1, viraCasa: !!d.vira, vira: false, giro: 0,
-        lugar: null, casa: { x: 0, y: 0, s: 1 }, x: 0, y: 0, s: 1, z: 100, certa: null
+        lugar: null, livre: null, alvo: null,
+        casa: { x: 0, y: 0, s: 1 }, x: 0, y: 0, s: 1, z: 100, certa: null
       });
     });
 
@@ -307,7 +313,6 @@ export const CLIENTE = String.raw`
       l.x = x0 + l.def.x * K;
       l.y = CORPO_Y + l.def.y * K;
       pos(l.el, l.x, l.y);
-      pos(l.selo, l.x + 24, l.y - 24);
     });
 
     var topo = MARGEM, alt = 1000 - 150 - topo, vao = 14;
@@ -354,6 +359,7 @@ export const CLIENTE = String.raw`
     pecas.forEach(function (p) {
       if (arr && arr.p === p) return;
       if (p.lugar) por(p, p.lugar.x, p.lugar.y, K, modo);
+      else if (p.livre) por(p, x0 + p.livre.bx * K, CORPO_Y + p.livre.by * K, K, modo);
       else por(p, p.casa.x, p.casa.y, p.casa.s, modo);
     });
   }
@@ -365,30 +371,77 @@ export const CLIENTE = String.raw`
     if (modo) p.el.classList.add(modo === 'lento' ? 'lento' : 'anim');
     p.el.style.transform = 'translate(' + (x - p.w / 2) + 'px,' + (y - p.h / 2) + 'px)';
     p.pi.style.transform = 'scale(' + s + ')' + (p.giro ? ' rotate(' + p.giro + 'deg)' : '');
+    pos(p.selo, x + 24, y - 24);
   }
 
-  function esvaziar(l) {
+  // Pulmão e rim viram para o lado do corpo em que foram postos.
+  function virarPeloLado(p, bx) {
+    if (!par[p.tipo]) return;
+    var d = bx - J.cw / 2;
+    if (d > 12) virar(p, true); else if (d < -12) virar(p, false);
+  }
+
+  // A peça p saiu da bolinha l (se a bolinha já for de outra peça, não mexe).
+  function esvaziar(l, p) {
+    if (l.peca !== p) return;
     l.peca = null;
     l.el.classList.remove('cheio');
   }
 
   function ocupar(p, l, modo) {
-    if (p.lugar && p.lugar !== l) esvaziar(p.lugar);
+    if (p.lugar && p.lugar !== l) esvaziar(p.lugar, p);
     p.lugar = l;
+    p.livre = null;
     l.peca = p;
     l.el.classList.add('cheio');
-    if (par[p.tipo]) {
-      // pulmão e rim viram para o lado do corpo em que foram postos
-      var d = l.def.x - J.cw / 2;
-      if (d > 12) virar(p, true); else if (d < -12) virar(p, false);
-    }
+    virarPeloLado(p, l.def.x);
     p.giro = 0;
     por(p, l.x, l.y, K, modo);
     camada(p, p.z);
+    p.el.classList.add('posta');
+  }
+
+  // Jogo sem bolinhas: a peça fica no ponto do corpo onde foi solta
+  // (bx, by nas medidas do desenho do boneco).
+  function pousar(p, bx, by, modo) {
+    p.livre = { bx: bx, by: by };
+    virarPeloLado(p, bx);
+    p.giro = 0;
+    por(p, G.W / 2 - CORPO_W / 2 + bx * K, CORPO_Y + by * K, K, modo);
+    camada(p, p.z);
+    p.el.classList.add('posta');
+  }
+
+  // Ponto do palco -> ponto do boneco, se estiver dentro do corpo. Quem solta um
+  // pouco para fora da beirada não perde a peça: ela é puxada para dentro.
+  function noCorpo(x, y) {
+    var bx = (x - (G.W / 2 - CORPO_W / 2)) / K, by = (y - CORPO_Y) / K;
+    var folga = 34, b = J.borda, topo = b[0][0], fundo = b[b.length - 1][0];
+    if (by >= topo - 4 && by <= fundo + folga) {
+      // pescoço e tronco: meia largura do corpo nessa altura
+      var yy = limita(by, topo, fundo), xe = b[b.length - 1][1];
+      for (var i = 1; i < b.length; i++) {
+        if (yy <= b[i][0]) {
+          xe = b[i - 1][1] + (b[i][1] - b[i - 1][1]) * (yy - b[i - 1][0]) / (b[i][0] - b[i - 1][0]);
+          break;
+        }
+      }
+      if (bx >= xe - folga && bx <= J.cw - xe + folga) {
+        return { bx: limita(bx, xe + 8, J.cw - xe - 8), by: Math.min(by, fundo - 8) };
+      }
+    }
+    var c = J.cabeca, dx = bx - c.cx, dy = by - c.cy;
+    var fora = (dx * dx) / (c.rx * c.rx) + (dy * dy) / (c.ry * c.ry);
+    var comFolga = (dx * dx) / ((c.rx + folga) * (c.rx + folga)) + (dy * dy) / ((c.ry + folga) * (c.ry + folga));
+    if (comFolga > 1) return null;
+    if (fora > 0.9) { var f = Math.sqrt(0.9 / fora); bx = c.cx + dx * f; by = c.cy + dy * f; }
+    return { bx: bx, by: by };
   }
 
   function praCasa(p, modo) {
-    if (p.lugar) { esvaziar(p.lugar); p.lugar = null; }
+    if (p.lugar) { esvaziar(p.lugar, p); p.lugar = null; }
+    p.livre = null;
+    p.el.classList.remove('posta');
     virar(p, p.viraCasa);
     p.giro = 0;
     por(p, p.casa.x, p.casa.y, p.casa.s, modo);
@@ -396,7 +449,7 @@ export const CLIENTE = String.raw`
     camada(p, 900);
     var r = rodada;
     setTimeout(function () {
-      if (r === rodada && !p.lugar && !(arr && arr.p === p)) camada(p, 60);
+      if (r === rodada && !posta(p) && !(arr && arr.p === p)) camada(p, 60);
     }, 320);
   }
 
@@ -418,13 +471,13 @@ export const CLIENTE = String.raw`
     a = alvo && alvo.closest ? alvo.closest('.cel') : null;
     if (a) {
       var q = pecas[+a.getAttribute('data-i')];
-      return q && !q.lugar ? { p: q, naPeca: false } : null;
+      return q && !posta(q) ? { p: q, naPeca: false } : null;
     }
     // (só vale para toque no fundo do palco, nunca por cima de botão ou cartão)
     if (alvo !== palco && alvo !== mesa) return null;
     var perto = null;
     pecas.forEach(function (p) {
-      if (!p.lugar) return;
+      if (!posta(p)) return;
       if (Math.abs(pt.x - p.x) > p.w * K / 2 + 16 || Math.abs(pt.y - p.y) > p.h * K / 2 + 16) return;
       if (!perto || p.z > perto.z) perto = p;
     });
@@ -447,8 +500,11 @@ export const CLIENTE = String.raw`
     if (!achada || !achada.p) return;
     e.preventDefault();
 
-    var p = achada.p, origem = p.lugar;
-    if (origem) { esvaziar(origem); p.lugar = null; }
+    // de onde a peça saiu: uma bolinha, um ponto do corpo ou a bandeja (null)
+    var p = achada.p, origem = p.lugar || p.livre;
+    if (p.lugar) { esvaziar(p.lugar, p); p.lugar = null; }
+    p.livre = null;
+    p.el.classList.remove('posta');
     var toque = e.pointerType === 'touch';
     arr = {
       p: p, id: e.pointerId, origem: origem,
@@ -479,7 +535,7 @@ export const CLIENTE = String.raw`
     arr.oy += (arr.ay - arr.oy) * f;
     var x = limita(arr.px + arr.ox, 24, G.W - 24), y = limita(arr.py + arr.oy, 24, 976);
     por(arr.p, x, y, K * 1.07, false);
-    var l = maisPerto(x, y);
+    var l = cfg.marcas ? maisPerto(x, y) : null;
     if (l !== arr.alvo) {
       if (arr.alvo) arr.alvo.el.classList.remove('alvo');
       if (l) l.el.classList.add('alvo');
@@ -547,7 +603,6 @@ export const CLIENTE = String.raw`
     cancelAnimationFrame(a.raf);
     var p = a.p;
     var x = limita(a.px + a.ox, 24, G.W - 24), y = limita(a.py + a.oy, 24, 976);
-    var l = cancelado ? a.origem : maisPerto(x, y);
     if (a.alvo) a.alvo.el.classList.remove('alvo');
     arr = null;
     try { palco.releasePointerCapture(a.id); } catch (err) {}
@@ -555,17 +610,27 @@ export const CLIENTE = String.raw`
     doc.body.classList.remove('arrastando');
     olhar(null);
 
-    if (l) {
-      var outro = l.peca;
-      if (outro && outro !== p) {
-        // lugar ocupado: troca as duas peças (ou devolve a outra para a bandeja)
-        if (a.origem && a.origem !== l) ocupar(outro, a.origem, true); else praCasa(outro, true);
+    var ficou = false;
+    if (cfg.marcas) {
+      // com bolinhas: gruda na mais próxima
+      var l = cancelado ? a.origem : maisPerto(x, y);
+      if (l) {
+        var outro = l.peca;
+        if (outro && outro !== p) {
+          // lugar ocupado: troca as duas peças (ou devolve a outra para a bandeja)
+          if (a.origem && a.origem !== l) ocupar(outro, a.origem, true); else praCasa(outro, true);
+        }
+        ocupar(p, l, true);
+        ficou = true;
       }
-      ocupar(p, l, true);
-      if (!cancelado) { som.encaixe(); vibra(12); }
     } else {
-      praCasa(p, true);
-      if (!cancelado) som.volta();
+      // sem bolinhas: fica onde foi solta, desde que seja em cima do corpo
+      var c = cancelado ? a.origem : noCorpo(x, y);
+      if (c) { pousar(p, c.bx, c.by, true); ficou = true; }
+    }
+    if (!ficou) praCasa(p, true);
+    if (!cancelado) {
+      if (ficou) { som.encaixe(); vibra(12); } else som.volta();
     }
     atualizar();
   }
@@ -588,7 +653,8 @@ export const CLIENTE = String.raw`
     $('ini-premio').textContent = texto;
 
     var t = cfg.tempo;
-    $('resumo').textContent = 'Nível ' + nivelAtual().nome + ' · ' + pecas.length + ' peças · ' +
+    $('resumo').textContent = nivelAtual().nome + ' · ' + pecas.length + ' peças · ' +
+      (cfg.marcas ? 'com bolinhas' : 'sem dicas') + ' · ' +
       (t ? (t >= 120 ? t / 60 + ' min' : t + ' segundos') : 'sem tempo');
 
     rel.resta = cfg.tempo;
@@ -601,7 +667,7 @@ export const CLIENTE = String.raw`
   function atualizar() {
     if (estado !== 'jogando') return;
     var n = pecas.length;
-    var postas = pecas.filter(function (p) { return p.lugar; }).length;
+    var postas = pecas.filter(posta).length;
     var falta = n - postas, tudo = falta === 0;
     var bt = $('conferir');
     bt.disabled = !tudo;
@@ -715,12 +781,12 @@ export const CLIENTE = String.raw`
     plc.classList.remove('aperto');
     boca('surpreso');
 
-    pecas.forEach(function (p) { p.certa = !!p.lugar && p.lugar.def.tipo === p.tipo; });
-    function porLugar(a, b) { return a.lugar.def.y - b.lugar.def.y || a.lugar.def.x - b.lugar.def.x; }
+    julgar();
+    function porLugar(a, b) { return a.y - b.y || a.x - b.x; }
     // Suspense: primeiro as certas, de cima para baixo; as erradas ficam para o fim.
     var ordem = pecas.filter(function (p) { return p.certa; }).sort(porLugar)
-      .concat(pecas.filter(function (p) { return p.lugar && !p.certa; }).sort(porLugar))
-      .concat(pecas.filter(function (p) { return !p.lugar; }));
+      .concat(pecas.filter(function (p) { return posta(p) && !p.certa; }).sort(porLugar))
+      .concat(pecas.filter(function (p) { return !posta(p); }));
     var n = pecas.length, acertos = 0, errou = false;
 
     function placar() {
@@ -749,14 +815,50 @@ export const CLIENTE = String.raw`
     veredito(acertos, n);
   }
 
+  // Decide o que está certo e qual é o lugar de cada peça (p.alvo).
+  function julgar() {
+    pecas.forEach(function (p) { p.certa = false; p.alvo = null; });
+    if (cfg.marcas) {
+      // com bolinhas: vale a bolinha do órgão
+      pecas.forEach(function (p) {
+        if (p.lugar && p.lugar.def.tipo === p.tipo) { p.certa = true; p.alvo = p.lugar; }
+      });
+    } else {
+      // sem bolinhas: vale a região do corpo onde o órgão fica. Nos órgãos em
+      // par (pulmão, rim), cada região só aceita uma peça: uma de cada lado.
+      pecas.forEach(function (p) {
+        if (!p.livre) return;
+        for (var i = 0; i < lugares.length; i++) {
+          var l = lugares[i], z = l.def.zona;
+          if (l.def.tipo !== p.tipo || pecas.some(function (q) { return q.alvo === l; })) continue;
+          if (p.livre.bx >= z[0] && p.livre.bx <= z[2] && p.livre.by >= z[1] && p.livre.by <= z[3]) {
+            p.certa = true;
+            p.alvo = l;
+            break;
+          }
+        }
+      });
+    }
+    // para as erradas (e as que ficaram na bandeja), o lugar é um do mesmo órgão que sobrou
+    pecas.forEach(function (p) {
+      if (p.alvo) return;
+      for (var i = 0; i < lugares.length; i++) {
+        var l = lugares[i];
+        if (l.def.tipo === p.tipo && !pecas.some(function (q) { return q.alvo === l; })) { p.alvo = l; break; }
+      }
+    });
+  }
+
   function marcar(p, acertos) {
     var cls = p.certa ? 'ok' : 'no';
     legenda(p.nome, cls);
     p.cel.classList.remove('vez');
     void p.cel.offsetWidth;
     p.cel.classList.add(cls, 'vez');
-    if (p.lugar) {
-      p.lugar.selo.className = 'selo ' + cls;
+    if (posta(p)) {
+      // sem bolinhas, a peça certa "encaixa": vai para o ponto exato do órgão
+      if (p.certa && p.livre) pousar(p, p.alvo.def.x, p.alvo.def.y, true);
+      p.selo.className = 'selo ' + cls;
       p.pa.classList.remove('pulo', 'treme');
       void p.pa.offsetWidth;
       p.pa.classList.add(p.certa ? 'pulo' : 'treme');
@@ -811,23 +913,14 @@ export const CLIENTE = String.raw`
     respostaMostrada = true;
     var r = rodada;
     var erradas = pecas.filter(function (p) { return !p.certa; });
-    erradas.forEach(function (p) {
-      if (!p.lugar) return;
-      p.lugar.selo.className = 'selo';
-      esvaziar(p.lugar);
-      p.lugar = null;
-    });
-    var livres = lugares.filter(function (l) { return !l.peca; });
     erradas.forEach(function (p, i) {
-      var k = -1;
-      livres.some(function (l, j) { if (l.def.tipo === p.tipo) { k = j; return true; } return false; });
-      if (k < 0) return;
-      var l = livres.splice(k, 1)[0];
-      l.peca = p;
+      p.selo.className = 'selo';
+      var l = p.alvo;
+      if (!l) return;
       setTimeout(function () {
         if (r !== rodada) return;
         camada(p, 950);
-        ocupar(p, l, 'lento');
+        if (cfg.marcas) ocupar(p, l, 'lento'); else pousar(p, l.def.x, l.def.y, 'lento');
         camada(p, 950);
         som.pega();
         setTimeout(function () { if (r === rodada) camada(p, p.z); }, 620);
@@ -901,9 +994,13 @@ export const CLIENTE = String.raw`
   function montarInicio() {
     var ids = nivelAtual().lugares;
     var html = '<div class="ini-boneco">' + J.corpo;
-    J.lugares.forEach(function (d) {
-      if (ids.indexOf(d.id) >= 0) html += '<div class="lg" style="--x:' + d.x + 'px;--y:' + d.y + 'px"><i>?</i></div>';
-    });
+    if (cfg.marcas) {
+      J.lugares.forEach(function (d) {
+        if (ids.indexOf(d.id) >= 0) html += '<div class="lg" style="--x:' + d.x + 'px;--y:' + d.y + 'px"><i>?</i></div>';
+      });
+    } else {
+      html += '<div class="ini-duvida">?</div>';
+    }
     var soltos = [['coracao', 40, 330, -14, 0], ['cerebro', 596, 150, 12, 0.7], ['baco', 598, 560, 10, 1.3], ['estomago', 40, 905, -9, 1.9], ['rim', 590, 880, 12, 2.5]];
     soltos.forEach(function (s) {
       var o = J.orgaos[s[0]];
@@ -936,9 +1033,13 @@ export const CLIENTE = String.raw`
       if (c.hasAttribute('data-nivel')) on = c.getAttribute('data-nivel') === cfg.nivel;
       else if (c.hasAttribute('data-tempo')) on = +c.getAttribute('data-tempo') === cfg.tempo;
       else if (c.hasAttribute('data-som')) on = (c.getAttribute('data-som') === '1') === cfg.som;
+      else if (c.hasAttribute('data-marcas')) on = (c.getAttribute('data-marcas') === '1') === cfg.marcas;
       if (on) c.classList.add('on'); else c.classList.remove('on');
     }
     $('nivel-obs').textContent = descreverNivel(nivelAtual());
+    $('dicas-obs').textContent = cfg.marcas
+      ? 'Mais fácil: cada bolinha "?" no corpo marca o lugar de um órgão.'
+      : 'Mais difícil: corpo em branco. A pessoa solta cada órgão onde acha que ele fica.';
     $('som-btn').textContent = 'Som: ' + (cfg.som ? 'ligado' : 'desligado');
   }
 
@@ -949,11 +1050,12 @@ export const CLIENTE = String.raw`
     return '<button type="button" class="chip" data-tempo="' + t + '">' + (t ? (t >= 120 ? t / 60 + ' min' : t + ' s') : 'Sem tempo') + '</button>';
   }).join('');
   $('sons').innerHTML = '<button type="button" class="chip" data-som="1">Ligado</button><button type="button" class="chip" data-som="0">Desligado</button>';
+  $('dicas').innerHTML = '<button type="button" class="chip" data-marcas="0">Sem dicas</button><button type="button" class="chip" data-marcas="1">Com bolinhas</button>';
 
   $('ajustes').addEventListener('click', function (e) {
     var c = e.target.closest ? e.target.closest('button') : null;
     if (!c) return;
-    var antes = cfg.nivel, i;
+    var antes = cfg.nivel, marcasAntes = cfg.marcas, i;
     if (c.id === 'pr-mais') {
       for (i = 0; i < PREMIOS.length - 1 && PREMIOS[i] <= cfg.premio; i++);
       cfg.premio = PREMIOS[i];
@@ -963,9 +1065,10 @@ export const CLIENTE = String.raw`
     } else if (c.hasAttribute('data-nivel')) cfg.nivel = c.getAttribute('data-nivel');
     else if (c.hasAttribute('data-tempo')) cfg.tempo = +c.getAttribute('data-tempo');
     else if (c.hasAttribute('data-som')) { cfg.som = c.getAttribute('data-som') === '1'; if (cfg.som) som.pronto(); }
+    else if (c.hasAttribute('data-marcas')) cfg.marcas = c.getAttribute('data-marcas') === '1';
     else if (c.id === 'fechar-ajustes') { $('ajustes').hidden = true; return; }
     salvar();
-    if (cfg.nivel !== antes) montar(); else prepararPlacar();
+    if (cfg.nivel !== antes || cfg.marcas !== marcasAntes) montar(); else prepararPlacar();
     pintarAjustes();
   });
 
