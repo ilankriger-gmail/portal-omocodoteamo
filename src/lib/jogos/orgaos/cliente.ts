@@ -57,14 +57,15 @@ export const CLIENTE = String.raw`
   var PREMIOS = [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 800, 1000, 1500, 2000, 3000, 5000, 10000];
   var TEMPOS = [0, 30, 45, 60, 90, 120];
   // marcas = bolinhas "?" mostrando os lugares no corpo (deixa o jogo bem mais fácil)
-  var cfg = { premio: 500, nivel: 'medio', tempo: 0, som: true, marcas: false };
+  // uma = as peças saem uma por vez, em ordem sorteada, e a anterior trava (mais difícil)
+  var cfg = { premio: 500, nivel: 'medio', tempo: 0, som: true, marcas: false, uma: true };
 
   (function () {
     try {
       var salvo = JSON.parse(localStorage.getItem('jogo-orgaos') || 'null');
       if (salvo) for (var c in cfg) if (typeof salvo[c] === typeof cfg[c]) cfg[c] = salvo[c];
     } catch (e) {}
-    // Também dá para ajustar pelo endereço: ?premio=750&nivel=dificil&tempo=60&dicas=1
+    // Também dá para ajustar pelo endereço: ?premio=750&nivel=dificil&tempo=60&dicas=1&uma=0
     try {
       var q = new URLSearchParams(location.search);
       var p = parseInt(q.get('premio'), 10);
@@ -73,6 +74,7 @@ export const CLIENTE = String.raw`
       if (t >= 0 && t <= 600) cfg.tempo = t;
       if (q.get('nivel')) cfg.nivel = q.get('nivel');
       if (q.get('dicas') === '1' || q.get('dicas') === '0') cfg.marcas = q.get('dicas') === '1';
+      if (q.get('uma') === '1' || q.get('uma') === '0') cfg.uma = q.get('uma') === '1';
     } catch (e) {}
     if (!J.niveis.some(function (n) { return n.id === cfg.nivel; })) cfg.nivel = 'medio';
     cfg.premio = limita(Math.round(cfg.premio) || 500, 1, 1000000);
@@ -144,6 +146,8 @@ export const CLIENTE = String.raw`
       pega: function () { nota(520, 0, 0.09, 'sine', 0.22, 820); },
       encaixe: function () { nota(330, 0, 0.11, 'triangle', 0.4, 170); ruido(0, 0.05, 0.16, 2600); },
       volta: function () { nota(420, 0, 0.16, 'sine', 0.16, 210); },
+      vira: function () { ruido(0, 0.09, 0.14, 3200); nota(360, 0.02, 0.14, 'triangle', 0.26, 760); },
+      trava: function () { nota(196, 0, 0.09, 'square', 0.13); nota(147, 0.1, 0.14, 'square', 0.13); },
       pronto: function () { nota(784, 0, 0.14, 'triangle', 0.25); nota(1047, 0.11, 0.24, 'triangle', 0.25); },
       rufo: function (dur) { for (var t = 0; t < dur; t += 0.045) ruido(t, 0.06, 0.06 + 0.1 * t / dur, 900); },
       certo: function (n) {
@@ -210,6 +214,7 @@ export const CLIENTE = String.raw`
   var pecas = [], lugares = [];
   var arr = null;                   // peça sendo arrastada
   var completo = false, ganhou = false, respostaMostrada = false;
+  var vez = -1;                     // jogo de uma peça por vez: índice da última carta virada
   var par = {};                     // órgãos que existem em par (pulmão, rim)
   J.lugares.forEach(function (a) {
     J.lugares.forEach(function (b) { if (a !== b && a.tipo === b.tipo) par[a.tipo] = true; });
@@ -269,9 +274,11 @@ export const CLIENTE = String.raw`
         area.setAttribute('fill', '#000');
         area.setAttribute('fill-opacity', '0');
         area.setAttribute('stroke', 'none');
+        area.setAttribute('class', 'folga');
         svg.insertBefore(area, svg.firstChild);
       }
-      var cel = cria('div', 'cel', '<div class="fan">' + o.svg + '</div><div class="nm"><span>' + o.nome + '</span></div><span class="mk">' + IC_OK + IC_NO + '</span>');
+      var cel = cria('div', 'cel', '<div class="fan">' + o.svg + '</div><div class="nm"><span>' + o.nome + '</span></div><span class="mk">' + IC_OK + IC_NO + '</span>' +
+        '<div class="verso"><b>?</b><span>Toque</span></div>');
       cel.setAttribute('data-i', i);
       var selo = cria('div', 'selo', '<i>' + IC_OK + IC_NO + '</i>');
       mesa.appendChild(cel);
@@ -281,9 +288,9 @@ export const CLIENTE = String.raw`
       pecas.push({
         i: i, tipo: d.tipo, nome: o.nome, w: o.w, h: o.h,
         el: el, pi: pi, pa: pa, pv: pa.firstChild, selo: selo,
-        cel: cel, fan: cel.firstChild, nm: cel.children[1],
+        cel: cel, fan: cel.firstChild, nm: cel.children[1], verso: cel.children[3],
         lado: i < metade ? 0 : 1, viraCasa: !!d.vira, vira: false, giro: 0,
-        lugar: null, livre: null, alvo: null,
+        lugar: null, livre: null, alvo: null, aberta: !cfg.uma, travada: false,
         casa: { x: 0, y: 0, s: 1 }, x: 0, y: 0, s: 1, z: 100, certa: null
       });
     });
@@ -291,6 +298,9 @@ export const CLIENTE = String.raw`
     // No corpo, as peças menores ficam por cima das maiores (nenhuma some).
     pecas.slice().sort(function (a, b) { return b.w * b.h - a.w * a.h; }).forEach(function (p, n) { p.z = 100 + n; });
     pecas.forEach(function (p) { virar(p, p.viraCasa); });
+    // uma por vez: todas as cartas começam viradas para baixo
+    vez = -1;
+    if (cfg.uma) pecas.forEach(function (p) { p.cel.classList.add('fechada'); p.el.classList.add('fechada'); });
 
     completo = false; ganhou = false; respostaMostrada = false;
     arrumar(false);
@@ -344,6 +354,7 @@ export const CLIENTE = String.raw`
         pos(p.cel, x, y);
         p.fan.style.top = cy + 'px';
         p.fan.firstChild.style.cssText = 'left:' + (-p.w / 2) + 'px;top:' + (-p.h / 2) + 'px;transform:scale(' + (p.viraCasa ? -t : t) + ',' + t + ')';
+        p.verso.style.fontSize = Math.round(m.s * 0.62) + 'px';
         p.nm.style.height = m.nh + 'px';
         p.nm.style.lineHeight = (m.nh - 8) + 'px';
         encaixar(p.nm, m.cw - 26, Math.round(limita(m.nh * 0.62, 17, 28)), 11);
@@ -453,10 +464,69 @@ export const CLIENTE = String.raw`
     }, 320);
   }
 
+  // ------------------------------------------------------------ uma peça por vez
+  // Vira a carta da peça i: ela passa a ser a única que pode ser mexida.
+  function abrir(i, comSom) {
+    var p = pecas[i];
+    if (!p || p.aberta) return;
+    p.aberta = true;
+    if (i > vez) vez = i;
+    p.cel.classList.remove('fechada', 'pronta', 'virou');
+    p.el.classList.remove('fechada');
+    void p.cel.offsetWidth;
+    p.cel.classList.add('virou');
+    if (comSom) som.vira();
+  }
+  function travar(p) {
+    p.travada = true;
+    p.el.classList.add('travada');
+  }
+  // Recado rápido no canto (depois volta o texto normal).
+  var recado = 0;
+  function avisar(html) {
+    var r = rodada;
+    dica(html);
+    clearTimeout(recado);
+    recado = setTimeout(function () { if (r === rodada) atualizar(); }, 1900);
+  }
+  function balancar(el, classe) {
+    el.classList.remove(classe);
+    void el.offsetWidth;
+    el.classList.add(classe);
+  }
+  // No jogo de uma por vez: esta peça pode ser pega agora? Se for a próxima
+  // carta ainda fechada, vira (e a peça anterior trava de vez).
+  function liberar(p) {
+    if (!cfg.uma) return true;
+    if (p.travada) {
+      balancar(p.pa, 'treme');
+      som.trava();
+      vibra(30);
+      avisar('Essa já travou.<br>Não dá para mudar');
+      return false;
+    }
+    if (p.aberta) return true;
+    var atual = pecas[vez];
+    if (p.i !== vez + 1) return false;
+    if (atual && !posta(atual)) {
+      balancar(atual.cel, 'vez');
+      som.trava();
+      avisar('Primeiro coloque<br>este órgão no corpo');
+      return false;
+    }
+    if (atual) travar(atual);
+    abrir(p.i, true);
+    balancar(p.pa, 'pulo');
+    atualizar();
+    return true;
+  }
+
   // ------------------------------------------------------------ arrastar e soltar
   function maisPerto(x, y) {
     var achado = null, menor = RAIO * RAIO;
     lugares.forEach(function (l) {
+      // uma por vez: bolinha ocupada é de peça travada, não dá para tomar o lugar
+      if (cfg.uma && l.peca) return;
       var d = (l.x - x) * (l.x - x) + (l.y - y) * (l.y - y);
       if (d < menor) { menor = d; achado = l; }
     });
@@ -477,7 +547,7 @@ export const CLIENTE = String.raw`
     if (alvo !== palco && alvo !== mesa) return null;
     var perto = null;
     pecas.forEach(function (p) {
-      if (!posta(p)) return;
+      if (!posta(p) || p.travada) return;
       if (Math.abs(pt.x - p.x) > p.w * K / 2 + 16 || Math.abs(pt.y - p.y) > p.h * K / 2 + 16) return;
       if (!perto || p.z > perto.z) perto = p;
     });
@@ -498,6 +568,7 @@ export const CLIENTE = String.raw`
     var pt = noPalco(e);
     var achada = pecaEm(e.target, pt);
     if (!achada || !achada.p) return;
+    if (!liberar(achada.p)) return;
     e.preventDefault();
 
     // de onde a peça saiu: uma bolinha, um ponto do corpo ou a bandeja (null)
@@ -653,8 +724,8 @@ export const CLIENTE = String.raw`
     $('ini-premio').textContent = texto;
 
     var t = cfg.tempo;
-    $('resumo').textContent = nivelAtual().nome + ' · ' + pecas.length + ' peças · ' +
-      (cfg.marcas ? 'com bolinhas' : 'sem dicas') + ' · ' +
+    $('resumo').firstChild.textContent = nivelAtual().nome + ' · ' + pecas.length + ' peças · ' +
+      (cfg.marcas ? 'com bolinhas' : 'sem dicas') + ' · ' + (cfg.uma ? 'uma por vez' : 'todas juntas') + ' · ' +
       (t ? (t >= 120 ? t / 60 + ' min' : t + ' segundos') : 'sem tempo');
 
     rel.resta = cfg.tempo;
@@ -673,9 +744,22 @@ export const CLIENTE = String.raw`
     bt.disabled = !tudo;
     rotulo(tudo || !postas ? 'Conferir' : (falta === 1 ? 'Falta 1' : 'Faltam ' + falta));
     if (tudo) bt.classList.add('chama'); else bt.classList.remove('chama');
-    dica(tudo ? 'Tudo no lugar?<br>Aperte conferir'
+    clearTimeout(recado);
+    var texto = tudo ? 'Tudo no lugar?<br>Aperte conferir'
       : postas ? postas + ' de ' + n + '<br>no corpo'
-      : 'Arraste cada órgão<br>até o lugar certo');
+      : 'Arraste cada órgão<br>até o lugar certo';
+    if (cfg.uma) {
+      // a próxima carta só fica pronta para virar quando a peça aberta já está no corpo
+      var atual = pecas[vez], prox = pecas[vez + 1];
+      var pronta = atual && posta(atual) && prox ? prox : null;
+      pecas.forEach(function (p) { if (p === pronta) p.cel.classList.add('pronta'); else p.cel.classList.remove('pronta'); });
+      if (!tudo) {
+        texto = pronta ? 'Vire a próxima carta<br>(esta peça trava)'
+          : postas ? postas + ' de ' + n + ' no corpo.<br>Arraste este órgão'
+          : 'Um órgão por vez:<br>arraste até o lugar certo';
+      }
+    }
+    dica(texto);
     if (tudo && !completo) som.pronto();
     completo = tudo;
   }
@@ -689,6 +773,7 @@ export const CLIENTE = String.raw`
       f -= 4;
       t.style.fontSize = f + 'px';
     }
+    encaixar($('resumo'), largura, 24, 13);
   }
 
   // ------------------------------------------------------------ cronômetro
@@ -746,6 +831,7 @@ export const CLIENTE = String.raw`
         rel.seg = -1;
         ligarRelogio(true);
         mostrarRelogio();
+        if (cfg.uma) { abrir(0, true); balancar(pecas[0].pa, 'pulo'); }
         atualizar();
       });
   }
@@ -780,6 +866,8 @@ export const CLIENTE = String.raw`
     $('menu-btn').disabled = true;
     plc.classList.remove('aperto');
     boca('surpreso');
+    clearTimeout(recado);
+    pecas.forEach(function (p) { abrir(p.i, false); p.cel.classList.remove('pronta'); });
 
     julgar();
     function porLugar(a, b) { return a.y - b.y || a.x - b.x; }
@@ -1034,12 +1122,16 @@ export const CLIENTE = String.raw`
       else if (c.hasAttribute('data-tempo')) on = +c.getAttribute('data-tempo') === cfg.tempo;
       else if (c.hasAttribute('data-som')) on = (c.getAttribute('data-som') === '1') === cfg.som;
       else if (c.hasAttribute('data-marcas')) on = (c.getAttribute('data-marcas') === '1') === cfg.marcas;
+      else if (c.hasAttribute('data-uma')) on = (c.getAttribute('data-uma') === '1') === cfg.uma;
       if (on) c.classList.add('on'); else c.classList.remove('on');
     }
     $('nivel-obs').textContent = descreverNivel(nivelAtual());
     $('dicas-obs').textContent = cfg.marcas
       ? 'Mais fácil: cada bolinha "?" no corpo marca o lugar de um órgão.'
-      : 'Mais difícil: corpo em branco. A pessoa solta cada órgão onde acha que ele fica.';
+      : 'Mais difícil: corpo em branco, a pessoa solta o órgão onde acha que fica.';
+    $('uma-obs').textContent = cfg.uma
+      ? 'Mais difícil: um órgão por vez, sorteado. Virou a próxima, o anterior trava.'
+      : 'Mais fácil: todos à mostra, dá para trocar de lugar até conferir.';
     $('som-btn').textContent = 'Som: ' + (cfg.som ? 'ligado' : 'desligado');
   }
 
@@ -1051,11 +1143,12 @@ export const CLIENTE = String.raw`
   }).join('');
   $('sons').innerHTML = '<button type="button" class="chip" data-som="1">Ligado</button><button type="button" class="chip" data-som="0">Desligado</button>';
   $('dicas').innerHTML = '<button type="button" class="chip" data-marcas="0">Sem dicas</button><button type="button" class="chip" data-marcas="1">Com bolinhas</button>';
+  $('umas').innerHTML = '<button type="button" class="chip" data-uma="1">Uma por vez</button><button type="button" class="chip" data-uma="0">Todas juntas</button>';
 
   $('ajustes').addEventListener('click', function (e) {
     var c = e.target.closest ? e.target.closest('button') : null;
     if (!c) return;
-    var antes = cfg.nivel, marcasAntes = cfg.marcas, i;
+    var antes = cfg.nivel, marcasAntes = cfg.marcas, umaAntes = cfg.uma, i;
     if (c.id === 'pr-mais') {
       for (i = 0; i < PREMIOS.length - 1 && PREMIOS[i] <= cfg.premio; i++);
       cfg.premio = PREMIOS[i];
@@ -1066,9 +1159,10 @@ export const CLIENTE = String.raw`
     else if (c.hasAttribute('data-tempo')) cfg.tempo = +c.getAttribute('data-tempo');
     else if (c.hasAttribute('data-som')) { cfg.som = c.getAttribute('data-som') === '1'; if (cfg.som) som.pronto(); }
     else if (c.hasAttribute('data-marcas')) cfg.marcas = c.getAttribute('data-marcas') === '1';
+    else if (c.hasAttribute('data-uma')) cfg.uma = c.getAttribute('data-uma') === '1';
     else if (c.id === 'fechar-ajustes') { $('ajustes').hidden = true; return; }
     salvar();
-    if (cfg.nivel !== antes || cfg.marcas !== marcasAntes) montar(); else prepararPlacar();
+    if (cfg.nivel !== antes || cfg.marcas !== marcasAntes || cfg.uma !== umaAntes) montar(); else prepararPlacar();
     pintarAjustes();
   });
 

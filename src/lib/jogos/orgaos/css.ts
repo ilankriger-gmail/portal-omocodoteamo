@@ -64,13 +64,25 @@ transform:translate(var(--x),var(--y));cursor:grab;transition:background-color .
 .cel .fan svg{position:absolute;overflow:visible}
 .cel .fan .sb{display:none}
 .cel .nm{position:absolute;left:4px;right:4px;bottom:0;text-align:center;white-space:nowrap;letter-spacing:.02em}
-.nm span,.dica span,#conferir span,.legenda span{display:inline-block}
+.nm span,.dica span,#conferir span,.legenda span,.resumo span{display:inline-block}
 .cel .mk{position:absolute;right:-13px;top:-13px;width:44px;height:44px;border-radius:50%;border:4px solid var(--tinta);display:none;place-items:center}
 .cel .mk .ic{width:24px;height:24px}
 .cel.ok{background:var(--certo)}
 .cel.no{background:var(--erro)}
 .cel.ok .mk{display:grid;background:var(--verde)}
 .cel.no .mk{display:grid;background:var(--vermelho)}
+/* uma peça por vez: cartas viradas para baixo, a próxima pulsa */
+.verso{position:absolute;left:0;top:0;right:0;bottom:0;border-radius:19px;background:var(--tinta);color:#5a5fa6;display:none;place-content:center;justify-items:center;text-align:center}
+.verso b{display:block;font-size:1em;line-height:1}
+.verso span{display:none;font-size:.19em;line-height:1;letter-spacing:.14em;margin-top:.5em}
+.cel.fechada{cursor:default}
+.cel.fechada .verso{display:grid}
+.cel.pronta{z-index:3;cursor:pointer;animation:carta 1s ease-in-out infinite}
+.cel.pronta .verso{color:var(--ouro)}
+.cel.pronta .verso span{display:block}
+.cel.virou{animation:vira .34s cubic-bezier(.3,1.4,.5,1)}
+@keyframes carta{0%,100%{transform:translate(var(--x),var(--y)) scale(1)}50%{transform:translate(var(--x),var(--y)) scale(1.055)}}
+@keyframes vira{0%{transform:translate(var(--x),var(--y)) scaleX(.05)}100%{transform:translate(var(--x),var(--y)) scaleX(1)}}
 .cel.vez{animation:vez .45s ease-out}
 @keyframes vez{0%{transform:translate(var(--x),var(--y)) scale(1)}40%{transform:translate(var(--x),var(--y)) scale(1.08)}100%{transform:translate(var(--x),var(--y)) scale(1)}}
 
@@ -83,6 +95,9 @@ transform:translate(var(--x),var(--y));cursor:grab;transition:background-color .
 .pc svg{overflow:visible}
 .pc svg *{pointer-events:visiblePainted;cursor:grab}
 .pc .sb,.pc .sb *{pointer-events:none}
+.pc.fechada{visibility:hidden}
+.pc.travada svg *{cursor:default}
+.pc.travada .folga{pointer-events:none}
 .sb{transform:translateY(7px);opacity:.2;transition:transform .15s,opacity .15s}
 .pc.arr .sb{transform:translateY(22px);opacity:.13}
 .arrastando,.arrastando *{cursor:grabbing!important}
@@ -149,7 +164,7 @@ margin:0 0 .1em .12em;transform:rotate(-3deg)}
 margin-top:.1em;transform:rotate(-1.5deg)}
 .bt-g{height:124px;margin-top:54px;padding:0 60px;font-size:60px;border-width:5px;border-radius:30px;box-shadow:0 10px 0 var(--tinta)}
 .bt-g:active{transform:translateY(8px);box-shadow:0 2px 0 var(--tinta)}
-.resumo{margin-top:30px;font-size:24px;letter-spacing:.06em;opacity:.8}
+.resumo{margin-top:30px;font-size:24px;letter-spacing:.06em;opacity:.8;white-space:nowrap}
 .ini-topo{position:absolute;right:28px;top:28px;z-index:5;display:grid;grid-auto-flow:column;grid-gap:14px;align-items:center}
 .mini{height:64px;padding:0 26px;border-radius:32px;background:var(--papel);border:4px solid var(--tinta);box-shadow:0 5px 0 var(--tinta);font-size:23px;letter-spacing:.06em;
 transition:transform .08s,box-shadow .08s}
@@ -176,9 +191,9 @@ animation:entra .32s cubic-bezier(.2,1.3,.4,1)}
 .cartao h2{font-size:58px;letter-spacing:-.01em}
 .par{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;grid-gap:22px;margin-top:34px}
 
-.aj{width:1120px;text-align:left}
-.aj h2{text-align:center;margin-bottom:26px}
-.lin{display:grid;grid-template-columns:170px 1fr;align-items:center;min-height:98px;border-top:4px solid var(--linha)}
+.aj{width:1120px;text-align:left;padding-top:34px;padding-bottom:40px}
+.aj h2{text-align:center;margin-bottom:16px}
+.lin{display:grid;grid-template-columns:170px 1fr;align-items:center;min-height:84px;border-top:4px solid var(--linha)}
 .lin .rot{font-size:28px;letter-spacing:.06em}
 .chips{display:flex;flex-wrap:wrap;margin:-6px}
 .chip{margin:6px;height:66px;padding:0 18px;border:4px solid var(--tinta);border-radius:18px;background:var(--papel);font-size:27px;white-space:nowrap;
@@ -188,8 +203,8 @@ display:inline-grid;place-items:center;transition:transform .08s}
 .passo{display:grid;grid-auto-flow:column;justify-content:start;align-items:center;grid-gap:20px}
 .passo b{min-width:230px;text-align:center;font-size:52px;white-space:nowrap}
 .passo .rd{font-size:44px;line-height:1;padding-bottom:6px}
-.obs{font-size:22px;line-height:1.3;letter-spacing:.02em;text-transform:none;font-weight:700;opacity:.75;padding:0 0 16px 170px;margin-top:-8px}
-.aj .bt{display:grid;width:100%;margin-top:20px}
+.obs{font-size:20px;line-height:1.3;letter-spacing:.02em;text-transform:none;font-weight:700;opacity:.75;padding:0 0 12px 170px;margin-top:-6px}
+.aj .bt{display:grid;width:100%;margin-top:14px}
 
 .pausa{width:640px}
 .pausa .bt{display:grid;width:100%;margin-top:24px}
@@ -205,6 +220,6 @@ display:inline-grid;place-items:center;transition:transform .08s}
 .res .par{margin-top:44px}
 
 @media (prefers-reduced-motion:reduce){
-.lg i,.solto,#conferir.chama,.relogio.aperto{animation:none}
+.lg i,.solto,#conferir.chama,.relogio.aperto,.cel.pronta{animation:none}
 }
 `;

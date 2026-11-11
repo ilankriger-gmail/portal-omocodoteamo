@@ -322,11 +322,15 @@ sem banco e sem requisição extra. Fica em `src/lib/jogos/orgaos`:
 - `cliente.ts` — script do navegador guardado como texto (não usar crase nem `${` dentro dele)
 - `render.ts` — monta a página
 
-Dois jeitos de jogar (ajuste "Dicas"): **sem dicas** (padrão) o corpo fica em branco, a peça fica onde foi solta e
-acerta quem deixar o centro dela dentro da `zona` do órgão; **com bolinhas** cada "?" marca um lugar e a peça gruda nele.
+Dois ajustes controlam a dificuldade, e o padrão é o mais difícil de cada um:
 
-Os ajustes (prêmio, nível, dicas, tempo, som) ficam no `localStorage` do aparelho e também valem pelo endereço:
-`/jogos/orgaos?premio=750&nivel=dificil&tempo=60&dicas=0`. A página tem `noindex`.
+- **Dicas** — *sem dicas* (padrão): corpo em branco, a peça fica onde foi solta e acerta quem deixar o centro dela
+  dentro da `zona` do órgão. *Com bolinhas*: cada "?" marca um lugar e a peça gruda nele.
+- **Peças** — *uma por vez* (padrão): as cartas começam viradas, em ordem sorteada; a próxima só vira com a atual no
+  corpo e, ao virar, a anterior trava. *Todas juntas*: tudo à mostra e dá para trocar de lugar até conferir.
+
+Os ajustes (prêmio, nível, dicas, peças, tempo, som) ficam no `localStorage` do aparelho e também valem pelo endereço:
+`/jogos/orgaos?premio=750&nivel=dificil&tempo=60&dicas=0&uma=1`. A página tem `noindex`.
 
 ## Deploy
 

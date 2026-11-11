@@ -59,7 +59,7 @@ function montarPagina(): string {
 <div class="ini-txt">
 <h1 id="titulo">Por <span class="tag" id="ini-premio">R$ 500</span><br>você coloca<br>os órgãos no<br><span class="faixa">lugar certo?</span></h1>
 <button id="comecar" class="bt bt-verde bt-g" type="button">Começar</button>
-<p id="resumo" class="resumo"></p>
+<p id="resumo" class="resumo"><span></span></p>
 </div>
 <div id="ini-arte" class="ini-arte"></div>
 <div class="ini-topo"><button id="abrir-ajustes" class="mini" type="button">Ajustes</button><button id="cheia-ini" class="rd" type="button" aria-label="Tela cheia">${IC_CHEIA}</button></div>
@@ -74,6 +74,8 @@ function montarPagina(): string {
 <p class="obs" id="nivel-obs"></p>
 <div class="lin"><span class="rot">Dicas</span><div class="chips" id="dicas"></div></div>
 <p class="obs" id="dicas-obs"></p>
+<div class="lin"><span class="rot">Peças</span><div class="chips" id="umas"></div></div>
+<p class="obs" id="uma-obs"></p>
 <div class="lin"><span class="rot">Tempo</span><div class="chips" id="tempos"></div></div>
 <div class="lin"><span class="rot">Som</span><div class="chips" id="sons"></div></div>
 <button id="fechar-ajustes" class="bt bt-verde" type="button">Pronto</button>
