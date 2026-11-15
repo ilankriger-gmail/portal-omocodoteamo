@@ -6,6 +6,8 @@ import { garantirTabelas, sugestaoInicial } from "./inicial";
 // for editado depois no admin nunca é desfeito por aqui.
 
 const VAKINHA_URL = "https://www.vakinha.com.br/6462817";
+const VAKINHA_TITULO_PROVISORIO = "Ajude nessa Vakinha 💛";
+const VAKINHA_TITULO = "Vamos mudar a vida do Anderson e da sua família";
 
 const AJUSTES: { id: string; aplicar: (tx: Tx) => Promise<void> }[] = [
   {
@@ -45,7 +47,7 @@ const AJUSTES: { id: string; aplicar: (tx: Tx) => Promise<void> }[] = [
       ]);
       await tx.agregadorLink.create({
         data: {
-          titulo: "Ajude nessa Vakinha 💛",
+          titulo: VAKINHA_TITULO,
           url: VAKINHA_URL,
           // Vira o botão de destaque só se nenhum outro link visível já for
           destaque: !outroDestaque,
@@ -55,7 +57,22 @@ const AJUSTES: { id: string; aplicar: (tx: Tx) => Promise<void> }[] = [
       });
     },
   },
+  {
+    // A Vakinha entrou com um título provisório; troca pelo nome da campanha.
+    // Só mexe se o título ainda for o provisório (não sobrescreve edição do admin).
+    id: "2026-11-titulo-vakinha-anderson",
+    aplicar: async (tx) => {
+      await tx.agregadorLink.updateMany({
+        where: { url: { contains: "vakinha.com.br/6462817" }, titulo: VAKINHA_TITULO_PROVISORIO },
+        data: { titulo: VAKINHA_TITULO },
+      });
+    },
+  },
 ];
+
+// Muda a cada ajuste novo. Entra na chave do cache de dados, para o deploy
+// começar com cache frio e o ajuste valer já no primeiro acesso.
+export const AJUSTES_VERSAO = AJUSTES[AJUSTES.length - 1].id;
 
 type Tx = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
