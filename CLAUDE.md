@@ -309,6 +309,9 @@ Tabelas: `AgregadorPerfil`, `AgregadorLink`, `AgregadorRede` — criadas automat
 (`garantirTabelas` em `src/lib/agregador/inicial.ts`), sem precisar de `db push`. Enquanto nada é publicado,
 a página mostra uma sugestão montada com o perfil "O Moço do Te Amo" e suas redes. Admin salva tudo de uma vez via `PUT /api/agregador`.
 
+Ajustes pontuais de conteúdo feitos por deploy (sem passar pelo admin) ficam em `src/lib/agregador/ajustes.ts`:
+cada um roda uma única vez (registrado na tabela `AgregadorAjuste`) e não desfaz edições posteriores do admin.
+
 ## Jogo dos Órgãos
 
 Jogo de gravação "Por R$ 500 você coloca os órgãos no lugar certo?", em `/jogos/orgaos`
