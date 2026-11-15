@@ -2,6 +2,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { isPlataforma } from "./icons";
 import { garantirTabelas, sugestaoInicial } from "./inicial";
+import { aplicarAjustes } from "./ajustes";
 
 const urlSegura = z
   .string()
@@ -40,6 +41,7 @@ export type AgregadorPayload = z.infer<typeof agregadorSchema>;
 
 export async function carregarAgregadorAdmin() {
   await garantirTabelas();
+  await aplicarAjustes();
   const [perfil, links, redes] = await Promise.all([
     prisma.agregadorPerfil.findFirst(),
     prisma.agregadorLink.findMany({ orderBy: { ordem: "asc" } }),
