@@ -197,8 +197,8 @@ animation:entra .32s cubic-bezier(.2,1.3,.4,1)}
 .cartao h2{font-size:58px;letter-spacing:-.01em}
 .par{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;grid-gap:22px;margin-top:34px}
 
-.aj{width:1120px;text-align:left;padding-top:34px;padding-bottom:40px}
-.aj-topo{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.aj{width:1120px;text-align:left;padding-top:26px;padding-bottom:30px}
+.aj-topo{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .abas{display:flex;gap:6px;padding:6px;border-radius:22px;background:var(--linha)}
 .aba{height:60px;padding:0 30px;border-radius:16px;font-size:26px;letter-spacing:.06em}
 .aba.on{background:var(--tinta);color:var(--ouro)}
@@ -206,18 +206,18 @@ animation:entra .32s cubic-bezier(.2,1.3,.4,1)}
 .painel{grid-area:1/1}
 .painel.fora{visibility:hidden}
 .passo.off{opacity:.35;pointer-events:none}
-.lin{display:grid;grid-template-columns:170px 1fr;align-items:center;min-height:84px;border-top:4px solid var(--linha)}
+.lin{display:grid;grid-template-columns:170px 1fr;align-items:center;min-height:76px;border-top:4px solid var(--linha)}
 .lin .rot{font-size:28px;letter-spacing:.06em}
 .chips{display:flex;flex-wrap:wrap;margin:-6px}
-.chip{margin:6px;height:66px;padding:0 18px;border:4px solid var(--tinta);border-radius:18px;background:var(--papel);font-size:27px;white-space:nowrap;
+.chip{margin:5px;height:60px;padding:0 18px;border:4px solid var(--tinta);border-radius:18px;background:var(--papel);font-size:27px;white-space:nowrap;
 display:inline-grid;place-items:center;transition:transform .08s}
 .chip:active{transform:scale(.95)}
 .chip.on{background:var(--tinta);color:var(--ouro)}
 .passo{display:grid;grid-auto-flow:column;justify-content:start;align-items:center;grid-gap:20px}
 .passo b{min-width:230px;text-align:center;font-size:52px;white-space:nowrap}
 .passo .rd{font-size:44px;line-height:1;padding-bottom:6px}
-.obs{font-size:20px;line-height:1.3;letter-spacing:.02em;text-transform:none;font-weight:700;opacity:.75;padding:0 0 12px 170px;margin-top:-6px}
-.aj .bt{display:grid;width:100%;margin-top:14px}
+.obs{font-size:20px;line-height:1.25;letter-spacing:.02em;text-transform:none;font-weight:700;opacity:.75;padding:0 0 10px 170px;margin-top:-4px}
+.aj .bt{display:grid;width:100%;height:84px;margin-top:12px}
 
 .pausa{width:640px}
 .pausa .bt{display:grid;width:100%;margin-top:24px}

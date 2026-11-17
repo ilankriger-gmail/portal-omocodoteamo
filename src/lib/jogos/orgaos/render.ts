@@ -79,6 +79,8 @@ function montarPagina(): string {
 <p class="obs" id="dicas-obs"></p>
 <div class="lin"><span class="rot">Peças</span><div class="chips" id="umas"></div></div>
 <p class="obs" id="uma-obs"></p>
+<div class="lin"><span class="rot">Tamanho</span><div class="chips" id="iguais"></div></div>
+<p class="obs" id="igual-obs"></p>
 <div class="lin"><span class="rot">Tempo</span><div class="chips" id="tempos"></div></div>
 <div class="lin"><span class="rot">Som</span><div class="chips" id="sons"></div></div>
 </div>

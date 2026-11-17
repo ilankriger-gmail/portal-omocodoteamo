@@ -63,12 +63,13 @@ export const CLIENTE = String.raw`
   var PREMIOS = [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 800, 900, 1000, 1200, 1500, 2000, 2500, 3000, 5000, 10000];
   var SOBES = [0, 50, 100, 200, 500];
   var TEMPOS = [0, 30, 45, 60, 90, 120];
-  var GUARDA = 'jogo-orgaos-3';
+  var GUARDA = 'jogo-orgaos-4';
   // premio = quanto vale para a primeira pessoa; quem erra passa a vez e a próxima
   //   pessoa joga valendo "sobe" a mais, até "teto" (500, 600, ... 1.000)
   // marcas = bolinhas "?" mostrando os lugares no corpo (deixa o jogo bem mais fácil)
   // uma = as peças saem uma por vez, em ordem sorteada, e a anterior trava (mais difícil)
-  var cfg = { premio: 500, sobe: 100, teto: 1000, nivel: 'medio', tempo: 60, som: true, marcas: false, uma: true };
+  // igual = no corpo todo órgão tem o mesmo tamanho, o tamanho não entrega o lugar (mais difícil)
+  var cfg = { premio: 500, sobe: 100, teto: 1000, nivel: 'dificil', tempo: 60, som: true, marcas: false, uma: true, igual: true };
 
   // ------------------------------------------------------------ escada do prêmio
   var MAX_DEGRAUS = 12;
@@ -97,14 +98,19 @@ export const CLIENTE = String.raw`
     try {
       var salvo = JSON.parse(localStorage.getItem(GUARDA) || 'null');
       if (!salvo) {
-        // ajustes da versão anterior: aproveita tudo, menos o tempo (o padrão agora é 1 minuto)
-        salvo = JSON.parse(localStorage.getItem('jogo-orgaos-2') || 'null');
-        if (salvo) delete salvo.tempo;
+        // ajustes de versões anteriores: aproveita o que ainda vale. O nível volta para o
+        // novo padrão (Difícil) e, da versão de 2 minutos, o tempo volta para 1 minuto.
+        salvo = JSON.parse(localStorage.getItem('jogo-orgaos-3') || 'null');
+        if (!salvo) {
+          salvo = JSON.parse(localStorage.getItem('jogo-orgaos-2') || 'null');
+          if (salvo) delete salvo.tempo;
+        }
+        if (salvo) delete salvo.nivel;
       }
       if (salvo) for (var c in cfg) if (typeof salvo[c] === typeof cfg[c]) cfg[c] = salvo[c];
     } catch (e) {}
     // Também dá para ajustar pelo endereço:
-    // ?premio=500&sobe=100&teto=1000&nivel=dificil&tempo=60&dicas=1&uma=0
+    // ?premio=500&sobe=100&teto=1000&nivel=dificil&tempo=60&dicas=1&uma=0&igual=0
     try {
       var q = new URLSearchParams(location.search);
       var p = parseInt(q.get('premio'), 10);
@@ -118,6 +124,7 @@ export const CLIENTE = String.raw`
       if (q.get('nivel')) cfg.nivel = q.get('nivel');
       if (q.get('dicas') === '1' || q.get('dicas') === '0') cfg.marcas = q.get('dicas') === '1';
       if (q.get('uma') === '1' || q.get('uma') === '0') cfg.uma = q.get('uma') === '1';
+      if (q.get('igual') === '1' || q.get('igual') === '0') cfg.igual = q.get('igual') === '1';
     } catch (e) {}
     if (!J.niveis.some(function (n) { return n.id === cfg.nivel; })) cfg.nivel = 'medio';
     normalizarEscada();
@@ -296,6 +303,11 @@ export const CLIENTE = String.raw`
     return v;
   }
   function camada(p, z) { p.el.style.zIndex = z; }
+  // Tamanho da peça no corpo. Com "todos iguais", cada órgão cabe na mesma caixa
+  // (TAM, na régua do boneco) e o tamanho não entrega onde ele vai; na resposta
+  // final as peças voltam ao tamanho de verdade (p.real).
+  var TAM = 120;
+  function escala(p) { return K * (cfg.igual && !p.real ? TAM / Math.max(p.w, p.h) : 1); }
   // Uma peça está no corpo presa a uma bolinha (p.lugar) ou solta num ponto (p.livre).
   function posta(p) { return !!(p.lugar || p.livre); }
   function virar(p, sim) {
@@ -354,7 +366,7 @@ export const CLIENTE = String.raw`
         el: el, pi: pi, pa: pa, pv: pa.firstChild, selo: selo,
         cel: cel, fan: cel.firstChild, nm: cel.children[1], verso: cel.children[3],
         lado: i < metade ? 0 : 1, viraCasa: !!d.vira, vira: false, giro: 0,
-        lugar: null, livre: null, alvo: null, aberta: !cfg.uma, travada: false,
+        lugar: null, livre: null, alvo: null, aberta: !cfg.uma, travada: false, real: false,
         casa: { x: 0, y: 0, s: 1 }, x: 0, y: 0, s: 1, z: 100, certa: null
       });
     });
@@ -433,8 +445,8 @@ export const CLIENTE = String.raw`
 
     pecas.forEach(function (p) {
       if (arr && arr.p === p) return;
-      if (p.lugar) por(p, p.lugar.x, p.lugar.y, K, modo);
-      else if (p.livre) por(p, x0 + p.livre.bx * K, CORPO_Y + p.livre.by * K, K, modo);
+      if (p.lugar) por(p, p.lugar.x, p.lugar.y, escala(p), modo);
+      else if (p.livre) por(p, x0 + p.livre.bx * K, CORPO_Y + p.livre.by * K, escala(p), modo);
       else por(p, p.casa.x, p.casa.y, p.casa.s, modo);
     });
   }
@@ -471,7 +483,7 @@ export const CLIENTE = String.raw`
     l.el.classList.add('cheio');
     virarPeloLado(p, l.def.x);
     p.giro = 0;
-    por(p, l.x, l.y, K, modo);
+    por(p, l.x, l.y, escala(p), modo);
     camada(p, p.z);
     p.el.classList.add('posta');
   }
@@ -482,7 +494,7 @@ export const CLIENTE = String.raw`
     p.livre = { bx: bx, by: by };
     virarPeloLado(p, bx);
     p.giro = 0;
-    por(p, G.W / 2 - CORPO_W / 2 + bx * K, CORPO_Y + by * K, K, modo);
+    por(p, G.W / 2 - CORPO_W / 2 + bx * K, CORPO_Y + by * K, escala(p), modo);
     camada(p, p.z);
     p.el.classList.add('posta');
   }
@@ -612,7 +624,8 @@ export const CLIENTE = String.raw`
     var perto = null;
     pecas.forEach(function (p) {
       if (!posta(p) || p.travada) return;
-      if (Math.abs(pt.x - p.x) > p.w * K / 2 + 16 || Math.abs(pt.y - p.y) > p.h * K / 2 + 16) return;
+      var s = escala(p);
+      if (Math.abs(pt.x - p.x) > p.w * s / 2 + 16 || Math.abs(pt.y - p.y) > p.h * s / 2 + 16) return;
       if (!perto || p.z > perto.z) perto = p;
     });
     return perto ? { p: perto, naPeca: true } : null;
@@ -669,7 +682,7 @@ export const CLIENTE = String.raw`
     arr.ox += (arr.ax - arr.ox) * f;
     arr.oy += (arr.ay - arr.oy) * f;
     var x = limita(arr.px + arr.ox, 24, G.W - 24), y = limita(arr.py + arr.oy, 24, 976);
-    por(arr.p, x, y, K * 1.07, false);
+    por(arr.p, x, y, escala(arr.p) * 1.07, false);
     var l = cfg.marcas ? maisPerto(x, y) : null;
     if (l !== arr.alvo) {
       if (arr.alvo) arr.alvo.el.classList.remove('alvo');
@@ -1099,12 +1112,30 @@ export const CLIENTE = String.raw`
       : passaAVez() ? 'Esta é a resposta.<br>Próxima pessoa: ' + reais(escada()[degrau])
       : 'Esta é a resposta.<br>Acertou ' + acertos + ' de ' + n);
     if (!ganhou && !respostaMostrada) mostrarResposta();
+    else if (ganhou) tamanhoReal(pecas, 250);
+  }
+
+  // No fim, os órgãos voltam ao tamanho de verdade: a última imagem do vídeo
+  // fica como um mapa do corpo.
+  function tamanhoReal(lista, atraso) {
+    if (!cfg.igual) return;
+    var r = rodada;
+    setTimeout(function () {
+      if (r !== rodada) return;
+      lista.forEach(function (p) {
+        if (!posta(p) || p.real) return;
+        p.real = true;
+        if (p.lugar) por(p, p.lugar.x, p.lugar.y, escala(p), 'lento');
+        else por(p, G.W / 2 - CORPO_W / 2 + p.livre.bx * K, CORPO_Y + p.livre.by * K, escala(p), 'lento');
+      });
+    }, atraso);
   }
 
   function mostrarResposta() {
     respostaMostrada = true;
     var r = rodada;
     var erradas = pecas.filter(function (p) { return !p.certa; });
+    tamanhoReal(pecas.filter(function (p) { return p.certa; }), 250);
     erradas.forEach(function (p, i) {
       p.selo.className = 'selo';
       var l = p.alvo;
@@ -1112,6 +1143,7 @@ export const CLIENTE = String.raw`
       setTimeout(function () {
         if (r !== rodada) return;
         camada(p, 950);
+        p.real = cfg.igual;      // vai para o lugar certo já no tamanho de verdade
         if (cfg.marcas) ocupar(p, l, 'lento'); else pousar(p, l.def.x, l.def.y, 'lento');
         camada(p, 950);
         som.pega();
@@ -1237,6 +1269,7 @@ export const CLIENTE = String.raw`
       else if (c.hasAttribute('data-som')) on = (c.getAttribute('data-som') === '1') === cfg.som;
       else if (c.hasAttribute('data-marcas')) on = (c.getAttribute('data-marcas') === '1') === cfg.marcas;
       else if (c.hasAttribute('data-uma')) on = (c.getAttribute('data-uma') === '1') === cfg.uma;
+      else if (c.hasAttribute('data-igual')) on = (c.getAttribute('data-igual') === '1') === cfg.igual;
       else if (c.hasAttribute('data-sobe')) on = +c.getAttribute('data-sobe') === cfg.sobe;
       else if (c.hasAttribute('data-degrau')) on = +c.getAttribute('data-degrau') === degrau;
       if (on) c.classList.add('on'); else c.classList.remove('on');
@@ -1245,6 +1278,9 @@ export const CLIENTE = String.raw`
     $('dicas-obs').textContent = cfg.marcas
       ? 'Mais fácil: cada bolinha "?" no corpo marca o lugar de um órgão.'
       : 'Mais difícil: corpo em branco, a pessoa solta o órgão onde acha que fica.';
+    $('igual-obs').textContent = cfg.igual
+      ? 'Mais difícil: todo órgão do mesmo tamanho, o tamanho não entrega o lugar.'
+      : 'Mais fácil: cada órgão no tamanho de verdade.';
     $('uma-obs').textContent = cfg.uma
       ? 'Mais difícil: um órgão por vez, sorteado. Virou a próxima, o anterior trava.'
       : 'Mais fácil: todos à mostra, dá para trocar de lugar até conferir.';
@@ -1260,6 +1296,7 @@ export const CLIENTE = String.raw`
   $('sons').innerHTML = '<button type="button" class="chip" data-som="1">Ligado</button><button type="button" class="chip" data-som="0">Desligado</button>';
   $('dicas').innerHTML = '<button type="button" class="chip" data-marcas="0">Sem dicas</button><button type="button" class="chip" data-marcas="1">Com bolinhas</button>';
   $('umas').innerHTML = '<button type="button" class="chip" data-uma="1">Uma por vez</button><button type="button" class="chip" data-uma="0">Todas juntas</button>';
+  $('iguais').innerHTML = '<button type="button" class="chip" data-igual="1">Todos iguais</button><button type="button" class="chip" data-igual="0">Tamanho real</button>';
   $('sobes').innerHTML = SOBES.map(function (v) {
     return '<button type="button" class="chip" data-sobe="' + v + '">' + (v ? '+' + milhar(v) : 'Não sobe') + '</button>';
   }).join('');
@@ -1276,7 +1313,7 @@ export const CLIENTE = String.raw`
   $('ajustes').addEventListener('click', function (e) {
     var c = e.target.closest ? e.target.closest('button') : null;
     if (!c) return;
-    var antes = cfg.nivel, marcasAntes = cfg.marcas, umaAntes = cfg.uma, i, op;
+    var antes = cfg.nivel, marcasAntes = cfg.marcas, umaAntes = cfg.uma, igualAntes = cfg.igual, i, op;
     // escada: 'zera' volta para a primeira pessoa; 'mantem' fica no mesmo valor
     var valorAntes = escada()[degrau], mexeu = '';
     if (c.hasAttribute('data-aba')) { trocarAba(c.getAttribute('data-aba')); return; }
@@ -1305,6 +1342,7 @@ export const CLIENTE = String.raw`
     else if (c.hasAttribute('data-som')) { cfg.som = c.getAttribute('data-som') === '1'; if (cfg.som) som.pronto(); }
     else if (c.hasAttribute('data-marcas')) cfg.marcas = c.getAttribute('data-marcas') === '1';
     else if (c.hasAttribute('data-uma')) cfg.uma = c.getAttribute('data-uma') === '1';
+    else if (c.hasAttribute('data-igual')) cfg.igual = c.getAttribute('data-igual') === '1';
     else if (c.id === 'fechar-ajustes') { $('ajustes').hidden = true; return; }
     if (mexeu) {
       normalizarEscada();
@@ -1312,7 +1350,7 @@ export const CLIENTE = String.raw`
       salvarDegrau();
     }
     salvar();
-    if (cfg.nivel !== antes || cfg.marcas !== marcasAntes || cfg.uma !== umaAntes) montar(); else prepararPlacar();
+    if (cfg.nivel !== antes || cfg.marcas !== marcasAntes || cfg.uma !== umaAntes || cfg.igual !== igualAntes) montar(); else prepararPlacar();
     pintarAjustes();
   });
 

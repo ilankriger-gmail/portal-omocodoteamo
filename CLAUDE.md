@@ -325,12 +325,16 @@ sem banco e sem requisição extra. Fica em `src/lib/jogos/orgaos`:
 - `cliente.ts` — script do navegador guardado como texto (não usar crase nem `${` dentro dele)
 - `render.ts` — monta a página
 
-Dois ajustes controlam a dificuldade, e o padrão é o mais difícil de cada um:
+Três ajustes controlam a dificuldade (além do nível), e o padrão é o mais difícil de cada um. O nível padrão é
+**Difícil**: 12 peças, os 10 do Médio mais baço e pâncreas.
 
 - **Dicas** — *sem dicas* (padrão): corpo em branco, a peça fica onde foi solta e acerta quem deixar o centro dela
   dentro da `zona` do órgão. *Com bolinhas*: cada "?" marca um lugar e a peça gruda nele.
 - **Peças** — *uma por vez* (padrão): as cartas começam viradas, em ordem sorteada; a próxima só vira com a atual no
   corpo e, ao virar, a anterior trava. *Todas juntas*: tudo à mostra e dá para trocar de lugar até conferir.
+- **Tamanho** — *todos iguais* (padrão): no corpo cada órgão cabe na mesma caixa (`TAM` em `cliente.ts`, na régua do
+  boneco), então o tamanho não entrega o lugar; ao mostrar a resposta (ou "Ver o corpo"), as peças crescem para o
+  tamanho de verdade. *Tamanho real*: cada órgão no tamanho do desenho desde o começo.
 
 Regras da gravação: **tem que acertar todos** e o padrão é **1 minuto** (relógio na tela, avisado na abertura).
 Quem erra passa a vez e a **próxima pessoa joga valendo mais**: o prêmio sobe de R$ 100 em R$ 100, de R$ 500 até
@@ -339,9 +343,10 @@ vídeo): só o título com o valor da vez, os avisos "Só 1 minuto" e "Tem que a
 fica no `sessionStorage` da aba (recarregar a página não perde o valor) e pode ser mudado à mão em Ajustes → Prêmio →
 "Agora".
 
-Os ajustes (prêmio inicial, quanto sobe, teto, nível, dicas, peças, tempo, som) ficam no `localStorage` do aparelho
-(chave `jogo-orgaos-3`; a `jogo-orgaos-2` antiga é aproveitada, menos o tempo) e também valem pelo endereço:
-`/jogos/orgaos?premio=500&sobe=100&teto=1000&nivel=dificil&tempo=60&dicas=0&uma=1`. A página tem `noindex`.
+Os ajustes (prêmio inicial, quanto sobe, teto, nível, dicas, peças, tamanho, tempo, som) ficam no `localStorage` do aparelho
+(chave `jogo-orgaos-4`; as chaves antigas `-3` e `-2` são aproveitadas, menos o nível, e da `-2` também menos o
+tempo) e também valem pelo endereço:
+`/jogos/orgaos?premio=500&sobe=100&teto=1000&nivel=dificil&tempo=60&dicas=0&uma=1&igual=1`. A página tem `noindex`.
 
 ## Deploy
 
