@@ -50,7 +50,7 @@ function montarPagina(): string {
 <div id="mesa">
 <div id="corpo"></div>
 <div id="premio" class="premio"><span>Valendo</span><b>R$ 500</b></div>
-<div id="relogio" class="relogio" hidden><b>2:00</b><span>min</span></div>
+<div id="relogio" class="relogio" hidden><b>1:00</b><span>min</span></div>
 <button id="menu-btn" class="rd" type="button" aria-label="Pausar">${IC_PAUSA}</button>
 <div id="dica" class="dica"></div>
 <button id="conferir" class="bt bt-verde" type="button" disabled><span>Conferir</span></button>
@@ -60,10 +60,8 @@ function montarPagina(): string {
 <section id="inicio" class="tela">
 <div class="ini-txt">
 <h1 id="titulo">Por <span class="tag" id="ini-premio">R$ 500</span><br>você coloca<br>os órgãos no<br><span class="faixa">lugar certo?</span></h1>
-<div id="regras" class="regras"><span id="regra-tempo" class="regra tempo">${IC_RELOGIO}<b>Só 2 minutos</b></span><span class="regra">${IC_TODOS}<b>Tem que acertar todos</b></span></div>
-<div id="escada" class="escada" hidden></div>
+<div id="regras" class="regras"><span id="regra-tempo" class="regra tempo">${IC_RELOGIO}<b>Só 1 minuto</b></span><span class="regra">${IC_TODOS}<b>Tem que acertar todos</b></span></div>
 <button id="comecar" class="bt bt-verde bt-g" type="button">Começar</button>
-<p id="resumo" class="resumo"><span></span></p>
 </div>
 <div id="ini-arte" class="ini-arte"></div>
 <div class="ini-topo"><button id="abrir-ajustes" class="mini" type="button">Ajustes</button><button id="cheia-ini" class="rd" type="button" aria-label="Tela cheia">${IC_CHEIA}</button></div>

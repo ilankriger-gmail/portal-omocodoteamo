@@ -63,12 +63,12 @@ export const CLIENTE = String.raw`
   var PREMIOS = [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 800, 900, 1000, 1200, 1500, 2000, 2500, 3000, 5000, 10000];
   var SOBES = [0, 50, 100, 200, 500];
   var TEMPOS = [0, 30, 45, 60, 90, 120];
-  var GUARDA = 'jogo-orgaos-2';
+  var GUARDA = 'jogo-orgaos-3';
   // premio = quanto vale para a primeira pessoa; quem erra passa a vez e a próxima
   //   pessoa joga valendo "sobe" a mais, até "teto" (500, 600, ... 1.000)
   // marcas = bolinhas "?" mostrando os lugares no corpo (deixa o jogo bem mais fácil)
   // uma = as peças saem uma por vez, em ordem sorteada, e a anterior trava (mais difícil)
-  var cfg = { premio: 500, sobe: 100, teto: 1000, nivel: 'medio', tempo: 120, som: true, marcas: false, uma: true };
+  var cfg = { premio: 500, sobe: 100, teto: 1000, nivel: 'medio', tempo: 60, som: true, marcas: false, uma: true };
 
   // ------------------------------------------------------------ escada do prêmio
   var MAX_DEGRAUS = 12;
@@ -96,10 +96,15 @@ export const CLIENTE = String.raw`
   (function () {
     try {
       var salvo = JSON.parse(localStorage.getItem(GUARDA) || 'null');
+      if (!salvo) {
+        // ajustes da versão anterior: aproveita tudo, menos o tempo (o padrão agora é 1 minuto)
+        salvo = JSON.parse(localStorage.getItem('jogo-orgaos-2') || 'null');
+        if (salvo) delete salvo.tempo;
+      }
       if (salvo) for (var c in cfg) if (typeof salvo[c] === typeof cfg[c]) cfg[c] = salvo[c];
     } catch (e) {}
     // Também dá para ajustar pelo endereço:
-    // ?premio=500&sobe=100&teto=1000&nivel=dificil&tempo=120&dicas=1&uma=0
+    // ?premio=500&sobe=100&teto=1000&nivel=dificil&tempo=60&dicas=1&uma=0
     try {
       var q = new URLSearchParams(location.search);
       var p = parseInt(q.get('premio'), 10);
@@ -786,11 +791,6 @@ export const CLIENTE = String.raw`
     $('ini-premio').textContent = texto;
     pintarRegras();
 
-    var t = cfg.tempo;
-    $('resumo').firstChild.textContent = nivelAtual().nome + ' · ' + pecas.length + ' peças · ' +
-      (cfg.marcas ? 'com bolinhas' : 'sem dicas') + ' · ' + (cfg.uma ? 'uma por vez' : 'todas juntas') + ' · ' +
-      (t ? textoTempo(t) : 'sem tempo');
-
     rel.resta = cfg.tempo;
     rel.seg = -1;
     rel.anda = false;
@@ -827,20 +827,12 @@ export const CLIENTE = String.raw`
     completo = tudo;
   }
 
-  // Tela inicial: "Só 2 minutos", "Tem que acertar todos" e a escada do prêmio.
+  // Tela inicial: só o essencial, grande, para ler no vídeo ("Só 1 minuto" e
+  // "Tem que acertar todos"). O valor da vez já aparece no título.
   function pintarRegras() {
     var rt = $('regra-tempo');
     rt.hidden = !cfg.tempo;
-    rt.lastChild.textContent = 'Só ' + textoTempo(cfg.tempo || 120);
-    var e = escada(), el = $('escada');
-    if (e.length < 2) { el.hidden = true; el.innerHTML = ''; return; }
-    var h = '<p class="esc-rot">Errou? A próxima pessoa joga valendo mais</p><ol class="degraus">';
-    e.forEach(function (v, i) {
-      h += '<li' + (i < degrau ? ' class="foi"' : i === degrau ? ' class="agora"' : '') + '>' +
-        (i === degrau ? reais(v) : milhar(v)) + '</li>';
-    });
-    el.innerHTML = h + '</ol>';
-    el.hidden = false;
+    rt.lastChild.textContent = 'Só ' + textoTempo(cfg.tempo || 60);
   }
 
   // Diminui a letra do bloco até ele caber na largura.
@@ -858,15 +850,19 @@ export const CLIENTE = String.raw`
   function ajustarTitulo() {
     var t = $('titulo');
     if (!t || !G.W) return;
-    // a coluna de texto vai até pouco antes do desenho da direita (que tem ~620 de largura,
-    // contando os órgãos soltos); nas telas mais quadradas isso aperta o texto
-    var largura = Math.min(G.W * 0.56 - 50, G.W * 0.78 - 76 - 620 / 2 - 40), f = 132;
-    caber($('regras'), largura, 26, 13);
-    caber($('escada'), largura, 26, 12);
-    encaixar($('resumo'), largura, 24, 13);
+    // a coluna de texto vai até pouco antes do desenho da direita (centro em 80% da
+    // largura, ~590 de largura contando os órgãos soltos); nas telas mais quadradas
+    // isso aperta o texto
+    var largura = Math.min(G.W * 0.62 - 60, G.W * 0.80 - 76 - 590 / 2 - 40), f = 156;
+    // os dois avisos ficam lado a lado; se para caber a letra ficar pequena demais
+    // (telas mais quadradas), um vai embaixo do outro, grandes
+    var reg = $('regras');
+    reg.classList.remove('empilha');
+    caber(reg, largura, 40, 34);
+    if (reg.offsetWidth > largura) { reg.classList.add('empilha'); caber(reg, largura, 40, 16); }
     // o título encolhe até caber na largura e até a coluna toda caber na altura
     t.style.fontSize = f + 'px';
-    while (f > 56 && (t.offsetWidth > largura || alturaDe(t.parentNode) > 900)) {
+    while (f > 56 && (t.offsetWidth > largura || alturaDe(t.parentNode) > 930)) {
       f -= 4;
       t.style.fontSize = f + 'px';
     }

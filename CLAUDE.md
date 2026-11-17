@@ -332,15 +332,16 @@ Dois ajustes controlam a dificuldade, e o padrão é o mais difícil de cada um:
 - **Peças** — *uma por vez* (padrão): as cartas começam viradas, em ordem sorteada; a próxima só vira com a atual no
   corpo e, ao virar, a anterior trava. *Todas juntas*: tudo à mostra e dá para trocar de lugar até conferir.
 
-Regras da gravação: **tem que acertar todos** e o padrão é **2 minutos** (relógio na tela, avisado na abertura).
+Regras da gravação: **tem que acertar todos** e o padrão é **1 minuto** (relógio na tela, avisado na abertura).
 Quem erra passa a vez e a **próxima pessoa joga valendo mais**: o prêmio sobe de R$ 100 em R$ 100, de R$ 500 até
-R$ 1.000 (e fica no teto). Quem ganha zera a escada. A tela inicial mostra a escada, com os valores que já passaram
-riscados. O degrau atual fica no `sessionStorage` da aba (recarregar a página não perde o valor) e pode ser mudado à
-mão em Ajustes → Prêmio → "Agora".
+R$ 1.000 (e fica no teto). Quem ganha zera a escada. A tela inicial é enxuta de propósito (aparece pequena no
+vídeo): só o título com o valor da vez, os avisos "Só 1 minuto" e "Tem que acertar todos" e o botão. O degrau atual
+fica no `sessionStorage` da aba (recarregar a página não perde o valor) e pode ser mudado à mão em Ajustes → Prêmio →
+"Agora".
 
 Os ajustes (prêmio inicial, quanto sobe, teto, nível, dicas, peças, tempo, som) ficam no `localStorage` do aparelho
-(chave `jogo-orgaos-2`) e também valem pelo endereço:
-`/jogos/orgaos?premio=500&sobe=100&teto=1000&nivel=dificil&tempo=120&dicas=0&uma=1`. A página tem `noindex`.
+(chave `jogo-orgaos-3`; a `jogo-orgaos-2` antiga é aproveitada, menos o tempo) e também valem pelo endereço:
+`/jogos/orgaos?premio=500&sobe=100&teto=1000&nivel=dificil&tempo=60&dicas=0&uma=1`. A página tem `noindex`.
 
 ## Deploy
 
