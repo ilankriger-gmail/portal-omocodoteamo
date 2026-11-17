@@ -20,7 +20,13 @@ export const CLIENTE = String.raw`
   }
   function limita(v, a, b) { return v < a ? a : v > b ? b : v; }
   function espera(ms) { return new Promise(function (ok) { setTimeout(ok, ms); }); }
-  function reais(v) { return 'R$\u00a0' + String(v).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+  function milhar(v) { return String(v).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+  function reais(v) { return 'R$\u00a0' + milhar(v); }
+  // 120 -> "2 minutos", 90 -> "90 segundos"
+  function textoTempo(t) {
+    if (t % 60 === 0) { var m = t / 60; return m + (m === 1 ? ' minuto' : ' minutos'); }
+    return t + ' segundos';
+  }
   function vibra(v) { try { if (navigator.vibrate) navigator.vibrate(v); } catch (e) {} }
   // Diminui a letra até o texto (um <span> dentro de "el") caber na largura.
   function encaixar(el, largura, maior, menor) {
@@ -54,22 +60,54 @@ export const CLIENTE = String.raw`
   var IC_NO = '<svg class="ic ic-no" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 
   // ------------------------------------------------------------ ajustes salvos
-  var PREMIOS = [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 800, 1000, 1500, 2000, 3000, 5000, 10000];
+  var PREMIOS = [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 800, 900, 1000, 1200, 1500, 2000, 2500, 3000, 5000, 10000];
+  var SOBES = [0, 50, 100, 200, 500];
   var TEMPOS = [0, 30, 45, 60, 90, 120];
+  var GUARDA = 'jogo-orgaos-2';
+  // premio = quanto vale para a primeira pessoa; quem erra passa a vez e a próxima
+  //   pessoa joga valendo "sobe" a mais, até "teto" (500, 600, ... 1.000)
   // marcas = bolinhas "?" mostrando os lugares no corpo (deixa o jogo bem mais fácil)
   // uma = as peças saem uma por vez, em ordem sorteada, e a anterior trava (mais difícil)
-  var cfg = { premio: 500, nivel: 'medio', tempo: 0, som: true, marcas: false, uma: true };
+  var cfg = { premio: 500, sobe: 100, teto: 1000, nivel: 'medio', tempo: 120, som: true, marcas: false, uma: true };
+
+  // ------------------------------------------------------------ escada do prêmio
+  var MAX_DEGRAUS = 12;
+  function normalizarEscada() {
+    cfg.premio = limita(Math.round(cfg.premio) || 500, 1, 1000000);
+    cfg.sobe = limita(Math.round(cfg.sobe) || 0, 0, 1000000);
+    cfg.teto = limita(Math.round(cfg.teto) || cfg.premio, 1, 100000000);
+    if (cfg.sobe > 0) cfg.teto = Math.min(cfg.teto, cfg.premio + (MAX_DEGRAUS - 1) * cfg.sobe);
+  }
+  // Valores de cada pessoa: [500, 600, 700, 800, 900, 1000]
+  function escada() {
+    var v = [cfg.premio], x = cfg.premio;
+    while (cfg.sobe > 0 && x < cfg.teto && v.length < MAX_DEGRAUS) {
+      x = Math.min(x + cfg.sobe, cfg.teto);
+      v.push(x);
+    }
+    return v;
+  }
+  // Valores que o ajuste "Até" oferece para a escada atual.
+  function opcoesTeto() {
+    var lim = cfg.premio + (MAX_DEGRAUS - 1) * cfg.sobe;
+    return PREMIOS.filter(function (v) { return cfg.sobe > 0 && v > cfg.premio && v <= lim; });
+  }
 
   (function () {
     try {
-      var salvo = JSON.parse(localStorage.getItem('jogo-orgaos') || 'null');
+      var salvo = JSON.parse(localStorage.getItem(GUARDA) || 'null');
       if (salvo) for (var c in cfg) if (typeof salvo[c] === typeof cfg[c]) cfg[c] = salvo[c];
     } catch (e) {}
-    // Também dá para ajustar pelo endereço: ?premio=750&nivel=dificil&tempo=60&dicas=1&uma=0
+    // Também dá para ajustar pelo endereço:
+    // ?premio=500&sobe=100&teto=1000&nivel=dificil&tempo=120&dicas=1&uma=0
     try {
       var q = new URLSearchParams(location.search);
       var p = parseInt(q.get('premio'), 10);
       if (p > 0 && p <= 1000000) cfg.premio = p;
+      var sb = parseInt(q.get('sobe'), 10);
+      if (sb >= 0 && sb <= 1000000) cfg.sobe = sb;
+      var tt = parseInt(q.get('teto'), 10);
+      if (tt > 0 && tt <= 100000000) cfg.teto = tt;
       var t = parseInt(q.get('tempo'), 10);
       if (t >= 0 && t <= 600) cfg.tempo = t;
       if (q.get('nivel')) cfg.nivel = q.get('nivel');
@@ -77,11 +115,32 @@ export const CLIENTE = String.raw`
       if (q.get('uma') === '1' || q.get('uma') === '0') cfg.uma = q.get('uma') === '1';
     } catch (e) {}
     if (!J.niveis.some(function (n) { return n.id === cfg.nivel; })) cfg.nivel = 'medio';
-    cfg.premio = limita(Math.round(cfg.premio) || 500, 1, 1000000);
+    normalizarEscada();
     cfg.tempo = limita(Math.round(cfg.tempo) || 0, 0, 600);
   })();
 
-  function salvar() { try { localStorage.setItem('jogo-orgaos', JSON.stringify(cfg)); } catch (e) {} }
+  function salvar() { try { localStorage.setItem(GUARDA, JSON.stringify(cfg)); } catch (e) {} }
+
+  // Degrau = em que ponto da escada a rodada está (0 = primeira pessoa). Fica na
+  // sessão da aba: recarregar a página no meio da gravação não perde o valor.
+  var degrau = 0;
+  var valendo = cfg.premio;          // quanto vale a partida que está na tela
+  function assinatura() { return cfg.premio + '/' + cfg.sobe + '/' + cfg.teto; }
+  function salvarDegrau() {
+    try { sessionStorage.setItem('jogo-orgaos-escada', JSON.stringify({ s: assinatura(), d: degrau })); } catch (e) {}
+  }
+  (function () {
+    try {
+      var e = JSON.parse(sessionStorage.getItem('jogo-orgaos-escada') || 'null');
+      if (e && e.s === assinatura()) degrau = limita(e.d | 0, 0, escada().length - 1);
+    } catch (e) {}
+  })();
+  // Depois de mudar a escada, continua no mesmo valor (ou no maior abaixo dele).
+  function manterValor(valor) {
+    var e = escada(), d = 0;
+    for (var i = 0; i < e.length; i++) if (e[i] <= valor) d = i;
+    degrau = d;
+  }
   function nivelAtual() { return J.niveis.filter(function (n) { return n.id === cfg.nivel; })[0]; }
 
   // ------------------------------------------------------------ sons (sintetizados, sem arquivos)
@@ -717,16 +776,20 @@ export const CLIENTE = String.raw`
     $('menu-btn').disabled = false;
     dica('Arraste cada órgão<br>até o lugar certo');
 
-    var texto = reais(cfg.premio), n = texto.length;
+    var e = escada();
+    degrau = limita(degrau, 0, e.length - 1);
+    valendo = e[degrau];
+    var texto = reais(valendo), n = texto.length;
     var valor = $('premio').querySelector('b');
     valor.textContent = texto;
     valor.style.fontSize = (n <= 6 ? 46 : n === 7 ? 42 : n === 8 ? 38 : n === 9 ? 33 : 28) + 'px';
     $('ini-premio').textContent = texto;
+    pintarRegras();
 
     var t = cfg.tempo;
     $('resumo').firstChild.textContent = nivelAtual().nome + ' · ' + pecas.length + ' peças · ' +
       (cfg.marcas ? 'com bolinhas' : 'sem dicas') + ' · ' + (cfg.uma ? 'uma por vez' : 'todas juntas') + ' · ' +
-      (t ? (t >= 120 ? t / 60 + ' min' : t + ' segundos') : 'sem tempo');
+      (t ? textoTempo(t) : 'sem tempo');
 
     rel.resta = cfg.tempo;
     rel.seg = -1;
@@ -764,16 +827,49 @@ export const CLIENTE = String.raw`
     completo = tudo;
   }
 
+  // Tela inicial: "Só 2 minutos", "Tem que acertar todos" e a escada do prêmio.
+  function pintarRegras() {
+    var rt = $('regra-tempo');
+    rt.hidden = !cfg.tempo;
+    rt.lastChild.textContent = 'Só ' + textoTempo(cfg.tempo || 120);
+    var e = escada(), el = $('escada');
+    if (e.length < 2) { el.hidden = true; el.innerHTML = ''; return; }
+    var h = '<p class="esc-rot">Errou? A próxima pessoa joga valendo mais</p><ol class="degraus">';
+    e.forEach(function (v, i) {
+      h += '<li' + (i < degrau ? ' class="foi"' : i === degrau ? ' class="agora"' : '') + '>' +
+        (i === degrau ? reais(v) : milhar(v)) + '</li>';
+    });
+    el.innerHTML = h + '</ol>';
+    el.hidden = false;
+  }
+
+  // Diminui a letra do bloco até ele caber na largura.
+  function caber(el, largura, maior, menor) {
+    if (!el || el.hidden) return;
+    var f = maior;
+    el.style.fontSize = f + 'px';
+    while (f > menor && el.offsetWidth > largura) { f -= 1; el.style.fontSize = f + 'px'; }
+  }
+  function alturaDe(caixa) {
+    var a = caixa.firstElementChild, b = caixa.lastElementChild;
+    return b.offsetTop + b.offsetHeight - a.offsetTop;
+  }
+
   function ajustarTitulo() {
     var t = $('titulo');
     if (!t || !G.W) return;
-    var largura = G.W * 0.56 - 50, f = 132;
+    // a coluna de texto vai até pouco antes do desenho da direita (que tem ~620 de largura,
+    // contando os órgãos soltos); nas telas mais quadradas isso aperta o texto
+    var largura = Math.min(G.W * 0.56 - 50, G.W * 0.78 - 76 - 620 / 2 - 40), f = 132;
+    caber($('regras'), largura, 26, 13);
+    caber($('escada'), largura, 26, 12);
+    encaixar($('resumo'), largura, 24, 13);
+    // o título encolhe até caber na largura e até a coluna toda caber na altura
     t.style.fontSize = f + 'px';
-    while (f > 56 && (t.offsetWidth > largura || t.offsetHeight > 640)) {
+    while (f > 56 && (t.offsetWidth > largura || alturaDe(t.parentNode) > 900)) {
       f -= 4;
       t.style.fontSize = f + 'px';
     }
-    encaixar($('resumo'), largura, 24, 13);
   }
 
   // ------------------------------------------------------------ cronômetro
@@ -783,7 +879,7 @@ export const CLIENTE = String.raw`
     var el = $('relogio');
     if (estado === 'conferindo' || estado === 'fim') return;
     if (!cfg.tempo) { el.hidden = true; return; }
-    var s = Math.max(0, Math.ceil(rel.resta)), longo = s > 99;
+    var s = Math.max(0, Math.ceil(rel.resta)), longo = s >= 60;
     el.hidden = false;
     el.className = 'relogio' + (longo ? ' longo' : '') + (s <= 10 && estado === 'jogando' ? ' aperto' : '');
     el.querySelector('b').textContent = longo ? Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2) : s;
@@ -954,16 +1050,27 @@ export const CLIENTE = String.raw`
     if (p.certa) { som.certo(acertos); vibra(15); } else { som.errado(); vibra([40, 40, 80]); }
   }
 
+  // Errou e a escada ainda tem degraus: a próxima pessoa joga valendo mais.
+  function passaAVez() { return !ganhou && escada().length > 1; }
+
   function veredito(acertos, n) {
     estado = 'fim';
     ganhou = acertos === n;
+    // Tem que acertar todos. Quem ganha zera a escada; quem erra passa a vez
+    // e a próxima pessoa joga valendo o degrau de cima (parado no teto).
+    var e = escada();
+    degrau = ganhou ? 0 : Math.min(degrau + 1, e.length - 1);
+    salvarDegrau();
     $('menu-btn').disabled = false;
     var cartao = $('resultado').firstChild, titulo = $('res-titulo');
     cartao.className = 'cartao res ' + (ganhou ? 'ganhou' : 'perdeu');
     $('res-acima').textContent = ganhou ? 'Acertou tudo!' : 'Não foi dessa vez!';
-    titulo.innerHTML = ganhou ? 'Ganhou <span class="tag">' + reais(cfg.premio) + '</span>' : acertos + ' de ' + n;
+    titulo.innerHTML = ganhou ? 'Ganhou <span class="tag">' + reais(valendo) + '</span>' : acertos + ' de ' + n;
     $('res-abaixo').textContent = ganhou ? n + ' de ' + n + ' no lugar certo' : (acertos === 1 ? 'peça no lugar certo' : 'peças no lugar certo');
+    $('res-prox').hidden = !passaAVez();
+    $('res-prox').lastChild.textContent = reais(e[degrau]);
     $('ver').textContent = ganhou ? 'Ver o corpo' : 'Ver resposta';
+    $('denovo').textContent = passaAVez() ? 'Próxima pessoa' : 'Jogar de novo';
     $('resultado').hidden = false;
     // prêmio com muitos dígitos: encolhe o título até caber
     var f = ganhou ? 112 : 92;
@@ -990,9 +1097,10 @@ export const CLIENTE = String.raw`
     bt.hidden = false;
     bt.disabled = false;
     bt.className = 'bt bt-tinta';
-    rotulo('Jogar de novo');
+    rotulo(passaAVez() ? 'Próxima pessoa' : 'Jogar de novo');
     var n = pecas.length, acertos = pecas.filter(function (p) { return p.certa; }).length;
-    dica(ganhou ? 'Corpo montado!<br>Ganhou ' + reais(cfg.premio)
+    dica(ganhou ? 'Corpo montado!<br>Ganhou ' + reais(valendo)
+      : passaAVez() ? 'Esta é a resposta.<br>Próxima pessoa: ' + reais(escada()[degrau])
       : 'Esta é a resposta.<br>Acertou ' + acertos + ' de ' + n);
     if (!ganhou && !respostaMostrada) mostrarResposta();
   }
@@ -1115,6 +1223,16 @@ export const CLIENTE = String.raw`
 
   function pintarAjustes() {
     $('pr-valor').textContent = reais(cfg.premio);
+    var e = escada();
+    $('teto-valor').textContent = cfg.sobe > 0 ? reais(cfg.teto) : '—';
+    if (cfg.sobe > 0) $('teto-passo').classList.remove('off'); else $('teto-passo').classList.add('off');
+    $('sobe-obs').textContent = e.length > 1
+      ? 'Quem erra passa a vez: a próxima pessoa joga valendo ' + reais(cfg.sobe) + ' a mais, até ' + reais(e[e.length - 1]) + '.'
+      : 'O prêmio fica igual para todo mundo.';
+    $('agoras').innerHTML = e.map(function (v, i) {
+      return '<button type="button" class="chip" data-degrau="' + i + '">' + milhar(v) + '</button>';
+    }).join('');
+    $('agora-obs').textContent = 'Valendo agora: ' + reais(e[degrau]) + (e.length > 1 ? '. Toque em outro valor para mudar.' : '.');
     var chips = $('ajustes').querySelectorAll('.chip');
     for (var i = 0; i < chips.length; i++) {
       var c = chips[i], on = false;
@@ -1123,6 +1241,8 @@ export const CLIENTE = String.raw`
       else if (c.hasAttribute('data-som')) on = (c.getAttribute('data-som') === '1') === cfg.som;
       else if (c.hasAttribute('data-marcas')) on = (c.getAttribute('data-marcas') === '1') === cfg.marcas;
       else if (c.hasAttribute('data-uma')) on = (c.getAttribute('data-uma') === '1') === cfg.uma;
+      else if (c.hasAttribute('data-sobe')) on = +c.getAttribute('data-sobe') === cfg.sobe;
+      else if (c.hasAttribute('data-degrau')) on = +c.getAttribute('data-degrau') === degrau;
       if (on) c.classList.add('on'); else c.classList.remove('on');
     }
     $('nivel-obs').textContent = descreverNivel(nivelAtual());
@@ -1144,23 +1264,57 @@ export const CLIENTE = String.raw`
   $('sons').innerHTML = '<button type="button" class="chip" data-som="1">Ligado</button><button type="button" class="chip" data-som="0">Desligado</button>';
   $('dicas').innerHTML = '<button type="button" class="chip" data-marcas="0">Sem dicas</button><button type="button" class="chip" data-marcas="1">Com bolinhas</button>';
   $('umas').innerHTML = '<button type="button" class="chip" data-uma="1">Uma por vez</button><button type="button" class="chip" data-uma="0">Todas juntas</button>';
+  $('sobes').innerHTML = SOBES.map(function (v) {
+    return '<button type="button" class="chip" data-sobe="' + v + '">' + (v ? '+' + milhar(v) : 'Não sobe') + '</button>';
+  }).join('');
+
+  function trocarAba(nome) {
+    var abas = $('ajustes').querySelectorAll('.aba');
+    for (var i = 0; i < abas.length; i++) {
+      if (abas[i].getAttribute('data-aba') === nome) abas[i].classList.add('on'); else abas[i].classList.remove('on');
+    }
+    if (nome === 'premio') { $('painel-jogo').classList.add('fora'); $('painel-premio').classList.remove('fora'); }
+    else { $('painel-premio').classList.add('fora'); $('painel-jogo').classList.remove('fora'); }
+  }
 
   $('ajustes').addEventListener('click', function (e) {
     var c = e.target.closest ? e.target.closest('button') : null;
     if (!c) return;
-    var antes = cfg.nivel, marcasAntes = cfg.marcas, umaAntes = cfg.uma, i;
+    var antes = cfg.nivel, marcasAntes = cfg.marcas, umaAntes = cfg.uma, i, op;
+    // escada: 'zera' volta para a primeira pessoa; 'mantem' fica no mesmo valor
+    var valorAntes = escada()[degrau], mexeu = '';
+    if (c.hasAttribute('data-aba')) { trocarAba(c.getAttribute('data-aba')); return; }
     if (c.id === 'pr-mais') {
       for (i = 0; i < PREMIOS.length - 1 && PREMIOS[i] <= cfg.premio; i++);
       cfg.premio = PREMIOS[i];
+      mexeu = 'zera';
     } else if (c.id === 'pr-menos') {
       for (i = PREMIOS.length - 1; i > 0 && PREMIOS[i] >= cfg.premio; i--);
       cfg.premio = PREMIOS[i];
-    } else if (c.hasAttribute('data-nivel')) cfg.nivel = c.getAttribute('data-nivel');
+      mexeu = 'zera';
+    } else if (c.id === 'teto-mais') {
+      op = opcoesTeto();
+      for (i = 0; i < op.length && op[i] <= cfg.teto; i++);
+      if (i < op.length) cfg.teto = op[i];
+      mexeu = 'mantem';
+    } else if (c.id === 'teto-menos') {
+      op = opcoesTeto();
+      for (i = op.length - 1; i >= 0 && op[i] >= cfg.teto; i--);
+      if (i >= 0) cfg.teto = op[i];
+      mexeu = 'mantem';
+    } else if (c.hasAttribute('data-sobe')) { cfg.sobe = +c.getAttribute('data-sobe'); mexeu = 'mantem'; }
+    else if (c.hasAttribute('data-degrau')) { degrau = +c.getAttribute('data-degrau'); mexeu = 'degrau'; }
+    else if (c.hasAttribute('data-nivel')) cfg.nivel = c.getAttribute('data-nivel');
     else if (c.hasAttribute('data-tempo')) cfg.tempo = +c.getAttribute('data-tempo');
     else if (c.hasAttribute('data-som')) { cfg.som = c.getAttribute('data-som') === '1'; if (cfg.som) som.pronto(); }
     else if (c.hasAttribute('data-marcas')) cfg.marcas = c.getAttribute('data-marcas') === '1';
     else if (c.hasAttribute('data-uma')) cfg.uma = c.getAttribute('data-uma') === '1';
     else if (c.id === 'fechar-ajustes') { $('ajustes').hidden = true; return; }
+    if (mexeu) {
+      normalizarEscada();
+      if (mexeu === 'zera') degrau = 0; else if (mexeu === 'mantem') manterValor(valorAntes);
+      salvarDegrau();
+    }
     salvar();
     if (cfg.nivel !== antes || cfg.marcas !== marcasAntes || cfg.uma !== umaAntes) montar(); else prepararPlacar();
     pintarAjustes();
@@ -1205,7 +1359,7 @@ export const CLIENTE = String.raw`
 
   // ------------------------------------------------------------ botões
   $('comecar').addEventListener('click', comecar);
-  $('abrir-ajustes').addEventListener('click', function () { pintarAjustes(); $('ajustes').hidden = false; });
+  $('abrir-ajustes').addEventListener('click', function () { trocarAba('jogo'); pintarAjustes(); $('ajustes').hidden = false; });
   $('cheia-ini').addEventListener('click', telaCheia);
   $('cheia-btn').addEventListener('click', telaCheia);
   $('conferir').addEventListener('click', function () { if (estado === 'fim') novoJogo(); else conferir(false); });

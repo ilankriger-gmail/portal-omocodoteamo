@@ -114,15 +114,15 @@ transform:translate(var(--x),var(--y));cursor:grab;transition:background-color .
 box-shadow:0 7px 0 var(--tinta);padding:13px 6px 15px;text-align:center;transform:rotate(-6deg)}
 .premio span{display:block;font-size:20px;letter-spacing:.1em}
 .premio b{display:block;margin-top:7px;font-size:46px;white-space:nowrap}
-.relogio{position:absolute;left:50%;top:50px;width:160px;height:160px;margin-left:128px;z-index:3;background:var(--papel);border:5px solid var(--tinta);border-radius:50%;
+.relogio{position:absolute;left:50%;top:44px;width:184px;height:184px;margin-left:116px;z-index:3;background:var(--papel);border:5px solid var(--tinta);border-radius:50%;
 box-shadow:0 7px 0 var(--tinta);display:grid;place-content:center;text-align:center;transform:rotate(5deg)}
-.relogio b{display:block;font-size:72px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-.relogio.longo b{font-size:50px}
-.relogio span{display:block;margin-top:4px;font-size:17px;letter-spacing:.12em}
+.relogio b{display:block;font-size:84px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.relogio.longo b{font-size:64px}
+.relogio span{display:block;margin-top:4px;font-size:19px;letter-spacing:.12em}
 .relogio.aperto{background:var(--vermelho);color:var(--papel);animation:aperto 1s ease-in-out infinite}
 .relogio.placar{background:var(--tinta);color:var(--ouro)}
-.relogio.placar b{font-size:54px}
-.relogio.placar.longo b{font-size:44px}
+.relogio.placar b{font-size:60px}
+.relogio.placar.longo b{font-size:50px}
 @keyframes aperto{0%,100%{transform:rotate(5deg) scale(1)}50%{transform:rotate(5deg) scale(1.1)}}
 
 .rd{width:64px;height:64px;border-radius:50%;background:var(--papel);border:4px solid var(--tinta);box-shadow:0 5px 0 var(--tinta);display:grid;place-items:center;
@@ -162,9 +162,22 @@ box-shadow:0 8px 0 var(--tinta);display:grid;grid-auto-flow:column;place-content
 margin:0 0 .1em .12em;transform:rotate(-3deg)}
 #titulo .faixa{display:inline-block;line-height:1;background:var(--papel);border:.05em solid var(--tinta);border-radius:.2em;box-shadow:0 .075em 0 var(--tinta);padding:.07em .2em .11em;
 margin-top:.1em;transform:rotate(-1.5deg)}
-.bt-g{height:124px;margin-top:54px;padding:0 60px;font-size:60px;border-width:5px;border-radius:30px;box-shadow:0 10px 0 var(--tinta)}
+.bt-g{height:124px;margin-top:42px;padding:0 60px;font-size:60px;border-width:5px;border-radius:30px;box-shadow:0 10px 0 var(--tinta)}
 .bt-g:active{transform:translateY(8px);box-shadow:0 2px 0 var(--tinta)}
-.resumo{margin-top:30px;font-size:24px;letter-spacing:.06em;opacity:.8;white-space:nowrap}
+.resumo{margin-top:26px;font-size:24px;letter-spacing:.06em;opacity:.8;white-space:nowrap}
+/* regras e escada do prêmio: medidas em em, o script ajusta a letra para caber */
+.regras{display:flex;gap:.6em;margin-top:38px;font-size:26px}
+.regra{display:inline-flex;align-items:center;gap:.4em;height:2.3em;padding:0 .9em 0 .65em;border:.15em solid var(--tinta);border-radius:1.15em;background:var(--papel);
+box-shadow:0 .2em 0 var(--tinta);letter-spacing:.05em;white-space:nowrap}
+.regra svg{width:1.3em;height:1.3em;flex:none;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.regra.tempo{background:var(--vermelho);color:var(--papel)}
+.escada{margin-top:30px;font-size:26px}
+.esc-rot{margin:0 0 .55em;font-size:.8em;letter-spacing:.08em;opacity:.85;white-space:nowrap}
+.degraus{position:relative;isolation:isolate;display:flex;align-items:center;gap:.5em;list-style:none;margin:0;padding:0}
+.degraus::before{content:"";position:absolute;left:.6em;right:.6em;top:50%;height:.16em;margin-top:-.08em;border-radius:.08em;background:var(--tinta);z-index:-1}
+.degraus li{height:2.1em;padding:0 .55em;display:grid;place-items:center;border:.14em solid var(--tinta);border-radius:.55em;background:var(--papel);white-space:nowrap;font-variant-numeric:tabular-nums}
+.degraus li.foi{background:var(--erro);color:rgba(27,29,77,.5);text-decoration:line-through;text-decoration-color:var(--vermelho);text-decoration-thickness:.16em}
+.degraus li.agora{font-size:1.3em;height:2em;padding:0 .5em;background:var(--verde);color:var(--papel);box-shadow:0 .15em 0 var(--tinta);transform:rotate(-3deg)}
 .ini-topo{position:absolute;right:28px;top:28px;z-index:5;display:grid;grid-auto-flow:column;grid-gap:14px;align-items:center}
 .mini{height:64px;padding:0 26px;border-radius:32px;background:var(--papel);border:4px solid var(--tinta);box-shadow:0 5px 0 var(--tinta);font-size:23px;letter-spacing:.06em;
 transition:transform .08s,box-shadow .08s}
@@ -192,7 +205,14 @@ animation:entra .32s cubic-bezier(.2,1.3,.4,1)}
 .par{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;grid-gap:22px;margin-top:34px}
 
 .aj{width:1120px;text-align:left;padding-top:34px;padding-bottom:40px}
-.aj h2{text-align:center;margin-bottom:16px}
+.aj-topo{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.abas{display:flex;gap:6px;padding:6px;border-radius:22px;background:var(--linha)}
+.aba{height:60px;padding:0 30px;border-radius:16px;font-size:26px;letter-spacing:.06em}
+.aba.on{background:var(--tinta);color:var(--ouro)}
+.paineis{display:grid}
+.painel{grid-area:1/1}
+.painel.fora{visibility:hidden}
+.passo.off{opacity:.35;pointer-events:none}
 .lin{display:grid;grid-template-columns:170px 1fr;align-items:center;min-height:84px;border-top:4px solid var(--linha)}
 .lin .rot{font-size:28px;letter-spacing:.06em}
 .chips{display:flex;flex-wrap:wrap;margin:-6px}
@@ -218,6 +238,9 @@ display:inline-grid;place-items:center;transition:transform .08s}
 .res .abaixo{font-size:34px;margin-top:30px;letter-spacing:.03em}
 .res.perdeu h2{font-size:92px}
 .res .par{margin-top:44px}
+.res .prox{margin-top:34px;padding-top:30px;border-top:4px dashed var(--linha);font-size:36px;letter-spacing:.02em;white-space:nowrap}
+.res .prox .tag{display:inline-block;margin-left:.45em;padding:.06em .45em .16em;font-size:1.35em;background:var(--verde);color:var(--papel);
+border:5px solid var(--tinta);border-radius:20px;box-shadow:0 7px 0 var(--tinta);transform:rotate(-2deg)}
 
 @media (prefers-reduced-motion:reduce){
 .lg i,.solto,#conferir.chama,.relogio.aperto,.cel.pronta{animation:none}
