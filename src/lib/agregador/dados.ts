@@ -2,6 +2,7 @@ import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { isPlataforma, type Plataforma } from "./icons";
 import { garantirTabelas, sugestaoInicial } from "./inicial";
+import { aplicarAjustes, AJUSTES_VERSAO } from "./ajustes";
 
 export const AGREGADOR_TAG = "agregador";
 
@@ -30,6 +31,7 @@ const RESERVA: AgregadorDados = {
 
 async function buscarNoBanco(): Promise<AgregadorDados> {
   await garantirTabelas();
+  await aplicarAjustes();
   const [perfil, links, redes, config] = await Promise.all([
     prisma.agregadorPerfil.findFirst(),
     prisma.agregadorLink.findMany({
@@ -68,7 +70,7 @@ async function buscarNoBanco(): Promise<AgregadorDados> {
 
 // Cache de dados do Next: o banco é consultado no máximo 1x a cada 5 min
 // (ou imediatamente após uma edição no admin, via revalidateTag).
-const buscarComCache = unstable_cache(buscarNoBanco, ["agregador-dados-v1"], {
+const buscarComCache = unstable_cache(buscarNoBanco, ["agregador-dados-v2", AJUSTES_VERSAO], {
   tags: [AGREGADOR_TAG],
   revalidate: 300,
 });
